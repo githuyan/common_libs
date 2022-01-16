@@ -1,0 +1,256 @@
+# python 列表
+
+> List 是python四种数据类型之一，是一个有序且可更改的集合，可用于存储不同的数据类型
+
+## 增删改查
+
+| 方法              | 效果         | 备注                                             | 性能     |
+| ----------------- | ------------ | ------------------------------------------------ | -------- |
+| `append(element)` | 尾加         | 列表拼接最慢，列表生成式最快                     | O(1)     |
+| `clear()`         | 清除         |                                                  |          |
+| `copy()`          | 第一层深复制 |                                                  |          |
+| `extend(list)`    | 尾部追加列表 |                                                  |          |
+| `index(element)`  | 查询索引     | index可以指定查询的开头结尾，使用位置参数        | O(1)     |
+| `inert(index)`    | 插入         |                                                  |          |
+| `pop()`           | 尾删除       | 可以指定索引删除但性能为O(n)                     | O(1)     |
+| `remove(element)` | 元素删除     |                                                  | O(n)     |
+| `reverse()`       | 逆序         | 这个和 sort() 一样，再原数组修改，是没有返回值的 | O(n)     |
+| `sort()`          | 正序         |                                                  | O(nlogn) |
+
+
+
+## 技巧
+
+1. **range**
+
+   > 范围的用法
+
+   ```python
+   a = [200,300]
+   
+   return 204 in range(*a)  # True
+   ```
+
+
+
+## 内置函数
+
+### 关于 list.copy() [详细链接](https://blog.csdn.net/qq_24502469/article/details/104185122)
+
+> 对于 **不可变数据类型而言，赋值、浅拷贝和深拷贝无意义**，因为其永远指向同一个内存地址。
+
+list.copy() 是一个深拷贝，但是列表中存的其实是元素的地址，当其中嵌套了一个列表时，这个列表就是一个浅拷贝，列表生成式，for循环遍历，切片拷贝这些的第一层都是深拷贝，直接赋值时浅拷贝。
+
+```python
+a = [1,2,3, [3,4,5]]
+b = a[:]
+print(b)
+# [1, 2, 3, [3, 4, 5]]
+a[3].append(6)
+print(a)
+# [1, 2, 3, [3, 4, 5, 6]]
+print(b)
+# [1, 2, 3, [3, 4, 5, 6]]
+# 可以看到在第一层是深拷贝，第二层是浅拷贝
+```
+
+深浅拷贝说的是**可变对象，**浅拷贝情况下，两个可变对象拥有相同的内存地址，对其中任一个的更改都将作用到另一个身上，而深拷贝，相当于是一个副本，已经断开了与原对象的关系，所有的操作都是独立的。
+
+```python
+import copy
+new = copy.deepcopy(old) #这样所有的元素都是深拷贝
+```
+
+### 关于 list.sort() 和sorted( list )
+
+- list.sort() 这个方法会原地排序，返回None，可以传入 `reverse=True`逆序排列
+
+- `sorted(iterable,reverse=Fase,key=func)` 这是一个内置方法,他会创建一个新的列表作为返回值，而原列表并没有改变。
+
+  `iterable`	任意一个可迭代对象[^内部实现了`__iter__`方法的对象]，可以是字符串，列表(必须是同一类型)，字典，元组，
+
+  `reverse=True`	逆序排列
+  
+  `key=func`	接受一个只有一个参数的函数，对列表中的每一个元素应用这个函数，并**按照返回的结果**排序，key的使用让`sorted()`的用法很灵活，比如搭配上`from functools import partial`，
+  
+  ```python
+  result = sorted(iterable,key=lambda param:param+1)
+  ```
+  
+  key 甚至可以是一个类，[参考]([python sort、sorted高级排序技巧(key的使用)_寸草心的博客-CSDN博客](https://blog.csdn.net/qq_35531549/article/details/88405224))
+  
+  
+  
+  去重并保持相对顺序不变
+  
+  ```python
+  old = [3,2,1,2,4]
+  new = sorted(old,key=old.index)
+  ```
+  
+  
+
+## 关于列表相关的操作
+
+#### 转换
+
+列表-元组	`tuple = tuple(list)`
+
+元组-list表	`list = list(tuple)`
+
+#### 切片，解包
+
+```python
+list_0 = [1,3,4,5,6,('adf','sadf',23456)]
+list_1 = list_0[start:end:step]	
+_,*num,(*str,n) = list	# * 代表多个值
+```
+
+#### 列表推导式
+
+> <u>**注意：** 列表推导式后面只能跟一个值</u>
+>
+> ```python
+> a,b = 1,2 if True else (1,2) # 后面一定要只有一个主体
+> 
+> # 前面全部是一个主体，而后面是一个值
+> nums1 = [1,2,3,0,0]
+> a = [i or -1 for i in nums1]
+> # [1, 2, 3, -1, -1]
+> ```
+
+1. 只有for	使用列表推导式生成列表的速度最快
+
+   ```python
+   list = [item for item in range(10)]
+   ```
+
+2. for 和 if 同时存在
+
+   ```python
+   list = [item for item in range(10) if item>5 ]
+   #if 放后面
+   ```
+
+3. for 和 if ..else...同时存在
+
+   ```python 
+   
+   list = [item if item>2 else 0 for item in range(10)]
+   #if...else...放在前面
+   ```
+
+4. 其他形式
+
+   ```python
+   gen = (item for item in range(10))
+   # 使用圆括号时就是一个生成器
+   dic = {index:value for index,value in enumerate(['one','two','three'])}
+   # 同样可以是一个字典推导式
+   # 对一个字典按照键进行排序
+   dic = {item[0]:item[1] for item in sorted(dic.items())}
+   ```
+
+#### 一些方法
+
+- `min(iterable,key=None)` 获取可迭代对象的最小值
+
+  `max(iterable,key=None)` 获取最大值
+
+  key 可以接受一个函数，直接让着个小工具升华
+
+  ```python
+  min(list,key=lambda param:param+1)
+  ```
+
+- `len(iterable)` 获取可迭代对象的长度，当时字符串时就是有多少个字符
+
+  ```python
+  # 这个方法就是实现了 __len__
+  class Demo():
+      def __init__(self,value):
+          self._value = value
+      def __len__(self,value):
+          return len(self._value)+100
+  demo = Demo('hello')
+  print( len(demo) )
+  # 105
+  ```
+  
+- `any(iterable)` 判断可迭代对象是否有不为假的
+
+  ```python
+  a = [2,0]
+  print(any(a)) 	# True
+  b = [0,0]
+  print(any(b 	# False
+  ```
+  
+- `all(iterable)`判断可迭代对象是否全为真
+
+## 一些有趣的地方
+
+- 列表是可以比较大小的
+
+  ```python
+  lis1 = [1,'a',3]
+  lis2 = [1,'a',4] # 注意比较的双方要是同一类型,不然会报错
+  print( lis1>lis2)
+  # False
+  # 会逐个元素的比较，先比较lis1[0] 和 lis[1]，以此类推，直到确定大小
+  ```
+
+  元组也可比较大小，
+
+  可以依据这个性质，使用列表实现优先级队列（==此处标记，日后整理到这一部分时补充==)
+  
+- 在遍历数组的同时操作数组
+
+  ```python
+  # 在遍历数组的同时操作数组
+  items = [1,2,3,4]
+  for item in items:
+      print(items,'aa',item)
+      if 1 in items:
+          items.remove(1)
+      print(items,'bb','\n')
+  #结果
+  '''
+  [1, 2, 3, 4] aa 1
+  [2, 3, 4] bb 
+  
+  [2, 3, 4] aa 3
+  [2, 3, 4] bb 
+  
+  [2, 3, 4] aa 4
+  [2, 3, 4] bb 
+  '''
+  
+  '''现象
+  	可以看到，数组在第一次遍历的时候，经过一个if判断，将列表中第一个元素 1 删除，然后下一次遍历是从 3 开始，而不是 2 。这样的遍历就漏了一个元素
+  	''' 
+  ```
+
+- func 和 func()
+
+  ```python 
+  def func():
+      pass
+  a = func() # 返回的是函数的运行结果
+  b = func # 返回的是这个函数自身，一个句柄
+  ```
+
+# 元组
+
+构造元组
+
+```python
+1. t = tuple()
+2. t = (1,2)
+3. t = Object, # 在后面加一个 ， 就会转换类型为元组
+注意：
+列表转元组，当只有一个元素的时候，会 [1] => (1,)
+```
+
+
+
