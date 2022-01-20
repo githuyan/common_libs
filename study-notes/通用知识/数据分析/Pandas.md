@@ -72,9 +72,30 @@ Out[41]:
  Index(['one', 'two'], dtype='object')]
 ```
 
-**dtypes**
+**类型**
 
-> 返回每一列的数据类型
+> **总结一下astype()函数有效的情形：**
+>
+> - **数据列中的每一个单位都能简单的解释为数字(2, 2.12等）**
+> - **数据列中的每一个单位都是数值类型且向字符串object类型转换**
+>
+> **如果数据中含有缺失值、特殊字符astype()函数可能失效。**
+
+```python
+dtypes # 返回每一列的数据类型
+df['a'].dtype # 获取某一列的类型
+df['num'].astype('int64') # 强制类型转换
+
+# 强制类型转换的替代方法：
+1. 使用pandas中的辅助函数， 
+pd.to_numeric(df['num'], error='coerce').fillna(0)
+
+2. 自定义转换函数
+def convert_str(): pass
+df['num'].apply(convert_str) # 自由度更高
+```
+
+
 
 **empty**
 

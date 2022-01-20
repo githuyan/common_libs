@@ -349,6 +349,14 @@ alter table users engine=innoDB
 
 ## 语法
 
+### 子查询临时表
+
+```sql
+with temp1 as (select * from users), temp2 as (select * from roles)
+```
+
+
+
 ### 模糊匹配
 
 1. 下划线可以匹配单个字符，而%是匹配多个字符
@@ -659,9 +667,6 @@ create temporary table temp(id int primary key not null,name char(20))
   # date_add(date,interval expr type)
   date_add(date,interval 1 day)
   ```
-
-  
-
 
 
 - ##### [日期函数](https://blog.csdn.net/lilongsy/article/details/79061639)
@@ -1742,7 +1747,7 @@ redo log 是循环写的，不持久保存，
 
 **两阶段锁协议**
 
-> 在 InnoDB 事务中，行锁是在需要的时候才加上的，但并不是不需要了就立刻释放，而是等到事务结束时，才释放
+> 在 InnoDB 事务中，行锁是在需要的时候才加上的（而不是在事务开始的时候），但并不是不需要了就立刻释放，而是等到事务结束时，才释放
 >
 > （同一事物内所有操作都是串行的，所以不会跟自己死锁）
 >
@@ -1803,7 +1808,7 @@ redo log 是循环写的，不持久保存，
 
 > 一行数据被加了 S 锁，则任何事务都只能读，不能改
 >
-> 若事务T对数据对象A加上S锁，则事务T可以读A但不能修改A，**其他事务只能再对A加S锁，而不能加X锁**，直到T释放A上的S 锁。这保证了其他事务可以读A，但在T释放A上的S锁之前不能对A做任何修改。
+> 若事务T对数据对象A加上S锁，则其他事务可以读A但不能修改A，**其他事务只能再对A加S锁，而不能加X锁**，直到T释放A上的S 锁。这保证了其他事务可以读A，但在T释放A上的S锁之前不能对A做任何修改。
 
 ```sql
 select * from users where id=1 lock in share mode; # 注意，事务中的每一个 锁都要加 ";"
