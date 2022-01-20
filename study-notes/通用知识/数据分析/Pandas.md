@@ -1,126 +1,12 @@
 # Pandas
 
-## 二维数组-DataFrame
-
-```python
-import pandas as pd
-
-# 结构
-# 创建空dataframe，包含三部分，数据，行，列
-
-1. 直接创建
-data = {
-    'name':['apple','egg','watermelon'], 
-    'color':['red','yellow','green'],
-    'num':[30,40,50]
-}
-df1 = pd.DataFrame(data)
->>> df1
-         name   color  num
-0       apple     red   30
-1         egg  yellow   40
-2  watermelon   green   50
-
-
-df = pd.DataFrame(data,index=None,columns=None)
->>> df = pd.DataFrame()
->>> df
-Empty DataFrame
-Columns: []
-Index: []
-    
-    
-# 二维切片
->>> df4
-         name  num   color price
-0       apple   30     red   NaN
-1         egg   40  yellow   NaN
-2  watermelon   50   green   NaN
->>> df4.loc[[0,1],['name','color']]
-    name   color
-0  apple     red
-1    egg  yellow
-```
-
-## 一些方法
-
-**.to_dict(origin=dict)**
-
-> to_dict 可以对DataFrame类型的数据进行转换
-
-```python
-都是转换为字典，但具体形式不同：
-orient='dict',默认,字典套字典：{column:{index:value}}
-orient ='list' ,字典里面为列表：{column：[values]}
-orient ='series',字典里为series形式：{column: Series(values)}
-orient ='split',字典里是数据对应列表：{'index':[index],'columns':[columns],'data': [values]}
-orient ='records',转化后是 list形式：[{column: value},...,{column:value}]
-orient ='index',字典里面同样有字典：{index:{column:value}}
-```
-
-**dp.astype("int64")**
-
-> 用来转换特定的数据类型，python中默认是 int32
-
-```python
-dp.astype("int64")
-```
-
-**pd.fillna(0)**
-
-> 填充空值
-
-```python
-dp.fillna(0)  # 用 0 来填充空值
-```
-
-**pd.replace(to_replace,value)**
-
-> 替换
-
-```python
-df.replace(to_replace, value)   #前面是需要替换的值，后面是替换后的值
-```
-
-**pd.round( int )** 
-
-> 圆整,取 Int 位小数
-
-```python
-dp.round(2)   #四舍五入的保留小数点后的几个数字。round()不添加任何参数的时候，等同round(0)就是取整
-```
-
-**eval**
-
-> 运算 ，pandas 中的一些计算语句，和在python中使用 eval  类似
->
-> [Pandas学习笔记十——高性能的eval和query方法_eval pandas](https://blog.csdn.net/jasonzhoujx/article/details/81709526)
-
-```python
-esult_df.eval(f'pay_rate = pay_cnt / {pay_rate_field} * 100', inplace=True)  # 做了一些计算，并重新赋值
-```
-
-
+## 基础知识
 
 **inf(-inf,inf):infinity,inf表示正无穷，-inf表示负无穷**
 
-> 什么时候回出现inf包括（-inf，+inf,比如一个数字除以0，（python中直接会报错，numpy中是一个inf或者-inf）
->
-> 使用 替换的方法将空值替换为特定值
+什么时候回出现inf包括（-inf，+inf,比如一个数字除以0，（python中直接会报错，numpy中是一个inf或者-inf）
 
-**np.ceil()** : 计算各元素的ceiling，对元素向上取整。
-
-> numpy 中的方法
-
-```python
->>> import numpy as np
->>>a=np.array([2.5,3.4,5.7,-1.2,-3.5,-3.8,6])
->>>a1 = np.ceil(a)
->>>a1
-array([ 3.,  4.,  6., -1., -3., -3.,  6.])
-```
-
-
+使用 替换的方法将空值替换为特定值
 
 ## DataFrame常用基础操作
 
@@ -159,6 +45,19 @@ df.drop(columns=['name'], axis=1)
 
 # 列操作
 df.drop(0) / df.drop('one') # 此处的 0 为索引，根据索引删除行，
+
+**drop**
+
+> 删除表中的某一行或者某一列更明智的方法是使用drop，它不改变原有的df中的数据，而是返回另一个dataframe来存放删除后的数据
+
+
+drop(labels=None, # 指定删除的（行列）名
+     axis=0,  # 指定删除行还是列 0：行（默认），1：列
+     index=None, # 指定删除行
+     columns=None, # 指定删除列
+     level=None, 
+     inplace=False, 
+     errors='raise')
 ```
 
 **axes** 
@@ -261,11 +160,43 @@ df.sort_index(axis=0) # 对行值排序
 df.sort_values(columns=['one','tow'], ascending=[True, False])
 ```
 
-**去重**
+**drop_duplicates**
+
+> 去重
 
 ```python
 df.drop_duplicates(subset=['one','two'], keep='last')
 ```
+
+**pd.round( int )** 
+
+> 圆整,取 Int 位小数
+
+```python
+dp.round(2)   #四舍五入的保留小数点后的几个数字。round()不添加任何参数的时候，等同round(0)就是取整
+
+np.ceil(): 计算各元素的ceiling，对元素向上取整。numpy 中的方法
+
+>>> import numpy as np
+>>>a=np.array([2.5,3.4,5.7,-1.2,-3.5,-3.8,6])
+>>>a1 = np.ceil(a)
+>>>a1
+array([ 3.,  4.,  6., -1., -3., -3.,  6.])
+```
+
+**eval**
+
+> 运算 ，pandas 中的一些计算语句，和在python中使用 eval  类似
+>
+> [Pandas学习笔记十——高性能的eval和query方法_eval pandas](https://blog.csdn.net/jasonzhoujx/article/details/81709526)
+
+```python
+esult_df.eval(f'pay_rate = pay_cnt / {pay_rate_field} * 100', inplace=True)  # 做了一些计算，并重新赋值
+```
+
+
+
+
 
 ### 缺失值处理
 
@@ -312,6 +243,51 @@ df.groupby('name').filter(lambda x: x>1) # 为 False 的会被过滤
 
 > 类似于 SQL 的表连接操作
 
+**merge**
+
+> 类似于MySQL的连表操作，默认使用内连接（取交集）
+
+**参考：**
+
+1. https://blog.csdn.net/Late_whale/article/details/103772861
+2. https://blog.csdn.net/Asher117/article/details/84725199
+
+```python
+merge(left, 
+      right, 
+      how=‘inner’, # 默认时内连接，'outer','left','right'
+      on=None, 
+      left_on=None, right_on=None,  # 手动指定左边的连接条件和右边的连接条件
+      left_index=False, right_index=False, # 是否使用索引为连接关键字
+      sort=False, 
+      suffixes=(’_x’, ‘_y’), # 重复列命名重整
+      copy=True, 
+      indicator=False, 
+      validate=None)
+```
+
+
+
+**注意:**
+
+合并后作为子的那一项为浮点数
+
+| 参数        | 作用                                                         |      |
+| ----------- | ------------------------------------------------------------ | ---- |
+| left        | 参与合并的左侧DataFrame                                      |      |
+| right       | 参与合并的右侧DataFrame                                      |      |
+| how         | 连接方式：‘inner’（默认）、‘outer’、‘left’、‘right’,分别对应内连接、外连接、左连接、右连接；外连接其实左连接和右连接的并集。左连接是左侧DataFrame取全部数据，右侧DataFrame匹配左侧DataFrame。（右连接right和左连接类似） |      |
+| on          | 用于连接的列名，必须同时存在于左右两个DataFrame对象中，如果未指定，则以left和right列名的交集作为连接键 |      |
+| left_on     | 左侧DataFarme中用作连接键的列                                |      |
+| right_on    | 右侧DataFarme中用作连接键的列                                |      |
+| left_index  | 将左侧的行索引用作其连接键                                   |      |
+| right_index | 将右侧的行索引用作其连接键                                   |      |
+| sort        | 根据连接键对合并后的数据进行排序，默认为True。有时在处理大数据集时，禁用该选项可获得更好的性能 |      |
+| suffixes    | 字符串值元组，用于追加到重叠列名的末尾，默认为（‘_x’,‘_y’）.例如，左右两个DataFrame对象都有‘data’，则结果中就会出现‘data_x’，‘data_y’ |      |
+| copy        | 设置为False，可以在某些特殊情况下避免将数据复制到结果数据结构中。默认总是赋值 |      |
+
+
+
 **多个键进行合并**
 
 ```python
@@ -351,10 +327,6 @@ Out[137]:
 pd.concat([df1,df2]，sort=False) # 默认为按照键拼接，不匹配的为空，为True时，严格按照位置拼接
 df1.append(df2) 
 ```
-
-
-
-
 
 
 
@@ -418,6 +390,40 @@ d  6.0  10.0
 ```python
 df.aggregate(np.sum)
 ```
+
+### 数据清洗转换
+
+**.to_dict(origin=dict)**
+
+> to_dict 可以对DataFrame类型的数据进行转换
+
+```python
+都是转换为字典，但具体形式不同：
+orient='dict',默认,字典套字典：{column:{index:value}}
+orient ='list' ,字典里面为列表：{column：[values]}
+orient ='series',字典里为series形式：{column: Series(values)}
+orient ='split',字典里是数据对应列表：{'index':[index],'columns':[columns],'data': [values]}
+orient ='records',转化后是 list形式：[{column: value},...,{column:value}]
+orient ='index',字典里面同样有字典：{index:{column:value}}
+```
+
+**dp.astype("int64")**
+
+> 用来转换特定的数据类型，python中默认是 int32
+
+```python
+dp.astype("int64")
+```
+
+**pd.fillna(0)**
+
+> 填充空值
+
+```python
+dp.fillna(0)  # 用 0 来填充空值
+```
+
+
 
 
 
