@@ -330,7 +330,7 @@ git restore --staged  <.*file>  # 将暂存区回退到上一次 commit 之前�
 ```shell
 git branch -vv # 展示本地分支关联远程仓库的情况
 
-git branch -d 'branchname' # shanchu bendi fenzhi 
+git branch -d 'branchname' # 删除本地分支
 
 git push origin --delete <remote-branchname> # 删除远程分支
 
