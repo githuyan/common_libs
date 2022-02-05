@@ -26,6 +26,9 @@ df.loc[:2]
 **增**
 
 ```python
+# 创建空二维数组
+df = pd.DataFrame(columns=['name','tom'], dtype=np.int)
+
 # 列操作
 df['new'] = [1,2,2,3]
 df.insert(1,columns='score', value=[1,2,3,4]) # 只能单列添加
@@ -248,6 +251,12 @@ df.dropna()
 1. 按照条件分组后，索引会转换为条件列，需要使用 reset_index() 重置索引
 2. 聚合条件为空值时，会舍弃空值这几行
 
+如果是根据多个键来进行聚合，默认情况下得到的结果是一个多层索引结构。有两种方式可以避免出现多层索引，第一种。对包含多层索引的对象调用 reset_index 方法。第二钟 df.goupby(['a','b'],reset_index=False) 
+
+![img](../../../resource/pandas分组)
+
+![img](../../../resource/pandas分组1)
+
 **对组应用聚合函数**
 
 ```python
@@ -349,16 +358,53 @@ pd.concat([df1,df2]，sort=False) # 默认为按照键拼接，不匹配的为�
 df1.append(df2) 
 ```
 
+### 合并重叠数据
+
+> 类似于合并，对应处若有空值则填充，否则 pass
+
+**技巧：**
+
+只能修补空值，可以先将混杂数据清洗为空值，再修补
+
+```python
+left=pd.DataFrame({'A':[np.nan,'A0','A1','A2'],'B':[np.nan,'B1',np.nan,'B3'],'key':['K0','K1','K2','K3']})
+right=pd.DataFrame({'A':['C0','C1','C2'],'B':['D0','D1','D2']},index=[1,0,2])
+
+left
+     A    B key
+0  NaN  NaN  K0
+1   A0   B1  K1
+2   A1  NaN  K2
+3   A2   B3  K3
+
+right
+    A   B
+1  C0  D
+0
+0  C1  D1
+2  C2  D2
+
+# 根据索引进行重叠合并
+left.combine_first(right)
+    A   B key
+0  C1  D1  K0
+1  A0  B1  K1
+2  A1  D2  K2
+3  A2  B3  K3
+```
+
+
+
 
 
 ## 技巧
 
-### 切片操作
+### loc
+
+#### df.loc 和 df.iloc() 切片 
 
 > 都可以对行或者列进行操作
-
-**df.loc() **
-
+>
 > 只能使用标签索引，不能使用整数索引
 >
 > 取值范围为，**前闭后闭**
@@ -376,6 +422,23 @@ df.loc['a':'b','one':'two'] # 同时对行和列进行切片
 > 只能使用整数索引，不能使用标签索引
 >
 > 取值范围：**前闭后开**
+
+#### 取值
+
+```python
+left=pd.DataFrame({'A':[np.nan,'A0','A1','A2'],'B':[np.nan,'B1',np.nan,'B3'],'key':['K0','K1','K2','K3']})
+
+left.loc[2, 'key'] # 根据标签取值
+```
+
+#### **获取某一列，某几列**
+
+```python
+# 根据第几列进行排序
+
+columns_name = df.iloc[:,[1,2,3]]
+df.sort_values(columns_name.columns.to_list())
+```
 
 ### 窗口函数
 
@@ -410,6 +473,17 @@ d  6.0  10.0
 
 ```python
 df.aggregate(np.sum)
+
+df = pd.DataFrame({'a':[1,2,3,3],'b':[2,2,3,4],'c':[3,3,4,4]})
+
+# .agg({columns: func})
+a.groupby('a').agg({'b':list})
+a.groupby('a').agg(len)
+        b
+a        
+1     [2]
+2     [2]
+3  [3, 4]
 ```
 
 ### 数据清洗转换
@@ -444,31 +518,60 @@ dp.astype("int64")
 dp.fillna(0)  # 用 0 来填充空值
 ```
 
+### 字符串处理
 
+字符串分割转**Dataframe**
 
+```python
+aaa = "aaa||bbb|ccc,aa||bb||cc,a||b||c"
+df = pd.DataFrame(aaa.split(','))
+df[0].str.split('\|\|', expand=True)
+     0        1     2
+0  aaa  bbb|ccc  None
+1   aa       bb    cc
+2    a        b     c
+```
 
+### 输出转换
 
+.to_dict()
 
+**注意：**
 
+1. 老版本的pandas 会在 .to_dict('record') 时自动类型转换为 float64
 
+### 创建DataFrame
 
+> 制定的列不够时会自动截断，只保留指定的列
+>
+> 字典的列表也可以直接转换DataFrame结构
 
+```python
+df = pd.DataFrame({'a':1,'b':2,'c':3})
+```
 
+### stack 和 unstack
 
+> 树结构和表结构的转换，一维与二维之间的转化
+>
+> stack的意思是堆叠，堆积，unstack即“不要堆叠”
+>
+> 执行stack是一个层次化的过程，即由原来表格数据结构转化为树形结构。
+>
+> Unstck反之
 
+**参考：**
 
+- https://blog.csdn.net/qq_42006613/article/details/109387817?spm=1001.2101.3001.6661.1&utm_medium=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7EOPENSEARCH%7ERate-1.pc_relevant_default&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7EOPENSEARCH%7ERate-1.pc_relevant_default&utm_relevant_index=1
 
+- [博客园 - 树与表之间的关系- 形象](https://www.cnblogs.com/bambipai/p/7658311.html)
 
+**树形结构** - **表格结构**
 
+> 通过 stack 转为树形结构后，就类似与一维结构，只是拥有二级索引
 
+![tmp1348](../../../resource/树形结构和表格结构.png)
 
+## 优化
 
-
-
-
-
-
-
-
-
-
+1. pandas 多次合并的效率低于单次合并拼接再分割的效率
