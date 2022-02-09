@@ -237,6 +237,21 @@ from > join > on > where > group by > having > select > distinct‘ > order by >
 select * from information_schema.INNODB_BUFFER_PAGE 
 ```
 
+### 表信息查询
+
+> doris , mysql 的所有信息都在 information_schema 中
+
+```mysql
+# 获取记录的数据类型
+select data_type from information_schema.columns where table_name='dws_stat_ot_agg'
+```
+
+![数据库表数据类型查询](../../../resource/数据库表数据类型查询.png)
+
+
+
+
+
 ## **SQL慢查询优化**
 
 > 1. 查询执行计划
@@ -550,6 +565,25 @@ create temporary table temp(id int primary key not null,name char(20))
 
   ```mysql
   select name,count(age) from message group by name,age # 这个返回的事复合信息，所以不能用 select * 来获取，只能使用聚合函数来处理，如（sum...) 参考连接
+  ```
+
+- **分组拼接 group_concat(columns seperator sign) **
+
+  ```sql
+  # 语法
+  group_concat( [DISTINCT] 要连接的字段 [Order BY 排序字段 ASC/DESC] [Separator ‘分隔符’] )
+  
+  select id, group_concat(price) from goods group by id;  # 默认以 , 分割
+  ```
+
+- **concat 字符串拼接**
+
+  ```mysql
+  select concat(id,name,age) as info from users
+  
+  # concat_ws
+  # select concat(分隔符，columns) as info from users, 分隔符不可为空，否则结果为空
+  select concat_ws('--', id, name, age) as info from users 
   ```
 
 - ##### 具有 having 和 where类似，只是，where无法用于聚合函数

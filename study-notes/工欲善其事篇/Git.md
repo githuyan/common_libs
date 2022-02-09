@@ -330,7 +330,7 @@ git restore --staged  <.*file>  # 将暂存区回退到上一次 commit 之前�
 ```shell
 git branch -vv # 展示本地分支关联远程仓库的情况
 
-git branch -d 'branchname' # shanchu bendi fenzhi 
+git branch -d 'branchname' # 删除本地分支
 
 git push origin --delete <remote-branchname> # 删除远程分支
 
@@ -413,6 +413,13 @@ git tag -d 标签名 # 删除标签
 6. 查看关联情况
 7. 推送本地代码
 
+```shell
+# 本地分支同步主分支
+git merge master # 在本地子分支上同步本地主分支的文件
+```
+
+
+
 ### 隐藏修改
 
 > 所有对本地的修改都是追加写入
@@ -473,6 +480,22 @@ git blame <file-name>
 ```shell
 git whatchanged --since='2 weeks ago'  # 查看连个星期内的改动
 ```
+
+
+
+## 一些问题
+
+1. #### git 中中文乱码问题
+
+   **解决方法：**
+
+   1. [知乎](https://zhuanlan.zhihu.com/p/133706032)
+
+   ```shell
+   git config --global core.quotepath false
+   ```
+
+   
 
 ## gitflow 工作流
 
