@@ -334,10 +334,9 @@ git branch -d 'branchname' # 删除本地分支
 
 git push origin --delete <remote-branchname> # 删除远程分支
 
-git branch -m <new-branchname> # 重命名本地分支
+git branch -m "原分支名" "新分支名" # 重命名本地分支
+	git branch -m <new-branch> # 修改本地当前分支名
 ```
-
-
 
 ### **git checkout**
 
@@ -357,6 +356,10 @@ git remote show origin # 查看远程分支和本地分支的对应关系
 ```
 
 ### **git stash**
+
+**技巧：**
+
+1. 当前的修改被**保存在全局环境**，可以在任意一个分支弹出
 
 ```shell
 git stash # 存储当前的修改

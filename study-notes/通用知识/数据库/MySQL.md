@@ -370,7 +370,15 @@ alter table users engine=innoDB
 with temp1 as (select * from users), temp2 as (select * from roles)
 ```
 
+**注意：**
 
+1. 子查询中的别名无法应用到外层
+
+   ```mysql
+   select a.id, b.name from user_id in (select id in users as b)  # 别名 b 在子查询中，无法应用到外层
+   ```
+
+   
 
 ### 模糊匹配
 
@@ -699,7 +707,7 @@ create temporary table temp(id int primary key not null,name char(20))
 
   ```mysql
   # date_add(date,interval expr type)
-  date_add(date,interval 1 day)
+  date_add(date, interval 1 day)
   ```
 
 
