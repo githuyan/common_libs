@@ -374,10 +374,14 @@ with temp1 as (select * from users), temp2 as (select * from roles)
 
 1. 子查询中的别名无法应用到外层
 
+   > 子查询必须有一个别名
+   
    ```mysql
    select a.id, b.name from user_id in (select id in users as b)  # 别名 b 在子查询中，无法应用到外层
+   
+   select a.id, b.name from user_id in (select id in users) as b # 正确的查询方法
    ```
-
+   
    
 
 ### 模糊匹配
@@ -511,16 +515,6 @@ create temporary table temp(id int primary key not null,name char(20))
 
 ### 函数
 
-- **取 JSON 和 List 中的元素 json_extract**
-
-  ```mysql
-  SELECT JSON_EXTRACT('{"a":{"uid":"asas02234"},"b":3}', "$.a.uid");
-  
-  select '{"a":{"uid":"asas02234"},"b":3}' > '$.a' as result  # 简便写法
-  
-  select '[1,2,3,4]' > '$[1]' as result
-  ```
-
 - **排序(desc , asc)**
 
   ```sql
@@ -575,7 +569,7 @@ create temporary table temp(id int primary key not null,name char(20))
   select name,count(age) from message group by name,age # 这个返回的事复合信息，所以不能用 select * 来获取，只能使用聚合函数来处理，如（sum...) 参考连接
   ```
 
-- **分组拼接 group_concat(columns seperator sign) **
+- **分组拼接 group_concat(columns separator sign) **
 
   ```sql
   # 语法
@@ -776,6 +770,81 @@ create temporary table temp(id int primary key not null,name char(20))
   # t 表的 ltime 字段是 datetime 类型
   select * from t where month(t.ltime)=7  # 直接使用 month(t.ltime) 获取月份
   ```
+
+### Json 处理
+
+> mysql 中的 json 包含 json 和 list
+
+**参考：**
+
+1. https://www.cnblogs.com/yellowbean/p/15177268.html
+
+**取 JSON 和 List 中的元素 json_extract**
+
+json锚点
+
+```mysql
+SELECT JSON_EXTRACT('{"a":{"uid":"asas02234"},"b":3}', "$.a.uid");
+
+select '{"a":{"uid":"asas02234"},"b":3}' > '$.a' as result  # 简便写法
+
+select '[1,2,3,4]' > '$[1]' as result
+
+->运算符
+此运算符是JSON_EXTRACT()函数的简写，单个path的场景。
+
+这个运算符几乎可以出现在sql的所有位置，而且在select，update等语句中都能用，比如：
+
+mysql> SELECT c, JSON_EXTRACT(c, "$.id"), g
+     > FROM jemp
+     > WHERE JSON_EXTRACT(c, "$.id") > 1
+     > ORDER BY JSON_EXTRACT(c, "$.name");
+这个语句可以替换为：
+
+mysql> SELECT c, c->"$.id", g
+     > FROM jemp
+     > WHERE c->"$.id" > 1
+```
+
+#### 方法
+
+- **json_extract**
+
+  > 获取json中某个或者多个节点的值
+
+  **注意：**
+
+  - **快捷方式： ** `remark->'$.*'`
+  - 通过 int 类型的键获取值 `remark->'$."0"'`, 需要使用  **""**
+
+  ![img](../../../resource/2083586-20210823182953083-267076840.png)
+
+- **json_keys**
+
+  ```mysql
+  select json_keys
+  ```
+
+#### 属性
+
+**参考**
+
+1. https://www.cnblogs.com/waterystone/p/5626098.html
+
+- **数组的长度**
+
+  ```sql
+  SELECT
+  	remark,
+  	json_extract( remark, '$[*]' ),
+  	JSON_LENGTH( remark ) 
+  FROM
+  	division_class_student_copy1
+  ```
+
+  ![tmp9A54](../../../resource/tmp9A54.png)
+
+
 
 ### 应用
 

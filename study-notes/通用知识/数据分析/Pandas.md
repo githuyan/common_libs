@@ -1,5 +1,7 @@
 # Pandas
 
+
+
 ## 基础知识
 
 **inf(-inf,inf):infinity,inf表示正无穷，-inf表示负无穷**
@@ -7,6 +9,16 @@
 什么时候回出现inf包括（-inf，+inf,比如一个数字除以0，（python中直接会报错，numpy中是一个inf或者-inf）
 
 使用 替换的方法将空值替换为特定值
+
+1. pandas 并不能对**集合，元组**做操作
+
+   ```python
+   pd.DataFrame( set() | tuple() )
+   
+   # ValueError: DataFrame constructor not properly called!
+   ```
+
+   
 
 ## DataFrame常用基础操作
 
@@ -190,6 +202,12 @@ df.sort_values(columns=['one','tow'], ascending=[True, False])
 
 ```python
 df.drop_duplicates(subset=['one','two'], keep='last')
+
+keep: {
+    first： 保留第一次出现的重复行，删除后面的重复行,
+	last： 删除重复项，除了最后一次出现,
+	False： 删除所有重复项
+}
 ```
 
 **pd.round( int )** 
@@ -238,6 +256,24 @@ df.replace({np.na: 0})
 
 # 删除
 df.dropna()
+```
+
+**空值过滤**
+
+> 是 **或** 的关系，并不是 **且**
+
+```python
+df.dropna(subset=['a','b'])  # 过滤的是a列或b列中包含空值的，
+#------
+a
+     a    b
+0  NaN  NaN
+1  1.0  NaN
+2  2.0  3.0
+a.dropna(subset=['a', 'b'], inplace=True) 
+a
+     a    b
+2  2.0  3.0
 ```
 
 
@@ -549,6 +585,27 @@ df[0].str.split('\|\|', expand=True)
 ```python
 df = pd.DataFrame({'a':1,'b':2,'c':3})
 ```
+
+#### 不等长数组构成的字典 -> DataFrame
+
+```python
+data = {
+    'a': [1,2,3,4],
+    'b': [1,2,3]，
+    'c': [1,2]
+}
+
+df = pd.DataFrame.from_dict(data, orient='index')
+   0  1    2    3
+a  1  2  3.0  4.0
+b  1  2  3.0  NaN
+c  1  2  NaN  NaN
+
+# 需要转置一次
+df.T
+```
+
+
 
 ### stack 和 unstack
 
