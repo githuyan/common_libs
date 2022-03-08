@@ -189,6 +189,8 @@ git branch -r # 列出所有远程分支
 
 ```shell
 git remote add origin url # 增加一个远程连接并命名 origin
+
+git push origin local_branch:new_remote_branch # 新建远程分支并推送
 ```
 
 **删**
