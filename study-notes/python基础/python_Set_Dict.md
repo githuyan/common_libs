@@ -80,6 +80,25 @@ a.get("None") #
 a.get(None) # 'aaa'
 ```
 
+**对多个列表求交集**
+
+> [ [], [], [] ]
+
+```python
+1. 
+from functools import reduce
+L = ['列表1', '列表2', '列表3']
+ reduce(lambda x,y : set(x) & set(y), L)
+{'表', '列'}
+
+2. # 推荐
+L = [[1,2,3,4], [2,3,4,5], [3,4,5,6],[1,2,3,4,5,6]]
+set(L[0]).intersection(*L[1:])
+{3, 4}
+```
+
+
+
 
 
 ### 增强版-

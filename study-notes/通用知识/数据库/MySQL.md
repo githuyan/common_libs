@@ -309,6 +309,27 @@ explain select name from city where city.name='孙悟空'
 
 ## 技巧
 
+### 语法技巧
+
+#### 连表更新（同步）
+
+> 同步两张表中的字段
+
+**参考：** https://blog.csdn.net/weixin_42724467/article/details/88873183
+
+```sql
+(不推荐):
+update one_table as one set one.name_value=(select two.name_value from two_table as two where one.id=two.id)
+
+(推荐)：
+update one_table as one, two_table as two set one.name_value=two.name_value where one.id=two.id
+
+(update 的表连接)
+UPDATE people LEFT JOIN city ON people.city_code=city.`code` SET people.city_name=city.`name`;
+```
+
+
+
 ### 语句结果预估
 
 ```sql
@@ -509,6 +530,15 @@ alter table oldtablename rename to newtablename
 ```mysql
 # 显式的创建临时表
 create temporary table temp(id int primary key not null,name char(20))
+
+use warehouse;
+with 
+tmp as (
+    select object_id channel_id
+    from dim_adb_division_term_class
+    where id in (10022486)
+)
+select * from tmp;
 ```
 
 ## 函数，应用
@@ -524,6 +554,12 @@ create temporary table temp(id int primary key not null,name char(20))
   select * from message order by age asc limit 1 # 获取第一个值
   select * from message order by age desc limit 1 # 获取最后一个值
   ```
+
+  **注意事项：**
+
+  - ***在批量插入条件下的问题**
+
+    使用时间进行排序时一定注意，如果出现瞬间批量插入的情况，他们的时间都是一样的，那么查询时就可能会出现乱序（**分页时**），最好使用联合排序，**保证唯一性**
 
 - ##### 合并多个结果集（union and union all)
 
