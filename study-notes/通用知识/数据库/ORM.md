@@ -30,3 +30,8 @@ __table_args__ = {
 
 ## Turtious
 
+#### 属性
+
+.sql()
+
+> 获取原生sql 

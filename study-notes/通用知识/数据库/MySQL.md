@@ -403,6 +403,22 @@ with temp1 as (select * from users), temp2 as (select * from roles)
    select a.id, b.name from user_id in (select id in users) as b # 正确的查询方法
    ```
    
+
+2. 有些版本的MySQL不支持在子查询中使用分页 （limit）
+
+   > **报错** This version of MySQL doesn't yet support 'LIMIT & IN/ALL/ANY/SOME subquery'
+
+   **参考：**
+
+   1. https://www.cnblogs.com/zfding/p/10688031.html
+
+   ```mysql
+   # 失败
+   select id from table where id in ( select t.userId from user limit 10)
+   # 成功
+   select id from table where id in (select userId from ( select t.userId from user limit 10) tt)  # 可以多包一层解决
+   ```
+
    
 
 ### 模糊匹配

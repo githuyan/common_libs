@@ -429,6 +429,38 @@ left.combine_first(right)
 3  A2  B3  K3
 ```
 
+## 格式转换
+
+一维序列 --> 字典
+
+> **{ 序列号1： 序列值1，序列号2： 序列值2 } **
+
+```python
+# b
+account_id
+1    [{'account_id': 1, 'tag_name': 'tom'}, {'accou...
+3             [{'account_id': 3, 'tag_name': 'susan'}]
+dtype: object
+                                             
+# b.to_dict()
+{1: [{'account_id': 1, 'tag_name': 'tom'}, {'account_id': 1, 'tag_name': 'jerry'}], 3: [{'account_id': 3, 'tag_name': 'susan'}]}
+```
+
+二维 --> 字典
+
+> **{ 索引1： 值1，索引2： 值2 }**
+
+```python
+# c
+                                                     tag_info
+account_id                                                   
+1           [{'account_id': 1, 'tag_name': 'tom'}, {'accou...
+3                    [{'account_id': 3, 'tag_name': 'susan'}]
+                                                    
+# c.to_dict('index')
+{1: {'tag_info': [{'account_id': 1, 'tag_name': 'tom'}, {'account_id': 1, 'tag_name': 'jerry'}]}, 3: {'tag_info': [{'account_id': 3, 'tag_name': 'susan'}]}}
+```
+
 
 
 
@@ -632,3 +664,5 @@ df.T
 ## 优化
 
 1. pandas 多次合并的效率低于单次合并拼接再分割的效率
+
+2. pandas的apply和isin性能相差一个数量级，以后这种场景尽量用isin![img](../../../resource/企业微信截图_16485270864988.png)

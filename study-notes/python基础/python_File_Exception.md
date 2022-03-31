@@ -62,6 +62,10 @@ with open('file.txt','w',encoding='utf-8') as f:
 
 #### JSON
 
+**参考：** 
+
+- https://www.w3cschool.cn/article/30808038.html
+
 ```python 
 import json
 
@@ -88,6 +92,18 @@ with open('file.json','w',encoding='utf-8') as f:
 json.dumps() # 将json对象转化为字符串
 json.loads() # 将字符串转化为json对象
 ```
+
+json.dumps
+
+```python
+json.dumps(obj, skipkeys=False, ensure_ascii=True, check_circular=True, allow_nan=True, cls=None, indent=None, separators=None, encoding="utf-8", default=None, sort_keys=False, **kw)
+
+# separators=(",", ":") 表示每个键值对之间的连接， 和键与值之间的连接
+```
+
+
+
+
 
 ### 文件的导入
 

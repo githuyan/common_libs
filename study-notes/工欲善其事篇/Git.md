@@ -245,6 +245,10 @@ squash：将指定的提交合并到上边的pick请求中，保留提交信息
 fixup：与 squash 类似，但不保留提交信息 
 ```
 
+### 同步分支
+
+**参考：**  [git cherry](https://blog.csdn.net/CSDN297904380/article/details/108872875?spm=1001.2101.3001.6661.1&utm_medium=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1.pc_relevant_antiscanv2&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1.pc_relevant_antiscanv2&utm_relevant_index=1)
+
 
 
 ### **git status** （状态）
