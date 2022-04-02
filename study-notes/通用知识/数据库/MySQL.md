@@ -383,6 +383,8 @@ select p.name as p_name,c.name as c_name from areas as p left join areas as c on
 alter table users engine=innoDB
 ```
 
+
+
 ## 语法
 
 ### 子查询临时表
@@ -403,7 +405,6 @@ with temp1 as (select * from users), temp2 as (select * from roles)
    select a.id, b.name from user_id in (select id in users) as b # 正确的查询方法
    ```
    
-
 2. 有些版本的MySQL不支持在子查询中使用分页 （limit）
 
    > **报错** This version of MySQL doesn't yet support 'LIMIT & IN/ALL/ANY/SOME subquery'
@@ -2041,6 +2042,59 @@ show OPEN TABLES where In_use > 0 # 查看是否发生锁表
 ```sql
 lock table users write # 加写锁
 ```
+
+## ==坑==
+
+1. **mysql 5.7** 中对于既有分组又有排序的场景，整个SQL中使用到的字段都必须在 group by  中出现
+
+   **参考：** https://blog.csdn.net/chengqiuming/article/details/106034357
+
+   **语句：**
+   
+   ```sql
+   select
+     tag as tag_name,
+     account_id
+   from
+     vote_account_tags
+   where
+     liveroom_id = 26858134
+     and account_id in (113684950)
+   group by
+     tag,
+     account_id
+   order by
+     create_time desc
+   ```
+
+   
+
+   **报错：**
+   
+   ```py
+    (1055, "Expression #1 of ORDER BY clause is not in GROUP BY clause and contains nonaggregated column 'wk_tag.vote_account_tags.create_time' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by")
+   ```
+
+   **解决方案：**
+   
+   ```sql
+   # group by 之外的字段使用 any_value 函数
+   select
+     tag as tag_name,
+     account_id
+   from
+     vote_account_tags
+   where
+     liveroom_id = 26858134
+     and account_id in (113684950)
+   group by
+     tag,
+     account_id
+   order by
+     any_value(create_time) desc
+   ```
+   
+   
 
 ## ORM
 
