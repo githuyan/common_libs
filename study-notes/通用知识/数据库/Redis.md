@@ -533,6 +533,20 @@ Redis单条命令是保证原子性的，但事务不保证原子性
 scan()
 ```
 
+**set值得同时设置过期时间（保证操作的原子性）**
+
+**参考：** 
+
+```js
+ex : 将键的过期时间设置为 seconds 秒，与SETEX key seconds value效果等同
+px : 将键的过期时间设置为 milliseconds 秒，与PSETEX key milliseconds value效果等同
+nx : 只在键不存在时， 才对键进行设置操作，默认false
+px : 只在键已经存在时， 才对键进行设置操作，默认false
+ 
+//
+set key value ex 10 px
+```
+
 
 
 ---
