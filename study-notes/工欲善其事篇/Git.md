@@ -187,10 +187,8 @@ git branch -r # 列出所有远程分支
 
 **增**
 
-```shell
+```git
 git remote add origin url # 增加一个远程连接并命名 origin
-
-git push origin local_branch:new_remote_branch # 新建远程分支并推送
 ```
 
 **删**
@@ -285,6 +283,12 @@ git diff 			显示工作区与暂存区的差异 git diff filename 指定文件
 	--stat 只显示摘要
 git diff head	显示工作区与版本库的差异
 git diff --cached	显示暂存区与版本库的差异
+
+# 显示分支的差异
+# 分支的差异显示在提交的不同，而不再与具体的改动，当两个分支有不同的提交记录时，才会检测到差异
+https://www.jianshu.com/p/bb97fabb475e
+git diff branch1 branch2  # 查看两个分支的详细差异
+git diff branch1 branch2 --stats  # 两个分支的简略差异
 ```
 
 
@@ -336,13 +340,14 @@ git restore --staged  <.*file>  # 将暂存区回退到上一次 commit 之前�
 ```shell
 git branch -vv # 展示本地分支关联远程仓库的情况
 
-git branch -d 'branchname' # 删除本地分支
+git branch -d 'branchname' # shanchu bendi fenzhi 
 
 git push origin --delete <remote-branchname> # 删除远程分支
 
-git branch -m "原分支名" "新分支名" # 重命名本地分支
-	git branch -m <new-branch> # 修改本地当前分支名
+git branch -m <new-branchname> # 重命名本地分支
 ```
+
+
 
 ### **git checkout**
 
@@ -362,10 +367,6 @@ git remote show origin # 查看远程分支和本地分支的对应关系
 ```
 
 ### **git stash**
-
-**技巧：**
-
-1. 当前的修改被**保存在全局环境**，可以在任意一个分支弹出
 
 ```shell
 git stash # 存储当前的修改
@@ -422,9 +423,16 @@ git tag -d 标签名 # 删除标签
 6. 查看关联情况
 7. 推送本地代码
 
+#### 删除分支
+
+**本地**
+
 ```shell
-# 本地分支同步主分支
-git merge master # 在本地子分支上同步本地主分支的文件
+// 本地
+git branch -d 本地分支名
+
+// 远程
+git push origin -delete 远程分支名
 ```
 
 
@@ -489,22 +497,6 @@ git blame <file-name>
 ```shell
 git whatchanged --since='2 weeks ago'  # 查看连个星期内的改动
 ```
-
-
-
-## 一些问题
-
-1. #### git 中中文乱码问题
-
-   **解决方法：**
-
-   1. [知乎](https://zhuanlan.zhihu.com/p/133706032)
-
-   ```shell
-   git config --global core.quotepath false
-   ```
-
-   
 
 ## gitflow 工作流
 

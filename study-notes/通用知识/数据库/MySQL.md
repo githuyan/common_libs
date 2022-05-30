@@ -387,6 +387,41 @@ alter table users engine=innoDB
 
 ## 语法
 
+### 子查询临时表
+
+```sql
+with temp1 as (select * from users), temp2 as (select * from roles)
+```
+
+**注意：**
+
+1. 子查询中的别名无法应用到外层
+
+   > 子查询必须有一个别名
+   
+   ```mysql
+   select a.id, b.name from user_id in (select id in users as b)  # 别名 b 在子查询中，无法应用到外层
+   
+   select a.id, b.name from user_id in (select id in users) as b # 正确的查询方法
+   ```
+   
+2. 有些版本的MySQL不支持在子查询中使用分页 （limit）
+
+   > **报错** This version of MySQL doesn't yet support 'LIMIT & IN/ALL/ANY/SOME subquery'
+
+   **参考：**
+
+   1. https://www.cnblogs.com/zfding/p/10688031.html
+
+   ```mysql
+   # 失败
+   select id from table where id in ( select t.userId from user limit 10)
+   # 成功
+   select id from table where id in (select userId from ( select t.userId from user limit 10) tt)  # 可以多包一层解决
+   ```
+
+   
+
 ### 模糊匹配
 
 1. 下划线可以匹配单个字符，而%是匹配多个字符
@@ -523,92 +558,9 @@ tmp as (
 select * from tmp;
 ```
 
-#### 自查询临时表实例
-
-```sql
-select * from vote as v1, vote as v2 where v1.id<v2.id and v2.id=100
-```
-
-#### 子查询临时表
-
-```sql
-with temp1 as (select * from users), temp2 as (select * from roles)
-```
-
-**注意：**
-
-1. 子查询中的别名无法应用到外层
-
-   > 子查询必须有一个别名
-
-   ```mysql
-   select a.id, b.name from user_id in (select id in users as b)  # 别名 b 在子查询中，无法应用到外层
-   
-   select a.id, b.name from user_id in (select id in users) as b # 正确的查询方法
-   ```
-
-2. 有些版本的MySQL不支持在子查询中使用分页 （limit）
-
-   > **报错** This version of MySQL doesn't yet support 'LIMIT & IN/ALL/ANY/SOME subquery'
-
-   **参考：**
-
-   1. https://www.cnblogs.com/zfding/p/10688031.html
-
-   ```mysql
-   # 失败
-   select id from table where id in ( select t.userId from user limit 10)
-   # 成功
-   select id from table where id in (select userId from ( select t.userId from user limit 10) tt)  # 可以多包一层解决
-   ```
-
-
 ## 函数，应用
 
 ### 函数
-
-- **开窗函数**（窗口函数）
-
-> 取每个班中成绩最好的三名同学（三组）
->
-> **注意：** MySQL5.7不支持， 8.0以上开始支持
-
-**5.7的解决方案**  ==---？？==
-
-参考： https://blog.csdn.net/junzi528/article/details/84404412
-
-```sql
-select * from 班级表 as a where ( select count(0) from 班级表 as b where b.班级=a.班级 and b.成绩>a.成绩)<3 order by a.班级, a.成绩 desc
-```
-
-
-
-参考 https://blog.csdn.net/weixin_43660536/article/details/119009252
-
-```sql
--- 如果我们想在每个班级内按成绩排名，得到下面的结果。
-select *,
-   rank() over (partition by 班级
-                 order by 成绩 desc) as ranking
-from 班级表;
-```
-
-名次
-**rank函数**：这个例子中是5位，5位，5位，8位，也就是如果有并列名次的行，会占用下一名次的位置。比如正常排名是1，2，3，4，但是现在前3名是并列的名次，结果是：1，1，1，4。
-
-**dense_rank函数**：这个例子中是5位，5位，5位，6位，也就是如果有并列名次的行，不占用下一名次的位置。比如正常排名是1，2，3，4，但是现在前3名是并列的名次，结果是：1，1，1，2。
-
-**row_number函数**：这个例子中是5位，6位，7位，8位，也就是不考虑并列名次的情况。比如前3名是并列的名次，排名是正常的1，2，3，4
-
-```sql
-select *,
-   rank() over (order by 成绩 desc) as ranking,
-   dense_rank() over (order by 成绩 desc) as dese_rank,
-   row_number() over (order by 成绩 desc) as row_num
-from 班级表
-```
-
-
 
 - **排序(desc , asc)**
 
