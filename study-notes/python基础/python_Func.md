@@ -1,0 +1,472 @@
+## python函数
+
+> 函数又被称为方法，是一个可重复使用的，单一的功能，函数提高了代码的重复利用率，提高应用的模块化，适当的模块化，会使得程序更利于维护，
+
+1. ### 规范
+
+   - 选一个专业的工具，
+
+   - 函数名尽量使用英文小写，命名要做到见名知意，即使函数名会长一点，
+
+   - 注释，每一个函数或类都应该有一段注释，用以标注它的功能，参数，返回值，
+
+     ```python
+     #!/usr/bin/env python
+     # -*- coding: utf-8 -*
+     """PEP 8 标准要求每一个py文件中都必须要有这两行，标明此文件的解释器和编码标准"""
+     ```
+
+   - 模块的导入，尽量保持标准库模块在最上层，第三方库在中层，自定义模块在最下层
+
+     ```python
+     import datetime
+     
+     import requests
+     
+     from . import mymoudle
+     ```
+
+
+2. ### 函数
+
+   1. #### **函数的参数**
+
+      ```python
+      def myfunc(*args,**kwargs) ->bool:
+          """
+          :function一个演示函数
+          :params
+          
+          """
+          pass
+      
+      ```
+
+      `*args `为任意数量的位置参数，这是一个元组，以 * 开头的必须是最后一个位置参数
+
+      `**kwargs` 为任意数量的关键字参数  这是一个字典，以 ** 开头的必须是最后一个关键字参数
+
+      ```python
+      # 像这样，first是位置参数，而second就必须是关键字参数
+      def func(first,*,senond):
+      ```
+
+      - **参数的传递**
+
+        ```python
+        def a(*y):
+            print(y)  # (2, 3, 4, 5) 这里依然是一个元组
+            print(*y) # 2 3 4 5  	这里已经做了拆包
+        
+        a(2,3,4,5)
+        
+        # 对于拆包
+        a,*b = [1,2,3,4]
+        print(a) # 1
+        print(b) # [2, 3, 4] 这里的拆包并没有改变原本的数据结构
+        
+        print(*b) # 2 3 4
+        
+        print(tuple(b)) # (2, 3, 4)
+        ```
+   
+      - **注意** 函数的参数应都是不可变对象
+   
+        ```python
+        def extendList(val, list=[]):
+        
+            list.append(val)
+        
+            return list
+        a = extendList(1)
+        b = extendList(2)
+        print(a,b)
+        # [1, 2] [1, 2]
+        # 这是因为函数的默认参数只在定义的时候指定一次
+        ```
+   
+   2. #### **函数注解**
+   
+      ```python
+      # 函数注解并不具备强制作用，但是适当的使用函数注解会让代码更清晰易读
+      def func(first:str,second:list) -> bool:
+      ```
+   
+   3. #### **闭包**，[一个极好的回答]([深入浅出python闭包 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/22229197))
+   
+      > 闭包就是像一个类，只是比类更简洁，更高效
+      >
+      > 作用：保存外部运行环境，实现装饰器
+
+      ```python 
+      def counter():
+          # 这是一个计数器
+          count = 0
+          def accumulate():  # 在函数内又定义了一个累加函数
+              nonlocal count # nonlocal 声明此外部变量在当前作用域内可改变
+              count += 1
+              return count
+          return accumulate
+      c = counter()
+      print(c())
+      print(c())
+      # 1
+      # 2
+      # 每调用一次 c 都会自增计数，就像一个类一样
+      ```
+   
+   4. #### **yield 生成器和协程**
+   
+      - **yield**
+   
+        ```python
+        def items():
+            for i in [0,1,2]:
+                yield i
+        case = items()
+        print(next(case)) # 0
+        print(next(case)) # 1 
+        # 这里没有使用闭包或类就实现了保存之前的运行环境，只有在每次调用 next(case)时才会运行一次，运行到下一个yield处截止，等待下一次调用，根据这个特性可以构成管道
+        ```
+   
+      - **yield from**
+   
+        ```python 
+        def items():
+            yield from [0,1,2]
+        # yield from 和上面那个items函数的总用是一样的
+        ```
+   
+      - **`.send()`**
+   
+        ```python
+        def items():
+            for i in [0,1,2]:
+                a = yield i
+                print(a)
+        case = items() 
+        next(case) 		# 0
+        case.send(100) 	# 100 直接修改本次yield的值在函数运行过程中，能随时中断函数，并实时修改函数属性值，这个特性很厉害
+        ```
+   
+      - ##### 生成器
+   
+        > 可以认为带有yield 关键字的函数就是一个生成器，生成器一次只会生产出一个元素，等到需要使用下一个元素的时候才会开始生成下一个
+        >
+        > 作用：当有一个百万级元素的列表时，一次性将列表读取到内存中，很显然是不现实的，这会造成内存的巨大消耗，而是用生成器就可以避免这个问题
+   
+        1. 生成器
+   
+           ```python
+           # 使用推导式产生一个生成器
+           gen = (item for item in range(10)) 
+           
+           # 使用函数产生一个生成器
+           def items():
+               for i in range(10):
+                   yield i
+           gen = items()
+           ```
+   
+        2. 生成器的一些操作
+   
+           - 生成器的切片
+   
+             由于生成器的特性，普通的列表切片操作无法作用于生成器
+   
+             ```python
+             from itertools import islice
+             gen = (item for item in range(10))
+             gen1 = islice(gen,1,5)
+             print(gen1) # <itertools.islice object at 0x000002178A24BCC8>
+             # 切片后仍然是一个生成器
+             ```
+   
+        3. 自定义的生成函数
+   
+           ```python
+           class IteraOb():
+               def __init__(self,object):
+                   def gen(object):
+                       # 这个内部的生成函数可以写成自己需要的样子
+                       for i in range(object):
+                           yield i
+                   self.gen = gen(object)
+                   try:
+                       # 这是对下一个数据的缓存，用于判断什么时候停止
+                       self.store = next(self.gen)
+                   except StopIteration:
+                       self.store = None
+                       
+               def next(self):
+                   if self.hasnext():
+                       ret = self.store
+                       try:
+                           self.store = next(self.gen)
+                       except StopIteration:
+                           self.store = None
+                       return ret
+           
+               def hasnext(self):
+                   return self.store is not None
+           
+           a = IteraOb(4)
+           
+           for _ in range(4):
+               print(a.next())
+           ```
+      
+      - ##### 协程
+      
+        > 协程就是一个用户态的线程
+        >
+        > 协程具有这样的特点，即在同时开启的多个任务中，一次只执行一个，只有当前任务遭遇阻塞，才会切换到下一个任务继续执行。这种机制可以实现多任务的同步，又能够成功地避免线程中使用锁的复杂性，简化了开发
+      
+        ==标记== 整理到并发时补充
+      
+        
+
+
+   1. **装饰器**
+
+      > 闭包是装饰器的基础，
+      >
+      > 作用：在不改变当前函数代码的情况下，对当前功能进行扩展
+
+      - 普通装饰器
+
+        ```python
+        def out(func):
+            def decorator(a,b):
+                # 这是装饰器功能函数
+                print('这是装饰器的功能 '+str(a))
+                result = func(a,b)  #在内部完成调用，出现结果
+                return result       #然后返回结果
+            return decorator  		
+        @out
+        def test(a,b):
+            return a+b
+        print(test(2,3))
+        # 这是装饰器的功能 2
+        # 5
+        ```
+
+      - 带参数的装饰器（三层嵌套函数）
+
+        ```python
+        def timecounter(*args,**kwargs):  # 这里是装饰器自己的参数
+            def decorator(func): 		  # 这里是被装饰函数
+                def inner(*args,**kwargs):# 这里是被装饰函数的参数
+                    start = time.time()
+                    result = func(*args)  # 这里参数的传递要注意，这里加一个 * 指明是将*args元组中的内容传递
+                    print(f"总耗时:{time.time()-start}")
+                    return result
+                return inner
+            return decorator
+        
+        @timecounter('装饰器')
+        def fu(a):
+            time.sleep(1)
+            print(f'hello,{a}')
+        fu('world')
+        
+        # ('装饰器',)
+        # hello,world
+        # 总耗时:1.000990390777588
+        ```
+
+      - 类装饰器
+
+        ```python
+        class DecroratorClass:
+            def __init__(self,Decoratored):
+                self.dec = Decoratored
+            def __call__(self, *args, **kwargs):
+                dec = self.dec
+                return dec
+        @DecroatorClass
+        def test(a,b):
+            return a+b
+        ```
+        
+      - 多个装饰器的执行顺序
+
+        ```python
+        def decorator_a(func):
+            def inner_a(*args, **kwargs):
+                print 'Get in inner_a'
+                return func(*args, **kwargs)
+            return inner_a
+        
+        def decorator_b(func):
+            def inner_b(*args, **kwargs):
+                print 'Get in inner_b'
+                return func(*args, **kwargs)
+            return inner_b
+        
+        # 多个装饰器的执行顺序是从外向内执行的
+        @decorator_b
+        @decorator_a
+        def f(x):
+            print 'Get in f'
+            return x * 2
+        
+        f(1)
+        # Get in inner_b
+        # Get in inner_a
+        # Get in f
+        ```
+
+        
+
+   2. #### **匿名函数 lambda**
+
+      > 匿名函数无法完成复杂的运算像是
+      >
+      > ```python
+      > # 这样的运算无法完成
+      > swap = lambda a,b:a,b=b,a
+      > ```
+
+      ```python
+      # 匿名函数
+      test1 = lambda x,y:x+y
+      # 或
+      test2 = lambda :2 # 一个无参数的函数
+      # 普通函数
+      def test2(x,y):
+          return x+y
+      result1 = test1(1,2)
+      result2 = test2(1,2)
+      # 这样个函数的作用是相等的,但lambda更加简洁，优雅，是用于回调函数，如：
+      re = sorted(lis,key=lambda x: x+1) # 以lis中每一个元素加一的结构为标准给lis原数据排序
+      ```
+
+      1. 一个容易迷惑的题目
+
+         ```python
+         # 这一条语句，其实是，在 i*x之后就断开了，意思是，创建四个匿名函数
+         temp = [lambda x: i*x for i in range(4)]
+         
+         # 如以下语句,lambda并不是简单的以 空格 分割语句，而是他不能执行循环
+         temp1 = lambda x:0 if x>10 else 1  # 执行简单的判断
+         temp = lambda x:0 for i in range(x) # 这一条是错误的
+         ```
+
+         
+
+   3. #### **一些魔法方法 - 元数据**
+
+      > 摘下一个西红柿，不用烹饪，我们可以了解到 `tomato.__color__ = red`，
+      >
+      > **一切都可视为对象，类是，函数是对象，列表是对象，列表中的每一个字符串也是对象，是对象就有属性和行为（方法）**
+
+      ```python
+      def func(*args,default='hello'):
+          '''一个空函数'''
+          return 1
+      
+      print(func.__doc__) # 对象的注释信息
+      print(func.__hash__()) # 对象的hash值
+      print(func.__str__()) # 对象的易读信息
+      print(func.__repr__()) # 对象的专业信息
+      print(func.__defaults__) # 对象的默认参数信息
+      print(func.__name__) # 对象名
+      '''
+      一个空函数
+      103906995230
+      <function func at 0x00000183156EC1E0>
+      <function func at 0x00000183156EC1E0>
+      None
+      func
+      '''
+      ```
+
+      
+
+   4. #### **其他高阶函数**
+
+      - `map(func,iterable) `
+
+        ```python 
+        # 对可迭代对象中的每一个元素调用func函数，返回一个生成器
+        lis = [1,2,34,5]
+        for i in map(str,lis):
+            print(i)
+        '''
+        1
+        2
+        34
+        5
+        
+        '''
+        ```
+
+      - `filter(func,iterable)` 过滤器
+
+        ```python 
+        # 对可迭代对象中的每一个元素调用func函数，只返回静func运算后返回True的元素，返回一个生成器，就像是map函数的加强版
+        lis = [1,2,34,5]
+        def is_odd_number(param):
+            return param%2 == 1
+        for i in filter(is_odd_number,lis):
+            print(i)
+        ```
+
+      - `reduce(function, sequence, initial=None)`
+
+        ```python
+        # reduce函数将 sequence[0]和initial传入function,再将结果和sequence[1]传入function，直到得出结果
+        from functools import reduce
+        
+        lis = [1,2,34,5]
+        def add(a,b):
+            return a+b
+        print(reduce(add,lis))
+        # 42
+        ```
+
+      - `sorted(iterable,key,reverse=False)`一个功能强大的排序函数
+
+        这是一个内置方法,他会创建一个新的列表作为返回值，而原列表并没有改变。
+
+        `iterable`	任意一个可迭代对象，可以是字符串，列表(必须是同一类型)，字典，元组，
+        
+        `reverse=True`	逆序排列
+        
+        `key=func`	接受一个只有一个参数的函数，对列表中的每一个元素应用这个函数，并**将结果排序**，key的使用让`sorted()`的用法很灵活，比如搭配上`from functools import partial`，
+        
+        ```python
+        result = sorted(iterable,key=lambda param:param+1)
+        ```
+        
+        ```python 
+        # 通过字典的键对字典排序
+        a = {"a":1,"b":4,"d":5,"c":3}
+        nums = {a:b for a,b in sorted(a.items(),key=lambda x:x[0])}
+        print(nums)
+        # {'a': 1, 'b': 4, 'c': 3, 'd': 5}
+        ```
+        
+        key 甚至可以是一个类，
+
+### 遗留的问题
+
+1. for 循环为什么能自动循环？
+
+   因为for循环调用了一个 迭代器，迭代器使用了next 和iter方法的，其中iter方法返回迭代器自身，next方法返回下一个元素，
+
+---
+
+> 上述总结是我的个人理解，若有不准确的地方，欢迎指正！
+
+原本是想把函数和类写在一起的，现在看来太天真了，函数还有太多细节不知道怎么描述，以上介绍只是常用方法，基础知识，后续有更深的理解，继续补充。
+
+:dancer:现在是2021.6.10，这个`typora`编辑器可有点危险啊，在打开的时候报了一个错误，竟然直接把我的本地文档删除了，幸好我一直在进行版本控制，太危险了，备份很重要，引以为戒。
+
+
+
+
+
+
+

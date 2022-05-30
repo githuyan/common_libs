@@ -1,0 +1,240 @@
+# python集合和字典
+
+> 内建函数绝大部分都是有用的，看起来没用并不代表他真的没用，尤其是在源码中
+
+## 集合	set = {}
+
+> python 集合是一个无序且不重复的元素集合
+
+### 增删改查
+
+| 方法                  | 效果                                 | 备注                                            |
+| --------------------- | ------------------------------------ | ----------------------------------------------- |
+| `.add()`              | 增加                                 | 单个增加                                        |
+| `.clear()`            | 清空                                 |                                                 |
+| `.pop()               | 当其中元素都为数字时，总是弹出最小值 | 当不是数字时，随机弹出                          |
+| `.remove(element)`    | 删除                                 | 删除不存在的元素会报错                          |
+| `.discard(element)`   | 删除                                 | 删除不存在的元素不会报错                        |
+| `.update(set2)`       | 合并更新                             |                                                 |
+| `.copy()`             | 复制                                 |                                                 |
+| `.difference(set2)`   | 差集                                 | set1 - set2  集合1中去除集合2                   |
+| `.intersection(set2)` | 交集                                 | set1 $ set2                                     |
+| `.union(set)`         | 并集                                 | set1 \| set2                                    |
+| `.issubset(set2)`     | 子集，判断是否被set2包含             | 等同于`set1 <= set2 `判断集合1是否是集合2的子集 |
+| `.isdisjoint(set2)`   | 判断是否相交                         |                                                 |
+| `.issuperset(set2)`   | 判断是否包含set2                     | 等同于 `set1<=set2`                             |
+
+## 字典
+
+> 字典是一种键值对的存储，也叫映射，常被被称为关联数组或哈希表，在python3.6后，字典是有序的
+
+### 增删改查
+
+| 方法                               | 效果                                                         | 备注                                         |
+| ---------------------------------- | ------------------------------------------------------------ | -------------------------------------------- |
+| `.get(key,*default)`               | 获取key对应的Value,若获取不到，则返回default                 |                                              |
+| `.items()`                         | 返回`（key,value)`的元组                                     |                                              |
+| `.keys()`                          | 返回key的列表                                                |                                              |
+| `.values()`                        | 返回value的列表                                              |                                              |
+| `.pop(key,None)`                   | 删除key:value键值对，并返回value，                           | 在原对象修改，由第二个参数，可以删除不存在键 |
+| `.popitem()`                       | 弹出最后一个键值对                                           |                                              |
+| `.update(dict)`                    | 将dict更新到原字典                                           |                                              |
+| `.clear()`                         | 清空                                                         |                                              |
+| `del dict['key']`                  | 删除一个键值对                                               |                                              |
+| `.copy()`                          | 字典的第一层深拷贝，第二层为浅拷贝                           |                                              |
+| `.fromkeys(iterable,default=None)` | 已知key的情况下，根据默认值，批量生产键值对                  |                                              |
+| `.setdefault(key,default_value)`   | 跟get类似，区别在于，当不存在这个键时，添加一个映射，并返回值 |                                              |
+
+### 技巧
+
+**取字典的键**
+
+```python
+d = {"a":1,"b":3}
+
+1. dk = d.keys()
+2. dk = [*d] 
+```
+
+**字典解包**
+
+> 在传递参数的时候 作为关键字参数，而不是一个字典进行传递
+
+```python
+# **d 相当于把 字典解包
+def test(a=100,b=100):
+    return a+b
+
+param = {'a':1,'b':0}
+print(test(param)) # TypeError
+print(test(**param))  # 1
+```
+
+**空值也能作为键**
+
+```python
+a = {
+    None: 'aaa'
+}
+a.get("None") # 
+a.get(None) # 'aaa'
+```
+
+**对多个列表求交集**
+
+> [ [], [], [] ]
+
+```python
+1. 
+from functools import reduce
+L = ['列表1', '列表2', '列表3']
+ reduce(lambda x,y : set(x) & set(y), L)
+{'表', '列'}
+
+2. # 推荐
+L = [[1,2,3,4], [2,3,4,5], [3,4,5,6],[1,2,3,4,5,6]]
+set(L[0]).intersection(*L[1:])
+{3, 4}
+```
+
+
+
+
+
+### 增强版-
+
+- 一键多值字典
+
+  ```python
+  from collections import defaultdict
+  # 这是一键多值字典,普通的字典，每一个键都是单值映射，当赋新值时，会将旧值更新
+  d = defaultdict (list)  # 这个 list 一定要加，默认了字典的键，也可以是 set ，当使用set时，下面的append操作应改为 add
+  d['name1'].append('value1')
+  d['name1'].append('value2')
+  d['name2'].append('value3')
+  print(d)
+  # { 'name1' : [ 'value1' , 'value2' ] , 'name2' : [ 'value3' ]}
+  print(type(d))
+  # < class ,defaultdict> 它的类型已经不是普通的dict了
+  ```
+
+  
+
+- 将多个映射合并为单个映射
+
+  ```python
+  # 合并两个字典
+  a = {'x': 2,'y':4}
+  b = {'z': 6,'y':5}
+  
+  #1. 使用字典生成式
+  new_dic = {a[key]=value for key,value in b.items()}
+  # 这种也可以，但是单个的 (b,a) 就不行
+  d = {}
+  d.update((b,a) for a,b in zip(a,b))
+  
+  #2. 使用 Chainmap 字典链
+  from collections import ChainMap
+  # 把 a 合并到 b 里面
+  cm  = ChainMap(a,b)
+  
+  ## 普通字典的方法都可以正常使用
+  print(dict(cm.items()))
+  for k,v in cm.items():
+      print(k,v)
+  # {'z': 6, 'y': 4, 'x': 2}
+  
+  print(list(cm.keys()))
+  for i in cm.keys():
+      print(i)
+  # ['z', 'y', 'x']
+  
+  # 在链中增加一个新的字典
+  print(cm.new_child({'a':1000}))
+  # ChainMap({'a': 1000}, {'x': 2, 'y': 4}, {'z': 6, 'y': 5})
+  
+  '''这个方法内部维护了一个列表，可以使用 cm.maps 查看'''
+  lis = cm.maps
+  # lis = [{'x': 2, 'y': 4}, {'z': 6, 'y': 5}]
+  # 想要修改这个字典链时，可以像普通字典一样修改，也可以直接在这个列表中修改，如 
+  lis[0]['x']='new'
+  ```
+
+### 一些方法
+
+- 混合 `zip(iterable1,iterable2)`,
+
+  :dancer:注意：这个方法创建了一个迭代器，它的内容只能被消费一次
+
+  ```python
+  # 同样使用与字典
+  aa  = [1,2,3,4]
+  bb = [1,2,3,4]
+  dd = zip(aa,bb)
+  for a,b in dd:
+      print(a,b)
+  '''
+  1 1
+  2 2
+  3 3
+  4 4
+  '''
+  ```
+
+### 数据结构
+
+- 字典结构可用于构造树的节点
+
+  ```python
+  # 这是一棵二叉树的其中一个节点
+  class Node():
+      def __init__(self,val,left=None,right=None):
+          self.val = val
+          self.left = left
+          self.right = right
+  ```
+
+- 字典结构可用于构造链表节点
+
+  ```python
+  # 这是一条链表的单个节点
+   class ListNode:
+       def __init__(self, val=0, next=None):
+           self.val = val
+           self.next = next
+  ```
+
+- 键值对的映射存储方式对于查询来说极为高效
+
+
+
+## 一些有趣的地方
+
+- # 如何在两个字典中寻找共同的键？
+
+  1. 可以使用`.keys()`方法，再对两个列表进行简单的集合操作
+
+  2. 可以直接对字典的`.keys()`进行集合操作,包括 |:[^并集]，&：[^交集]，-:[^差集]，<:[^子集],>:[^超集]
+
+     ```python 
+     aa = {'x': 2,'y':4}
+     bb = {'z': 6,'y':5}
+     a,b = aa.keys(),bb.keys()
+     print( a & b)
+     # {'y'}
+     ```
+
+     
+
+---
+
+> 上述总结是我的个人理解，若有不准确的地方，欢迎指正！
+
+对于这些基本数据结构，不知道怎么将自己了解的知识整理出来，这可能是我对这些结构的理解不够深刻，这几段要持续补充
+
+:dancer: 现在是2021.6.10，---
+
+
+
+
+
