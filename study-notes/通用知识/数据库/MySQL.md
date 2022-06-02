@@ -286,7 +286,7 @@ sleep(2)
 4. 检查慢查询日志内容（满足慢条件的 SQL 会被记录）
 ```
 
-![开启慢查询日志](D:\桌面\学习笔记\resource\开启慢查询日志.jpg)
+![开启慢查询日志](../../../resource/开启慢查询日志.jpg)
 
 ### 语句执行计划
 
@@ -296,7 +296,7 @@ sleep(2)
 explain select name from city where city.name='孙悟空'
 ```
 
-![SQL执行计划](D:\桌面\学习笔记\resource\SQL执行计划.png)
+![SQL执行计划](../../../resource/SQL执行计划.png)
 
 **Extra**:
 
@@ -989,7 +989,7 @@ select c.* from city as c ,emp as e where e.salary=7200
 +----+--------+
 ```
 
-![数据库连表图示](D:\桌面\学习笔记\resource\内连接.gif)
+![数据库连表图示](../../../resource/内连接.gif)
 
 **隐式内链接**
 
@@ -1027,7 +1027,7 @@ select a.id,a.NAME,a.salary,b.NAME from emp a,dept b where a.NAME='孙悟空';
 +----+--------+--------+--------+
 ```
 
-![左外连接](D:\桌面\学习笔记\resource\左外连接.gif)
+![左外连接](../../../resource/\左外连接.gif)
 
 **左外链接**
 
@@ -1063,7 +1063,7 @@ select * from dept d left join emp e on d.id=e.dept_id;
 # 右外链接
 ```
 
-![左外连接之差](D:\桌面\学习笔记\resource\左外连接之差.png)
+![左外连接之差](../../../resource/左外连接之差.png)
 
 **左外连接之差**
 
@@ -1072,7 +1072,7 @@ select * from dept d left join emp e on d.id=e.dept_id;
 select * from A left join B on A.name=B.name where b.id is not null
 ```
 
-![全连接](D:\桌面\学习笔记\resource\全连接.gif)
+![全连接](../../../resource/全连接.gif)
 
 **全连接，full join （mysql 不支持 full join 可以用 union all 实现）**
 
@@ -1082,7 +1082,7 @@ full join == left join + right join (union all)
 
 **全连接之差**
 
-![全连接之差](D:\桌面\学习笔记\resource\全连接之差.png)
+![全连接之差](../../../resource/全连接之差.png)
 
 ```mysql
 # A，B中不满足某一条件的记录之和
@@ -1529,7 +1529,7 @@ alter table user alter check check_age not enforced # 默认约束是强制的�
 
    加锁
    
-   ![隔离级别](D:\桌面\学习笔记\resource\隔离级别.png)
+   ![隔离级别](../../../resource/隔离级别.png)
 
 #### 使用事务
 
@@ -1885,7 +1885,7 @@ redo log 是循环写的，不持久保存，
 
 > 两阶段提交视为保证两个日志的一致性
 
-![redolog_and_binlog](D:\桌面\学习笔记\resource\redolog_and_binlog.jpg)
+![redolog_and_binlog](../../../resource/redolog_and_binlog.jpg)
 
 #### 安全恢复数据
 

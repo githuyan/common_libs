@@ -1,11 +1,5 @@
 # 常用命令
 
-> 艿艿：这一小节会非常非常非常长，当做温故知新吧。
->
-> 另外，面试官也可能会问，你熟悉 [Linux](https://so.csdn.net/so/search?from=pc_blog_highlight&q=Linux) 么？你平时使用哪些 Linux 命令。酱紫的连环炮~
->
-> 当然，建议重点看下 [「性能相关」](http://svip.iocoder.cn/Linux/Interview/#) 小节。
-
 **来自：** [ Linux面试题_木村的博客-CSDN博客_linux面试题](https://blog.csdn.net/a303549861/article/details/93754526?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param)
 
 ## 目录相关
