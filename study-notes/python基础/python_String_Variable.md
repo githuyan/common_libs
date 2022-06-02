@@ -264,6 +264,20 @@ import re
   print(data.group('code'))	# utf-8
   ```
 
+## 注意
+
+1. 列表中的字符串之间没有 , 也不会报错
+
+   ```python
+   # 直接合并了？
+   ["d", "d" "dd", "fds"]
+   ['d', 'ddd', 'fds']
+   ['a', 'c' 'dd', 'fsdf']
+   ['a', 'cdd', 'fsdf']
+   ```
+
+   
+
 ---
 
    ## 变量
