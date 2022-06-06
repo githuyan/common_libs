@@ -509,13 +509,11 @@ Redis单条命令是保证原子性的，但事务不保证原子性
 
 
 
-## Redis 使用
+## 技巧
 
-### 技巧
+### 函数
 
-#### 函数
-
-**scan()**
+#### **scan()**
 
 > 相较于 keys * ，scan基本不会阻塞，而后者属于全表扫描
 
@@ -531,6 +529,20 @@ Redis单条命令是保证原子性的，但事务不保证原子性
 
 ```python
 scan()
+```
+
+#### **同时设置键和过期时间**
+
+**参考：** [(142条消息) 如何用Redis实现分布式锁_GeorgiaStar的博客-CSDN博客_redis实现分布式锁](https://blog.csdn.net/fuzhongmin05/article/details/119251590)
+
+```shell
+从 Redis 2.6.12 版本开始， SET 命令的行为可以通过一系列参数来修改：
+
+SET key value EX second ：设置键的过期时间为 second 秒。 
+SET key value PX millisecond ：设置键的过期时间为 millisecond 毫秒。 
+
+NX ：只在键不存在时，才对键进行设置操作。 SET key value NX 效果等同于 SETNX key value 
+XX ：只在键已经存在时，才对键进行设置操作。
 ```
 
 

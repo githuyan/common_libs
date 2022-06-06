@@ -212,9 +212,77 @@ print(items[1:3:1])
 
 
 
+**\__name__**
+
+> if __name__ == "\__main__"
+
+```python
+class Student:
+    type = "person"
+    class_num = 34
+
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def get_age(self):
+        print(self.__class__.__name__)  # 注意这里
+        return self.age
+
+    @classmethod
+    def get_teacher(self):
+        return "Brain"
+
+
+print(Student.__class__.__name__)  # 注意这里
+print("*" * 30)
+stu = Student("weihua", 18)
+print(stu.__class__.__name__)  # 注意这里
+```
+
+
+
+**上下文管理器**
+
+> 异步情况下的上下文管理器
+
+**参考：** [(142条消息) asyncio之异步上下文管理器_python学习开发的博客-CSDN博客](https://blog.csdn.net/muzico425/article/details/98920943)
+
+```python
+class AContext:
+    def __init__(self):
+        print("in init")
+
+    async def __aenter__(self):
+        print("in aenter")
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        print("in aexit")
+
+
+async def main():
+    async with AContext() as ac:
+        print("in with", ac)
+
+
+if __name__ == '__main__':
+    print("start")
+    import asyncio
+    asyncio.run(main())
+```
+
+
+
+### \__slots__
+
+```
+# 限制动态添加属性 #init中变量必须在__slots__中
+# __slots__ = ('delete')
+```
+
+
+
 ### List 对象及其实现
-
-
 
 ```python
 class FunctionalList:
