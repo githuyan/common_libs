@@ -287,7 +287,18 @@ git diff head	显示工作区与版本库的差异
 git diff --cached	显示暂存区与版本库的差异
 ```
 
+### git rebase
 
+> 变基
+
+```shell
+git rebase -i <commit_id>  // 合并commit
+
+git rebase master  // 将master分支内容（软）合并到当前分支，可能会有冲突
+git rebase --abort  // 撤销上一次 rebase 合并
+
+git rebase --continue  // 解决完冲突，并在 commit 后，使用此命令继续合并
+```
 
 ### **git reset** （撤销）
 
