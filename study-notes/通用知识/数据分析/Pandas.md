@@ -420,7 +420,7 @@ right
 0  C1  D1
 2  C2  D2
 
-# 根据索引进行重叠合并
+# 根据索引进行重叠合并， left 中为空的部分会用right对应位置的部分填充
 left.combine_first(right)
     A   B key
 0  C1  D1  K0
@@ -461,9 +461,22 @@ account_id
 {1: {'tag_info': [{'account_id': 1, 'tag_name': 'tom'}, {'account_id': 1, 'tag_name': 'jerry'}]}, 3: {'tag_info': [{'account_id': 3, 'tag_name': 'susan'}]}}
 ```
 
+**嵌套字典生成PD**
 
+> **{键：{键：值，键：值}，键：{键：值，键：值}}**
 
-
+```python
+c = {0: {0: 'a', 1: 1, 2: 0}, 1: {0: 'b', 1: 2, 2: 0}}
+pd.DataFrame().from_dict(c) # 每一个键值对作为一列，以键为列名，子键为行名
+   0  1
+0  a  b
+1  1  2
+2  0  0
+pd.DataFrame().from_dict(c, orient='index') # 每一个键值对作为一行，以键为行名，子键为列名
+   0  1  2
+0  a  1  0
+1  b  2  0
+```
 
 ## 技巧
 
@@ -473,7 +486,7 @@ account_id
 
 > 都可以对行或者列进行操作
 >
-> 只能使用标签索引，不能使用整数索引
+> df.loc 只能使用标签索引，不能使用整数索引
 >
 > 取值范围为，**前闭后闭**
 >
