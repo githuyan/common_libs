@@ -263,6 +263,24 @@ import re
   print(data.group('image')) 	# data:image/png;base64,iVBORw0KGgoAAAANSUhE
   print(data.group('code'))	# utf-8
   ```
+  
+
+
+
+### 与或表达式
+
+参考 [(Python 中 （&，|）和（and，or）之间的区别_祢唿的博客-CSDN博客_python 与](https://blog.csdn.net/weixin_40041218/article/details/80868521)
+
+两个对象是数值型时， 前者进行位运算，后者进行与或运算
+
+```python
+11 & 12  => 8
+
+3 and 2 => 2
+3 or 2 => 3
+```
+
+两个对象是bool型时，都进行与或运算
 
 ## 注意
 
