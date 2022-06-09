@@ -33,6 +33,8 @@
 
 2. 修改配置文件
 
+   > 改完之后尝试 sudo apt update 若没有成功则重启，在重新设置这一步
+
    ```shell
    sudo vim /etc/resolv.conf 
    
@@ -57,7 +59,17 @@
 
    
 
-   
+若出现进程占用问题
+
+```shell
+sudo fuser -vki /var/lib/apt/lists/lock
+```
+
+
+
+
+
+
 
 
 
