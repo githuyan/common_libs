@@ -1,4 +1,8 @@
-### Docker 容器
+## Docker 
+
+> Dockerbr本身就相当于一个虚拟机，他本身就是一个Docker环境，理论上可以在任何下载Docker的设备商运行程序
+>
+> **docker 的镜像类似于python的类， 容器相当于python的实例， docker本身类似于python进程的docker进程**
 
 **参考：**
 
@@ -6,7 +10,7 @@
 
 
 
-#### 启动docker服务
+### 启动docker服务
 
 ```shell
 # 启动
@@ -25,7 +29,7 @@ docker systemctl stop docker
 
 
 
-#### **镜像**
+### **镜像**
 
 > 镜像是一种轻量级，可执行的独立软件包，用来打包软件运行环境和基于运行环境开发的软件，它包含运行某个软件所需的所有内容，包括代码，运行时的库，运行环境和配置文件
 
@@ -62,7 +66,7 @@ docker systemctl stop docker
 
    - -f $(docker images -a -q) 删除所有镜像
 
-#### **容器相关**
+### **容器相关**
 
 1. **容器的创建并启动**
 
@@ -129,7 +133,7 @@ docker systemctl stop docker
 
    `docker rm -f $(docker ps -aq)` 强制删除所有容器
 
-#### **容器数据卷 ** - **容器的持久化和同步操作**
+### **容器数据卷 ** - **容器的持久化和同步操作**
 
 > 数据如果都存在容器中，容器删除后，数据会丢失，卷技术就是容器之间的数据共享技术，将容器中产生的数据同步到本地
 
@@ -178,11 +182,11 @@ docker systemctl stop docker
 
    由于父容器创建时 test 目录挂载了 nginxa 目录，所以以后继承父容器的子容器也将挂载同一个目录，主机/nginxa目录，父容器/test目录，子容器/test目录，这三个目录信息同步
 
-#### DockerFile
+### DockerFile
 
 > 用来构建docker镜像的文件！ 命令参数脚本 这个文件没有后缀名。创建一个自己的镜像，原来的nginx基础镜像，只能创建一个nginx的容器，而自定义的镜像可以是一个包含nginx+flask+python+uwsgi的一套环境
 
-##### **基础指令**
+#### **基础指令**
 
 > 就是一个脚本
 
@@ -201,13 +205,35 @@ docker systemctl stop docker
 | ONBUILD            | 当构建一个继承自这个文件的镜像时，会触发这个指令             |                                     |
 | COPY               | 类似ADD命令，将文件拷贝到镜像中                              |                                     |
 
-1. 根据docker文件创建镜像
+#### 构建镜像
 
-   docker build DockerFile[^默认寻找DockerFile文件进行构建]
+> docker构建镜像实际上是将本地的文件发送到远程docker服务器上，使用docker引擎构建，这是一组docker api
+>
+> 远程和本地的路径差异就出现了 上下文， 所以构建镜像最好使用 **绝对路径， 并空值dockerfiel的目录**
 
-   - -f CustomFile[^自定义文件名]
+```shell
+# docker build [选项] <上下文路径/URL/->
 
-2. 实例
+$ docker build -t nginx:v3 .
+Sending build context to Docker daemon 2.048 kB  # 将当前本地要构建镜像的上下文 发送到远程服务器
+Step 1 : FROM nginx								# 拉取基础镜像，
+ ---> e43d811ce2f4
+Step 2 : RUN echo '<h1>Hello, Docker!</h1>' > /usr/share/nginx/html/index.html # 在基础镜像中运行命令，得到第二层镜像
+ ---> Running in 9cdc27646c7b
+ ---> 44aa4490ce2c
+Removing intermediate container 9cdc27646c7b  # 删除第一层镜像
+Successfully built 44aa4490ce2c
+```
+
+**其他构建方式**
+
+
+
+docker build DockerFile[^默认寻找DockerFile文件进行构建]
+
+- -f CustomFile[^自定义文件名]
+
+1. 实例
 
    > 这整个文件写下来，每一句命令都是单独的一层，所以过多无意义的层，会造成镜像膨胀过大，首先from 继承centos环境，然后作者，配置工作目录，添加（相当于拷贝）应用压缩包到指定目录并解压缩，暴露端口 cmd执行命令
 
@@ -230,33 +256,154 @@ docker systemctl stop docker
 
    根据 home目录下的dockerfile文件创建了一个名叫 aaanginx 版本号为1.0的镜像在 当前目录下 ( . )
 
-3. 提交一个镜像
+2. 提交一个镜像
 
    docker commit -a="author" -m="fiest commit"[^描述性内容] 容器id customimage[^自定义镜像名]:v1.0[^自定义版本号]
 
-##### 实例
+#### 实例
+
+> 想输入外部参数或许可以利用 RUN 命令运行shell脚本的方式添加
+
+##### **FROM**
+
+> 指定基础镜像
+>
+> docker 项目的迭代，docker第二层镜像 = 第一层镜像 + 存储层（修改）数据，docker commit 之后，此时的docker镜像属于第二层
+>
+> **挂在在卷中的数据不会记录进容器存储层**
+
+```dockerfile
+# FROM 指令并不是必须的，甚至可以指定一个空白镜像, 
+FROM scratch
+...
+```
+
+##### **RUN**
+
+> run命令实在运行 shell 命令， 每一个 RUN 都是在构建一层镜像，过多的 RUN 会导致镜像冗余，应该使用尽量少的 RUN 
+>
+> 镜像构建时，一定要确保每一层只添加真正需要添加的东西，**任何无关的东西都应该清理掉**。
+
+```dockerfile
+FROM debian:stretch
+
+# 这里构建了7层镜像
+RUN apt-get update
+RUN apt-get install -y gcc libc6-dev make wget
+RUN wget -O redis.tar.gz "http://download.redis.io/releases/redis-5.0.3.tar.gz"
+RUN mkdir -p /usr/src/redis
+RUN tar -xzf redis.tar.gz -C /usr/src/redis --strip-components=1
+RUN make -C /usr/src/redis
+RUN make -C /usr/src/redis install
+
+# 正确写法
+RUN set -x; buildDeps='gcc libc6-dev make wget' \
+    && apt-get update \
+    && apt-get install -y $buildDeps \
+    && wget -O redis.tar.gz "http://download.redis.io/releases/redis-5.0.3.tar.gz" \
+    && mkdir -p /usr/src/redis \
+    && tar -xzf redis.tar.gz -C /usr/src/redis --strip-components=1 \
+    && make -C /usr/src/redis \
+    && make -C /usr/src/redis install \
+    && rm -rf /var/lib/apt/lists/* \    # 这一组命令的最后添加了清理工作的命令， 
+    && rm redis.tar.gz \     # 删除了为了编译构建所需要的软件
+    && rm -r /usr/src/redis \   # 清理了所有下载、展开的文件
+    && apt-get purge -y --auto-remove $buildDeps  # 清理了 apt 缓存文件
+    
+    #镜像构建时，一定要确保每一层只添加真正需要添加的东西，任何无关的东西都应该清理掉。
+```
+
+1. **CMD**
+
+   > 和 RUN 类似，docker没有前台后台的概念，一个docker 进程都应该是前台执行，**直接执行可执行文件**
+
+   ```dockerfile
+   # ubuntu 中的 bash 命令默认为 /bin/bash
+   CMD echo $HOME  === CMD [ "sh", "-c", "echo $HOME" ]   # 必须使用双引号
+   # 相当于 sh -c "echo $HOME"
+   
+   FROM ubuntu:18.04
+   RUN apt-get update \
+       && apt-get install -y curl \
+       && rm -rf /var/lib/apt/lists/*
+   CMD [ "curl", "-s", "http://myip.ipip.net" ]
+   ```
+
+   
+
+##### COPY
+
+> linux  中的 cp，可以使用正则， 单正则要满足 go 语言的正则标准
+
+```dockerfile
+# 目标路径为空时会自动创建
+COPY  <源路径>... <目标路径>
+
+# 在使用该指令的时候还可以加上 --chown=<user>:<group> 选项来改变文件的所属用户及所属组
+COPY --chown=55:mygroup files* /mydir/
+```
+
+1. **ADD**
+
+   > 和 COPY 功能类似，只是他的功能定位不清晰，官方**仅建议使用他的自动解压缩功能**
+
+   ```dockerfile
+   # 另一个功能， 自动解压缩到另一个文件中，
+   ADD ubuntu-xenial-core-cloudimg-amd64-root.tar.gz /
+
+
 
 **ENV**: 
 
-> ARG 指令有生效范围，如果在 `FROM` 指令之前指定，那么只能用于 `FROM` 指令中。
->
-> 使用上述 Dockerfile 会发现无法输出 `${DOCKER_USERNAME}` 变量的值，要想正常输出，你必须在 `FROM` 之后再次指定 `ARG`
+> 设置环境变量, 环境变量可以使用的地方很多，很强大。通过环境变量，我们可以让一份 `Dockerfile` 制作更多的镜像，只需使用不同的环境变量即可
 
 ```dockerfile
-# 相当于设置了一个 变量
+# 可以设置多个变量
+ENV VERSION=1.0 DEBUG=on \
+    NAME="Happy Feet"
+```
 
-# 只在 FROM 中生效
-ARG DOCKER_USERNAME=library
+1. **ARG**
 
-FROM ${DOCKER_USERNAME}/alpine
+   > ARG 指令有生效范围，如果在 `FROM` 指令之前指定，那么只能用于 `FROM` 指令中。
+   >
+   > 使用上述 Dockerfile 会发现无法输出 `${DOCKER_USERNAME}` 变量的值，要想正常输出，你必须在 `FROM` 之后再次指定 `ARG`
 
-# 要想在 FROM 之后使用，必须再次指定
-ARG DOCKER_USERNAME=library
+   ```dockerfile
+   # 相当于设置了一个 变量
+   
+   # 只在 FROM 中生效
+   ARG DOCKER_USERNAME=library
+   
+   FROM ${DOCKER_USERNAME}/alpine
+   
+   # 要想在 FROM 之后使用，必须再次指定
+   ARG DOCKER_USERNAME=library
+   
+   RUN set -x ; echo ${DOCKER_USERNAME}
+   ```
 
-RUN set -x ; echo ${DOCKER_USERNAME}
+​	
+
+##### WORKDIR
+
+> 在dockerfile 文件中指定当前的工作路径, **改变环境状态并影响以后的层**
+>
+> 若路径不存在，会自动创建
+>
+> 
+
+```dockerfile
+WORKDIR /app
+RUN echo "hello" > world.txt
+WORKDIR /app/api
+COPY ./word.txt .
+RUN word.txt
 ```
 
 
+
+​		
 
 #### 整体流程
 
