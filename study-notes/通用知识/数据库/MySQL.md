@@ -605,6 +605,17 @@ select * from tmp;
 
 ### 函数
 
+- **判断（ if ）**
+
+  ```mysql
+  select t.name,if(t.weight<80,'正常','肥胖') 体重 from t_customer t
+  
+  # 特例
+  IFNULL(expr1,expr2)：
+  ```
+
+  
+
 - **排序(desc , asc)**
 
   ```sql

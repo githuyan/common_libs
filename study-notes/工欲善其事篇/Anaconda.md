@@ -18,7 +18,7 @@ conda clean -y -a # 删除所有的安装包及cache(索引缓存、锁定文件
 
 
 
-conda list  // 产看虚拟环境中安装了那些包
+conda info -e  // 产看虚拟环境中安装哪些环境
 
 conda list：查看安装了哪些包。
 conda install package_name(包名)：安装包
