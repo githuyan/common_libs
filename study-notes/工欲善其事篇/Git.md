@@ -247,6 +247,14 @@ fixup：与 squash 类似，但不保留提交信息
 
 **参考：**  [git cherry](https://blog.csdn.net/CSDN297904380/article/details/108872875?spm=1001.2101.3001.6661.1&utm_medium=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1.pc_relevant_antiscanv2&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1.pc_relevant_antiscanv2&utm_relevant_index=1)
 
+### git pull 
+
+```shell
+# 拉取远程分支合并到本地分支，（可能会有冲突）
+git pull origin remote_branch
+git pull 远程服务名 远程分支名:将要映射的本地分支分支名
+```
+
 
 
 ### **git status** （状态）

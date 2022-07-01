@@ -84,6 +84,27 @@
         # [1, 2] [1, 2]
         # 这是因为函数的默认参数只在定义的时候指定一次
         ```
+        
+      - **nonlocal 和 global**
+   
+        ```python
+        # nonlocal 声明的局部变量
+        # global 声明全局变量
+        def aaa(level):
+            print(level)
+        
+            def bbb():
+                nonlocal level # 改变局部作用域的值但不改变全局作用域的值
+                # global level  # 并不会改变该参数在局部作用域中的值
+                level = 10
+                
+            bbb()
+            print(level)
+        
+        aaa(1)
+        ```
+   
+        
    
    2. #### **函数注解**
    
@@ -97,13 +118,13 @@
       > 闭包就是像一个类，只是比类更简洁，更高效
       >
       > 作用：保存外部运行环境，实现装饰器
-
+   
       ```python 
       def counter():
           # 这是一个计数器
           count = 0
           def accumulate():  # 在函数内又定义了一个累加函数
-              nonlocal count # nonlocal 声明此外部变量在当前作用域内可改变
+              nonlocal count # nonlocal 声明此函数作用域中可改变
               count += 1
               return count
           return accumulate
