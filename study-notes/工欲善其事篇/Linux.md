@@ -1,17 +1,3 @@
-## shell
-
-#### Vim快捷键
-
-```shell
-G 文档尾行
-g 文档首行
-
-pageup  上翻
-pagedown 下翻
-```
-
-
-
 # 命令
 
 **来自：** [ Linux面试题_木村的博客-CSDN博客_linux面试题](https://blog.csdn.net/a303549861/article/details/93754526?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param)

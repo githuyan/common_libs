@@ -300,12 +300,25 @@ explain select name from city where city.name='孙悟空'
 
 **Extra**:
 
+> 性能从好到坏：Using index > Using where > Using temporary > Using filesort
+
 - using index 覆盖索引
+- using temporary  要解决查询，MySQL需要创建一个临时表来保存结果(数据量太大了)
 - using condition 索引下推
 
-**key**: 使用了 `name_index` 索引
+**key**: 本次查询确切使用了 `name_index` 索引
 
-**rows**: 扫描了 1 行记录
+**possible_keys**: 此次查询中可能选用的索引
+
+**rows**: 估算SQL要查找到结果集需要扫描读取的数据行数
+
+**key_len:** 表示使用了索引的字节数，可通过该列计算查询中使用的索引的长度
+
+**ref:** 表示上述表的连接匹配条件，即哪些列或常量被用于查找索引列上的值， 引用到的上一个表的列
+
+
+
+
 
 ## 技巧
 
@@ -1732,7 +1745,7 @@ select * from T where name='tom'
 
 > 指一个查询语句的执行只用从索引中就能够取得，不必从数据表中读取。可以称之为实现了索引覆盖。就不需要回表，提升了性能
 >
-> 索引上的信息足够满足产讯的需求，不需要在会到主键索引上去取数据
+> 索引上的信息足够满足产讯的需求，不需要在回到主键索引上去取数据
 
 ```sql
 // name 是二级索引
@@ -2148,7 +2161,13 @@ lock table users write # 加写锁
      any_value(create_time) desc
    ```
    
-   
+2. mysql的索引类型使用不一致导致的慢查询
+
+   ```mysql
+   # id: int, name: str 为索引
+   select * from user where id='1'  # 可用，但是不走索引
+   select * from user where id=1   # 走索引
+   ```
 
 ## ORM
 
