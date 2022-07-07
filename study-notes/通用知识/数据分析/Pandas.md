@@ -88,34 +88,10 @@ df.iloc[1,3]  # 取1行3列
 > 返回行标签列标签组成的列表
 
 ```python
-df.axes 
 df.axes
 Out[41]: 
 [Index(['a', 'b', 'c', 'd'], dtype='object'),
  Index(['one', 'two'], dtype='object')]
-```
-
-**类型**
-
-> **总结一下astype()函数有效的情形：**
->
-> - **数据列中的每一个单位都能简单的解释为数字(2, 2.12等）**
-> - **数据列中的每一个单位都是数值类型且向字符串object类型转换**
->
-> **如果数据中含有缺失值、特殊字符astype()函数可能失效。**
-
-```python
-dtypes # 返回每一列的数据类型
-df['a'].dtype # 获取某一列的类型
-df['num'].astype('int64') # 强制类型转换
-
-# 强制类型转换的替代方法：
-1. 使用pandas中的辅助函数， 
-pd.to_numeric(df['num'], error='coerce').fillna(0)
-
-2. 自定义转换函数
-def convert_str(): pass
-df['num'].apply(convert_str) # 自由度更高
 ```
 
 **empty**
@@ -154,7 +130,7 @@ d  3.0  3.0
 
 **count()**
 
-> 统计某个非空值的数量
+> 统计数量
 
 **算术运算**
 
@@ -309,7 +285,7 @@ pd.concat([df1,df2]，sort=False) # 默认为按照键拼接，不匹配的为�
 df1.append(df2) 
 ```
 
-#### 填充
+#### 表间填充
 
 > 类似于合并，对应位置有值则跳过，空值则用另一张表的数据填补
 >
@@ -344,7 +320,38 @@ left.combine_first(right)
 3  A2  B3  K3
 ```
 
+### 类型转化处理
+
+**类型**
+
+> **总结一下astype()函数有效的情形：**
+>
+> - **数据列中的每一个单位都能简单的解释为数字(2, 2.12等）**
+> - **数据列中的每一个单位都是数值类型且向字符串object类型转换**
+>
+> **如果数据中含有缺失值、特殊字符astype()函数可能失效。**
+>
+> 用来转换特定的数据类型，python中默认是 int32
+
+```python
+dtypes # 返回每一列的数据类型
+df['a'].dtype # 获取某一列的类型
+df['num'].astype('int64') # 强制类型转换
+
+# 强制类型转换的替代方法：
+1. 使用pandas中的辅助函数， 
+pd.to_numeric(df['num'], error='coerce').fillna(0)
+
+2. 自定义转换函数
+def convert_str(): pass
+df['num'].apply(convert_str) # 自由度更高
+```
+
+
+
 ### 格式转换处理
+
+#### 输入转换
 
 **一维序列 --> 字典**
 
@@ -393,6 +400,49 @@ pd.DataFrame().from_dict(c, orient='index') # 每一个键值对作为一行，�
 1  b  2  0
 ```
 
+
+
+**不等长数组构成的字典 -> DataFrame**
+
+```python
+data = {
+    'a': [1,2,3,4],
+    'b': [1,2,3]，
+    'c': [1,2]
+}
+
+df = pd.DataFrame.from_dict(data, orient='index')
+   0  1    2    3
+a  1  2  3.0  4.0
+b  1  2  3.0  NaN
+c  1  2  NaN  NaN
+
+# 需要转置一次
+df.T
+```
+
+#### 输出转换
+
+**.to_dict(origin=dict)**
+
+> to_dict 可以对DataFrame类型的数据进行转换
+
+**注意：**
+
+1. 老版本的pandas 会在 .to_dict('record') 时自动类型转换为 float64
+
+```python
+都是转换为字典，但具体形式不同：
+orient='dict',默认,字典套字典：{column:{index:value}}
+orient ='list' ,字典里面为列表：{column：[values]}
+orient ='series',字典里为series形式：{column: Series(values)}
+orient ='split',字典里是数据对应列表：{'index':[index],'columns':[columns],'data': [values]}
+orient ='records',转化后是 list形式：[{column: value},...,{column:value}]
+orient ='index',字典里面同样有字典：{index:{column:value}}
+```
+
+
+
 ## 技巧
 
 ### 窗口函数
@@ -430,6 +480,8 @@ d  6.0  10.0
 
 **内置聚合函数**
 
+> 尽量使用内置聚合函数，自定义函数的性能得不到保证
+
 ```python 
 max/min/mean/median(算术中位数)/count（数量）/all(是否所有元素都为真）/any（是否至少一个元素为真）/idxmax（最大值索引）/idxmin/mad(平均绝对偏差)/nunique(唯一值的数量)/skew(偏度)/quantile(分位数)/sum/std(无偏(分母为n-1)标准差/var（方差）/sem(均值的标准误差)/size/prod（积）
 ```
@@ -439,8 +491,6 @@ max/min/mean/median(算术中位数)/count（数量）/all(是否所有元素都
 ```python
 ddf = df.groupby('account_id').agg(new_name=('fee', 'sum'))
 ```
-
-
 
 ```python
 df.aggregate(np.sum)
@@ -457,37 +507,7 @@ a
 3  [3, 4]
 ```
 
-### 数据清洗转换
 
-**.to_dict(origin=dict)**
-
-> to_dict 可以对DataFrame类型的数据进行转换
-
-```python
-都是转换为字典，但具体形式不同：
-orient='dict',默认,字典套字典：{column:{index:value}}
-orient ='list' ,字典里面为列表：{column：[values]}
-orient ='series',字典里为series形式：{column: Series(values)}
-orient ='split',字典里是数据对应列表：{'index':[index],'columns':[columns],'data': [values]}
-orient ='records',转化后是 list形式：[{column: value},...,{column:value}]
-orient ='index',字典里面同样有字典：{index:{column:value}}
-```
-
-**dp.astype("int64")**
-
-> 用来转换特定的数据类型，python中默认是 int32
-
-```python
-dp.astype("int64")
-```
-
-**pd.fillna(0)**
-
-> 填充空值
-
-```python
-dp.fillna(0)  # 用 0 来填充空值
-```
 
 ### 字符串处理
 
@@ -501,43 +521,6 @@ df[0].str.split('\|\|', expand=True)
 0  aaa  bbb|ccc  None
 1   aa       bb    cc
 2    a        b     c
-```
-
-### 输出转换
-
-.to_dict()
-
-**注意：**
-
-1. 老版本的pandas 会在 .to_dict('record') 时自动类型转换为 float64
-
-### 创建DataFrame
-
-> 制定的列不够时会自动截断，只保留指定的列
->
-> 字典的列表也可以直接转换DataFrame结构
-
-```python
-df = pd.DataFrame({'a':1,'b':2,'c':3})
-```
-
-#### 不等长数组构成的字典 -> DataFrame
-
-```python
-data = {
-    'a': [1,2,3,4],
-    'b': [1,2,3]，
-    'c': [1,2]
-}
-
-df = pd.DataFrame.from_dict(data, orient='index')
-   0  1    2    3
-a  1  2  3.0  4.0
-b  1  2  3.0  NaN
-c  1  2  NaN  NaN
-
-# 需要转置一次
-df.T
 ```
 
 
@@ -554,7 +537,7 @@ df.T
 
 **参考：**
 
-- https://blog.csdn.net/qq_42006613/article/details/109387817?spm=1001.2101.3001.6661.1&utm_medium=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7EOPENSEARCH%7ERate-1.pc_relevant_default&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7EOPENSEARCH%7ERate-1.pc_relevant_default&utm_relevant_index=1
+- [树与表](https://blog.csdn.net/qq_42006613/article/details/109387817?spm=1001.2101.3001.6661.1&utm_medium=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7EOPENSEARCH%7ERate-1.pc_relevant_default&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7EOPENSEARCH%7ERate-1.pc_relevant_default&utm_relevant_index=1)
 
 - [博客园 - 树与表之间的关系- 形象](https://www.cnblogs.com/bambipai/p/7658311.html)
 
