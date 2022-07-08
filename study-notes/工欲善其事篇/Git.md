@@ -224,6 +224,8 @@ git reflog   # 查看所有版本信息，包括回滚和删除过的
 
 git ls-files # 查看暂存区中的内容
 git ls-files --others # 展示所有 untracked 的文件
+
+git branch -vv  # 查看当前所在分支
 ```
 
 
