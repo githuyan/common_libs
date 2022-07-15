@@ -42,8 +42,8 @@ scan()
 SET key value EX second ：设置键的过期时间为 second 秒。 
 SET key value PX millisecond ：设置键的过期时间为 millisecond 毫秒。 
 
-NX ：只在键不存在时，才对键进行设置操作。 SET key value NX 效果等同于 SETNX key value 
-XX ：只在键已经存在时，才对键进行设置操作。
+NX ：# 只在键不存在时，才对键进行设置操作。 SET key value NX 效果等同于 SETNX key value 
+XX ：# 只在键已经存在时，才对键进行设置操作。
 ```
 
 ### Redis实现分布式锁
