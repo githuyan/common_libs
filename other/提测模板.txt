@@ -1,0 +1,43 @@
+一、后端更新服务接口如下：
+
+1.wk_content_manager
+
+    pr:  https://gitlab.weike.fm/mircoservice/wk_content_manager/-/merge_requests/428/diffs
+
+2. wk_tic
+
+    pr: https://gitlab.weike.fm/mircoservice/wk_tic/-/merge_requests/569/diffs
+
+3. log
+
+    pr: https://gitlab.weike.fm/weike/log/-/merge_requests/452/diffs
+
+4. wk_content_apis
+
+    pr：https://gitlab.weike.fm/weike/wk-content-apis/-/merge_requests/1200/diffs
+
+二、接口文档
+
+https://docs.apipost.cn/preview/0e727c99100dab4a/845a68b55611f0d3
+
+三、自测情况
+
+    单测： 无
+
+    自测： 已自测
+
+四、测试注意事项
+
+    1.需进行整体性测试
+
+    2.需进行参与直播认识极多的情况下响应速度
+
+五、上线流程
+
+    setting修改： 无
+
+    配置ZK修改:   log项目中新增对于标签系统的调用
+
+    数据库修改：无
+
+ @孙树伟(孙树伟) 
