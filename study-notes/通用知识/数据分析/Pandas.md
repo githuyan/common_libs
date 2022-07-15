@@ -441,6 +441,30 @@ orient ='records',转化后是 list形式：[{column: value},...,{column:value}]
 orient ='index',字典里面同样有字典：{index:{column:value}}
 ```
 
+### 排序
+
+#### 基础排序
+
+#### 按照指定顺序排序
+
+1. 重置索引
+
+   ```python
+   df = df.set_index('account_id').reindex(sort_account_ids).reset_index()
+   
+   # 1. 当 sort_account_ids == df.account_id, 按照指定顺序排序
+   # 2. 当 sort_account_ids 全包含 df.account_id 多出来的 account_id 行填充为空
+   # 3. 当 sort_account_ids 与 df.account_id 有不匹配的值时， 不匹配的 account_id 全部为空
+   ```
+
+2. 分类排序
+
+   > 相当于优先级排序， 给 sort_account_ids 的值分类并排序 [(123456, 0) , (654321, 1) , 最后按照某一类的优先级排序 df 
+
+   **参考：** https://www.cnblogs.com/lemonbit/p/7004505.html
+
+   
+
 
 
 ## 技巧
