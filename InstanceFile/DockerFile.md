@@ -1,4 +1,4 @@
-common 镜像
+示例 镜像
 
 ```dockerfile
 FROM python:3.6.6

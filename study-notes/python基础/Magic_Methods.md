@@ -282,6 +282,23 @@ if __name__ == '__main__':
 
 
 
+### \__all__
+
+> 作用于当前文件，指定本文件中可以被导入的对象
+
+```python
+def test():
+    pass
+def test1():
+    pass
+
+__all__ = ("test",)  # 则其他文件在 import * 时，只能导入 test， 
+
+# 但是依然可以手动精确导入
+```
+
+
+
 ### List 对象及其实现
 
 ```python

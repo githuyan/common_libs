@@ -125,7 +125,7 @@ __main__.add
 
 2. 通过真实的模块对象导入
 
-   > 官方不推荐这样做，
+   > 官方不推荐这样做，因为多了解析对象这个步骤
    >
    > Using the name of a module is recommended as this means the module does not need to be serialized when the prefork pool is used. If you’re experiencing configuration problems or pickle errors then please try using the name of a module instead.
 
@@ -314,7 +314,3 @@ task.apply_async()
    ```
 
 8. AttributeError: Cant pickle local object
-
-   
-
-9. 当使用celery对接redis的时候，要用127.0.0.1:6379，而不能指定为 localhost

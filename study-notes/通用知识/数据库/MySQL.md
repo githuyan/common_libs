@@ -7,7 +7,7 @@
 ```mysql
 # sql的每一步执行都会产生一个虚拟表，用于下一步执行
 
-from > join > on > where > group by > having > select > distinct‘ > order by > limit
+from > join > on > where > group by > having > select > distinct > order by > limit
 ```
 
 ### 名词解释
@@ -46,7 +46,7 @@ from > join > on > where > group by > having > select > distinct‘ > order by >
 
   **为什么MySQL不建议使用delete删除数据**
 
-  答：使用delete删除数据只是将数据标记为已删除可复用，但是磁盘上的文件不会减少，删除数据会在空间中留下一些空洞，后面添加数据时，就会将数据添加进空洞中，数据过于分散，导致后续的读写操作多出了大量IO影响性能，所以一般都对要删除的数据进行标记删除
+  答：使用delete删除数据只是将数据标记为**已删除可复用**，但是磁盘上的文件不会减少，删除数据会在空间中留下一些空洞，后面添加数据时，就会将数据添加进空洞中，数据过于分散，导致后续的读写操作多出了大量IO影响性能，所以一般都对要删除的数据进行标记删除
 
   **连接**
 
@@ -300,12 +300,25 @@ explain select name from city where city.name='孙悟空'
 
 **Extra**:
 
+> 性能从好到坏：Using index > Using where > Using temporary > Using filesort
+
 - using index 覆盖索引
+- using temporary  要解决查询，MySQL需要创建一个临时表来保存结果(数据量太大了)
 - using condition 索引下推
 
-**key**: 使用了 `name_index` 索引
+**key**: 本次查询确切使用了 `name_index` 索引
 
-**rows**: 扫描了 1 行记录
+**possible_keys**: 此次查询中可能选用的索引
+
+**rows**: 估算SQL要查找到结果集需要扫描读取的数据行数
+
+**key_len:** 表示使用了索引的字节数，可通过该列计算查询中使用的索引的长度
+
+**ref:** 表示上述表的连接匹配条件，即哪些列或常量被用于查找索引列上的值， 引用到的上一个表的列
+
+
+
+
 
 ## 技巧
 
@@ -323,7 +336,7 @@ explain select name from city where city.name='孙悟空'
 select * from 班级表 as a where ( select count(0) from 班级表 as b where b.班级=a.班级 and b.成绩>a.成绩)<3 order by a.班级, a.成绩 desc
 ```
 
-
+**8.0**
 
 参考 https://blog.csdn.net/weixin_43660536/article/details/119009252
 
@@ -429,41 +442,6 @@ alter table users engine=innoDB
 
 
 ## 语法
-
-### 子查询临时表
-
-```sql
-with temp1 as (select * from users), temp2 as (select * from roles)
-```
-
-**注意：**
-
-1. 子查询中的别名无法应用到外层
-
-   > 子查询必须有一个别名
-   
-   ```mysql
-   select a.id, b.name from user_id in (select id in users as b)  # 别名 b 在子查询中，无法应用到外层
-   
-   select a.id, b.name from user_id in (select id in users) as b # 正确的查询方法
-   ```
-   
-2. 有些版本的MySQL不支持在子查询中使用分页 （limit）
-
-   > **报错** This version of MySQL doesn't yet support 'LIMIT & IN/ALL/ANY/SOME subquery'
-
-   **参考：**
-
-   1. https://www.cnblogs.com/zfding/p/10688031.html
-
-   ```mysql
-   # 失败
-   select id from table where id in ( select t.userId from user limit 10)
-   # 成功
-   select id from table where id in (select userId from ( select t.userId from user limit 10) tt)  # 可以多包一层解决
-   ```
-
-   
 
 ### 模糊匹配
 
@@ -599,13 +577,53 @@ tmp as (
     where id in (10022486)
 )
 select * from tmp;
+
+# 推荐
+with temp1 as (select * from users), temp2 as (select * from roles)
+
+# 例子
+with temp as (select * from dws_wk_invoice_topic limit 10)
+select * from temp
 ```
+
+**子查询临时表**
+
+**注意：**
+
+1. 子查询中的别名无法应用到外层
+
+   > 子查询必须有一个别名
+
+   ```mysql
+   select a.id, b.name from user_id in (select id in users as b)  # 别名 b 在子查询中，无法应用到外层
+   
+   select a.id, b.name from user_id in (select id in users) as b # 正确的查询方法
+   ```
+
+2. 有些版本的MySQL不支持在子查询中使用分页 （limit）
+
+   > **报错** This version of MySQL doesn't yet support 'LIMIT & IN/ALL/ANY/SOME subquery'
+
+   **参考：**
+
+   1. https://www.cnblogs.com/zfding/p/10688031.html
+
+   ```mysql
+   # 失败
+   select id from table where id in ( select t.userId from user limit 10)
+   # 成功
+   select id from table where id in (select userId from ( select t.userId from user limit 10) tt)  # 可以多包一层解决
+   ```
+
+   
 
 ## 函数，应用
 
 ### 函数
 
 - **判断（ if ）**
+
+  > 配合count， sum函数使用可以针对某一个字段的某一种值操作
 
   ```mysql
   select t.name,if(t.weight<80,'正常','肥胖') 体重 from t_customer t
@@ -651,6 +669,9 @@ select * from tmp;
   
   # 查看本列有多少不同的值
   select count(distinct name) from users
+  
+  # 统计某一个字段为某一确定值的记录的数量 #### 注意这里是 NULL
+  select count( if(status="success" 1, NULL) ) as success_count from invoice_topic
   ```
 
   - `COUNT(列名)`表示的是查询符合条件的列的值不为NULL的行数
@@ -664,6 +685,9 @@ select * from tmp;
   select avg(age) from message  # 返回包含数据列的平均值
   
   select sum(age) from message 
+  
+  # 统计某一个字段等于某一确定值的记录的和
+  select sum( if(status="success" 1, 0) ) as success_sum from invoice_topic
   
   # 除运算
   select 5 div 2  # 2  div  为整除，该运算符只取商的整数部分
@@ -1156,13 +1180,7 @@ where c.id is null
 select day from tempature as t1 join tempature as t2 where t2.day>t1.day
 ```
 
-##### 
 
-#### 注意
-
-1. **1000w条数据，使用limit offset 分页时，为什么越往后翻越慢？如何解决？**
-
-   答： 先查主键，在分页。 select * from tb where id in（select id from tb where limit 10 offset 20）
 
 ## 流程
 
@@ -1732,7 +1750,7 @@ select * from T where name='tom'
 
 > 指一个查询语句的执行只用从索引中就能够取得，不必从数据表中读取。可以称之为实现了索引覆盖。就不需要回表，提升了性能
 >
-> 索引上的信息足够满足产讯的需求，不需要在会到主键索引上去取数据
+> 索引上的信息足够满足产讯的需求，不需要在回到主键索引上去取数据
 
 ```sql
 // name 是二级索引
@@ -2097,6 +2115,8 @@ show OPEN TABLES where In_use > 0 # 查看是否发生锁表
 lock table users write # 加写锁
 ```
 
+
+
 ## ==坑==
 
 1. **mysql 5.7** 中对于既有分组又有排序的场景，整个SQL中使用到的字段都必须在 group by  中出现
@@ -2148,7 +2168,19 @@ lock table users write # 加写锁
      any_value(create_time) desc
    ```
    
+2. mysql的索引类型使用不一致导致的慢查询
+
+   ```mysql
+   # id: int, name: str 为索引
+   select * from user where id='1'  # 可用，但是不走索引
+   select * from user where id=1   # 走索引
+   ```
    
+3. **1000w条数据，使用limit offset 分页时，为什么越往后翻越慢？如何解决？**
+
+   先查主键，在分页。 select * from tb where id in（select id from tb where limit 10 offset 20）
+
+
 
 ## ORM
 
