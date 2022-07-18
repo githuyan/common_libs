@@ -1,14 +1,63 @@
 # FastApi
 
+
 ## 技巧
 
-#### 依赖项
+### 使路径参数固定, 固定 name 的取值
 
-> 类似于 装饰器，一个功能函数总是位于末端的装饰器
+> http://xxx/name/{name}
+
+```python 
+# 使用 python 的 Enum（枚举类）
+from enum import Enum
+
+class Name(Enum):
+    tom: str = tom
+    jerry: str = jerry
+@app.get('/name/{Name}')
+async def get_name(name: Name):
+    if name == Name:
+        xxx
+```
+
+
+
+### 参数校验
+
+1. 查询参数的校验
+
+   > Query()
+
+   ```python
+   # 可选且限制长度
+   async def get_name(name: Union[str, int] = Query(default=None, max_length=10)):
+       min_langth, max_length
+       regex="^aaa.*b$"
+       ... # 必选参数 Query(..., max_lenght=10)
+       default=['tom', 'jerry'] # 默认值也可以是列表
+       
+   # 	请求体参数客户端必须以 json 的方式发送
+   class Name(BaseModel):
+       name: str
+   async def get_name(name: Name):
+   
+   # 前端发
+   {
+       "name": "tom"
+   }
+   ```
+
+
+
 
 ### 依赖项
 
 > 类似于 装饰器
+
+**参考：**
+
+- [子依赖项 - FastAPI (tiangolo.com)- 官方文档 --极好](https://fastapi.tiangolo.com/zh/tutorial/dependencies/sub-dependencies/) 
+- [ 超全面整理fastAPI(从入门到运用)_fastapi](https://blog.csdn.net/my_name_is_learn/article/details/109819127)
 
 ```python
 # 依赖项可以是一个函数，一个类，可以任意深度嵌套
@@ -44,75 +93,6 @@ async def read_items():
 
 ```python
 app = FastAPI(dependencies=[Depends(verify_token), Depends(verify_key)])
-```
-
-### 安全性
-
-#### 跨域资源共享（CORS）
-
-#### 背景任务
-
-> 回调, BackgroundTask
-
-```python
-async def btask(name: str):
-    
-async def router(message: str, backgroundtasks: BackgroundTasks):
-    backgroundtasks.add_task(btask, name="tom")
-```
-
-#### 响应
-
-> fastapi 不会对响应做任何的修改，所以甚至可以直接返回 html 页面
-
-```python 
-from fastapi.response import JobResponse
-
-# Response 类接受如下参数：
-    content - 一个 str 或者 bytes。
-    status_code - 一个 int 类型的 HTTP 状态码。
-    headers - 一个由字符串组成的 dict。
-    media_type - 一个给出媒体类型的 str，比如 "text/html"。
-
-# 返回html
-async def read_items():
-    return """
-    <html>
-        <head>
-            <title>Some HTML in here</title>
-        </head>
-        <body>
-            <h1>Look ma! HTML!</h1>
-        </body>
-    </html>
-    """
-```
-
-
-
-**Depends**
-
-```python
-from typing import Optional
-
-from fastapi import Cookie, Depends, FastAPI
-
-app = FastAPI()
-
-def query_extractor(q: Optional[str] = None):
-
-    return q
-
-def query_or_cookie_extractor(
-    q: str = Depends(query_extractor), last_query: Optional[str] = Cookie(None)
-):
-    if not q:
-        return last_query
-    return q
-
-@app.get("/items/")
-async def read_query(query_or_default: str = Depends(query_or_cookie_extractor)):
-    return {"q_or_cookie": query_or_default}
 ```
 
 **嵌套依赖**
@@ -151,11 +131,45 @@ app = FastAPI(dependencies=[Depends(verify_token), Depends(verify_key)])
 
 
 
+### 背景任务
 
+> 回调, BackgroundTask
 
-## 参考
+```python
+async def btask(name: str):
+    
+async def router(message: str, backgroundtasks: BackgroundTasks):
+    backgroundtasks.add_task(btask, name="tom")
+```
 
-- [子依赖项 - FastAPI (tiangolo.com)- 官方文档 --极好](https://fastapi.tiangolo.com/zh/tutorial/dependencies/sub-dependencies/) 
+### 响应
 
-- [ 超全面整理fastAPI(从入门到运用)_fastapi](https://blog.csdn.net/my_name_is_learn/article/details/109819127)
+> fastapi 不会对响应做任何的修改，所以甚至可以直接返回 html 页面
+
+```python 
+from fastapi.response import JobResponse
+
+# Response 类接受如下参数：
+    content - 一个 str 或者 bytes。
+    status_code - 一个 int 类型的 HTTP 状态码。
+    headers - 一个由字符串组成的 dict。
+    media_type - 一个给出媒体类型的 str，比如 "text/html"。
+
+# 返回html
+async def read_items():
+    return """
+    <html>
+        <head>
+            <title>Some HTML in here</title>
+        </head>
+        <body>
+            <h1>Look ma! HTML!</h1>
+        </body>
+    </html>
+    """
+```
+
+### 安全性
+
+### 跨域资源共享（CORS）
 
