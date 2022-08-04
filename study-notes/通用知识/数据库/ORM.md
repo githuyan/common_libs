@@ -32,6 +32,12 @@ __table_args__ = {
 
 #### 属性
 
-.sql()
+##### **.sql()**
 
 > 获取原生sql 
+
+
+
+##### **查询**
+
+**参考：** [Query API — Tortoise ORM v0.17.3 文档 (tortoise-orm.readthedocs.io)](https://tortoise-orm.readthedocs.io/en/latest/query.html#filtering)

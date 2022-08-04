@@ -1,5 +1,7 @@
 ### Temporary failure resolving 'mirrors.aliyun.com'
 
+> 感觉应该是反复下载太多次导致本地IP被禁了
+
 **问题描述**
 
 ```shell

@@ -156,6 +156,26 @@ df.apply(np.min) # 默认为操作行，将真个行作为参数传入
 df.apply(np.min, axis=0) # 操作列， 将整个列作为参数传入
 ```
 
+**map()**
+
+> 只能操作行
+
+```python
+a = pd.DataFrame({'a': [[1, 2], [1, 2, 3], [3]], 'b': ['a', 'b', 'c']})
+
+b = a['a'].map(np.min)
+
+# b
+0    1
+1    1
+2    3
+Name: a, dtype: int32
+        
+c = a['b'].map("字符串赋值处理：{}".format)
+```
+
+
+
 **applymap()**
 
 > 操作单一元素， **以每一个元素为基本单位**

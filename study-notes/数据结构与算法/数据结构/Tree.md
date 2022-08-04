@@ -1,11 +1,15 @@
-### 树
+### 	树
 
 > 又叫堆
 
 **三种遍历方式**
 
 1. 先序遍历：遍历顺序规则为【根左右】[^先返回根在返回左右]
+
 2. 中序遍历：遍历顺序规则为【左根右】[^先返回左再返回根右]
+
+   > 可以得到一条顺序的列表，（顺序列表转化为中序遍历二叉树，再转回来）
+
 3. 后序遍历：遍历顺序规则为【左右根】
 
 #### 定义
@@ -36,7 +40,7 @@
 
 #### 二叉搜索树（BST）
 
-> 树的根节点大于所有的左子孙节点，小于所有的有子孙节点，
+> 树的根节点大于所有的左子孙节点，小于所有的右子孙节点，
 
 - 节点的左子树只包含**小于**当前节点的数。
 - 节点的右子树只包含**大于**当前节点的数。
@@ -129,8 +133,8 @@ class TreeNode:
                 if not node:
                     queue.append("null")
                 else:
-                    queue.append(node.val)
-                    stack.append(node.left)
+                    queue.append(node.val)  # 值放在队列中
+                    stack.append(node.left)  # 节点放在栈中
                     stack.append(node.right)
         while queue[-1] == "null": queue.pop()
         return queue

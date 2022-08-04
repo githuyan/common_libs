@@ -49,12 +49,11 @@ class ListNode:
            :type node: ListNode
            :rtype: void Do not return anything, modify node in-place instead.
            """
-           #先把node.next的值赋值给node的值
-           #把node.next删去就好
+           # 把node的下一个节点的值赋给node,然后删除node的下一个节点，一个替换
            node.val = node.next.val
            node.next = node.next.next
    ```
-
+   
 2. #### LeetCode第21题，题目：合并两个有序链表，难度：简单
 
    **题目描述：**
@@ -170,6 +169,23 @@ class ListNode:
            # node = stack[-1]
            # node.next = node.next.next
            # return dummy.next
+           
+           # 递归实现
+   	    def removeNthFromEnd(self, head: Optional[ListNode], n: int) -> Optional[ListNode]:
+               temp = ListNode(0)
+               temp.next = head
+   
+               def dfs(head, n):
+                   if not (head and head.next):
+                       return head, n
+   
+                   _, n = dfs(head.next, n)
+                   n -= 1
+                   if not n:
+                       head.next = head.next.next
+                   return head, n
+   
+               return dfs(temp, n)[0].next
    ```
    
 5. #### LeetCode第206题，题目：反转链表，难度：简单
@@ -177,7 +193,7 @@ class ListNode:
    ```python
    class Solution:
        def reverseList(self, head: ListNode):
-   
+   		# 递归的方法并没有在原位翻转，而是追加式的翻转
            # if(head==None or head.next==None):
            #     return head
    

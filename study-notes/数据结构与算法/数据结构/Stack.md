@@ -7,6 +7,8 @@
 > 从数据结构角度看，栈也是线性表，其特殊性在于栈的基本操作是线性表操作的子集，它是操作受限的线性表，因此，可称为限定性的数据结构。限定它仅在表尾进行插入或删除操作。表尾称为栈顶，相应地，表头称为栈底。
 >
 > 栈的基本操作除了在栈顶进行插入和删除外，还有栈的初始化，判空以及取栈顶元素等
+>
+> **栈的特性是保存了元素入栈的顺序（逆序），可以进行回溯这个栈的所有信息**
 
 ```python
 class MinStack:
@@ -238,6 +240,8 @@ class MinStack:
 
    **解法:**
 
+   > 主要是有重复的温度，所以不能使用索引
+
    ```python
    class Solution:
        def dailyTemperatures(self, temperatures): 
@@ -246,7 +250,7 @@ class MinStack:
            rets = []
            for index,tem in enumerate(temperatures):
                while stack and tem > stack[-1][1]:
-                   wait = index-stack[-1][0]
+                   wait = index-stack[-1][0]  # 记录了索引
                    rets.append((stack[-1][0],stack[-1][1],wait))
                    del stack[-1]
                stack.append((index,tem))
@@ -293,6 +297,34 @@ class MinStack:
                else:
                    res = res + i
            return res
+       
+    	# 更直观的方案
+                   stack = []
+           s = "[" + s + "]"
+   
+           for i in s:
+               if i == "]":
+                   temp = ""
+                   while stack[-1] != "[":
+                       t = stack.pop()
+                       if t.isdigit():
+                           temp *= int(t)
+                       else:
+                           temp = t + temp
+                   stack[-1] = temp
+                   if len(stack)>=2 and stack[-2].isdigit():
+                       stack.pop()
+                       stack[-1] = int(stack[-1]) * temp
+               elif i.isdigit():
+                   temp = i
+                   while stack[-1].isdigit():
+                       t = stack.pop()
+                       temp = t + temp
+                   stack.append(temp)
+   
+               else:
+                   stack.append(i)
+           return stack[0]
    ```
-
+   
    

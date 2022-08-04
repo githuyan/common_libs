@@ -52,7 +52,7 @@ async def get_name(name: Name):
 
 ### 依赖项
 
-> 类似于 装饰器
+> 类似于 装饰器，更灵活的中间件，作用于请求之前
 
 **参考：**
 
@@ -129,6 +129,32 @@ async def verify_key(x_key: str = Header(...)):
 app = FastAPI(dependencies=[Depends(verify_token), Depends(verify_key)])
 ```
 
+### 中间件（钩子函数）
+
+> 中间件就是一个全局的钩子， 作用于每个请求之前，感觉像是全局依赖项
+
+**参考：**
+
+- [FastApi开发之自定义中间件 | 菜鸟童靴 (boyyongxin.github.io)](https://boyyongxin.github.io/2022/03/30/FastApi开发之自定义中间件/)
+
+```python
+# 自定义中间件
+from starlette.middleware.base import BaseHTTPMiddleware  # 这是一个ASGI标准的中间件抽象类
+
+class CustomHeaderMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):  # 继承后必须重写dispatch方法
+        response = await call_next(request)
+        response.headers['Custom'] = 'Example'
+        return response
+
+app.add_middleware(CustomHeaderMiddleware, "描述性信息，可为空")  # 这里会在starlette的user_middleware列表中注册（追加）一个中间件，
+
+# 这种方式仅仅支持 http 中间件（就是一个例子，无法自定义）
+@app.middleware("http") 
+def new_middleware():
+    pass
+```
+
 
 
 ### 背景任务
@@ -173,3 +199,8 @@ async def read_items():
 
 ### 跨域资源共享（CORS）
 
+
+
+### Websocket
+
+> FastApi 有自带的websocket

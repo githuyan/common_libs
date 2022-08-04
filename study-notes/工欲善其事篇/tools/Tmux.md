@@ -8,7 +8,7 @@
 
 > tmux 的绝大部分快捷键都需要先 ctrl + b 作为前缀操作
 
-```shell
+```c
 tmux ls  // 查看当前所有会话
 
 tmux new -s <session-name>  // 创建一个新的会话

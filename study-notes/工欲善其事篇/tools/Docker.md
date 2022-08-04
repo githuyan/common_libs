@@ -350,6 +350,7 @@ COPY --chown=55:mygroup files* /mydir/
    ```dockerfile
    # 另一个功能， 自动解压缩到另一个文件中，
    ADD ubuntu-xenial-core-cloudimg-amd64-root.tar.gz /
+   ```
 
 
 

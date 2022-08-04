@@ -39,7 +39,7 @@ class Sorted():
         middle = nums[0]
         right = []
         for i in nums[1:]:
-            if i >= nums[0]:
+            if i >= middle:
                 right.append(i)
             else:
                 left.append(i)
@@ -51,15 +51,15 @@ class Sorted():
         # 最差时间：O(n^2)	平均空间：O(n^2)
         # 稳定
         # 空间：O(1)
-        # 快速排序是递归排序，
         冒泡排序是迭代排序，每一个值都与他后面的值比较大小，进行交换位置，所以是O(n2)
+        循环N， 每一遍内循环都找到一个最大值并尽量往后放
         """
         size = len(nums)
 
-        for i in range(1,size):
-            for j in range(i,size):
-                if nums[j] < nums[i]:
-                    nums[j],nums[i] = nums[i],nums[j]
+        for _ in range(size):
+            for i in range(size-1):
+                if nums[i] > nums[i+1]:
+                    nums[i], nums[i+1] = nums[i+1], nums[i]
 
         return nums
 
@@ -97,6 +97,9 @@ class Sorted():
         将数组二分拆分，直到为只有单个元素的列表，然后这个列表可以视为有序的，将两个这样的有序列表合并排序
         """
         def merge(left, right):
+            """
+            将两个有序列表进行排序
+            """
             middle = []
             l, r = 0, 0
             while True:
@@ -345,6 +348,12 @@ print(heapsort([0,1,2,3,4,5,6]))
    
 5. ##### LeetCode第448题，题目：找到所有数组中消失的数字，难度：简单
 
+   **题目描述：**
+
+   给你一个含 n 个整数的数组 nums ，其中 nums[i] 在区间 [1, n] 内。请你找出所有在 [1, n] 范围内但没有出现在 nums 中的数字，并以数组的形式返回结果。
+
+   **题解：** 
+
    ```python
    class Solution:
        def findDisappearedNumbers(self, nums: List[int]) -> List[int]:
@@ -396,6 +405,20 @@ print(heapsort([0,1,2,3,4,5,6]))
                elif nums[i] == 2:
                    nums[two],nums[i] = nums[i],nums[two]
                    two -= 1
+           
+           # 另一种解法，还是循环不变量，
+   		r, l = 0, len(nums)-1
+           for i in range(len(nums)):
+               if nums[i] == 0:
+                   nums[i], nums[r] = nums[r], nums[i]
+                   r += 1
+               elif nums[i] == 2:
+                   while nums[i] == 2 and l>=i:
+                       nums[i], nums[l] = nums[l], nums[i]
+                       l -= 1
+                       if nums[i] == 0:
+                           nums[i], nums[r] = nums[r], nums[i]
+                           r += 1
    ```
 
 7. ##### LeetCode第26题，题目：删除有序数组中的重复项 难度：简单
@@ -421,7 +444,7 @@ print(heapsort([0,1,2,3,4,5,6]))
                    loop_invariant += 1
            return loop_invariant
    ```
-   
+
 8. ##### LeetCode第33题，题目：搜索旋转排序数组，难度：中等
 
    **题目简介：**
@@ -429,7 +452,9 @@ print(heapsort([0,1,2,3,4,5,6]))
    大概意思就是，一个升序的数组，从某一处截开，将后面一段放到前面，形成一个升降升的数组
 
    **题解**
-   
+
+   > 这个点如果存在，那么它总是会在某一段有序的区间中
+
    ```python
    class Solution:
        def search(self, nums: List[int], target: int) -> int:
@@ -457,7 +482,7 @@ print(heapsort([0,1,2,3,4,5,6]))
    
            return -1
    ```
-   
+
 9. ##### LeetCode第34题，题目： 在排序数组中查找元素的第一个和最后一个位置，难度：中等
 
    **题目简介**：
@@ -506,7 +531,39 @@ print(heapsort([0,1,2,3,4,5,6]))
    print(s.searchRange(nums,target))
    ```
 
-10. ##### LeetCode第162. 题，题目：寻找峰值，难度：中等
+10. ##### LeetCode第704. 题，题目：二分查找，难度：简单
+
+    **题目简介：**
+
+    给定一个 n 个元素有序的（升序）整型数组 nums 和一个目标值 target  ，写一个函数搜索 nums 中的 target，如果目标值存在返回下标，否则返回 -1。
+
+    **题解**
+
+    ```python
+    class Solution:
+        def search(self, nums: List[int], target: int) -> int:
+            ret = -1
+            l, r = 0, len(nums)-1
+    
+            while l <= r:
+    
+                mid = (r + l) // 2
+    
+                if nums[mid] == target:
+                    return mid
+    
+                elif nums[mid] > target:
+                    r = mid - 1
+    
+                elif nums[mid] < target:
+                    l = mid + 1
+    
+            return ret
+    ```
+
+    
+
+11. ##### LeetCode第162. 题，题目：寻找峰值，难度：中等
 
     **题目简介：**
 
@@ -514,7 +571,7 @@ print(heapsort([0,1,2,3,4,5,6]))
 
     给你一个输入数组 nums，找到峰值元素并返回其索引。数组可能包含多个峰值，在这种情况下，返回 任何一个峰值 所在位置即可。
 
-    你可以假设 nums[-1] = nums[n] = -∞ 。
+    你可以假设 nums[-1] = nums[n] = -∞ 。  # **这个条件很重要**
 
     **题解**
 
@@ -554,17 +611,17 @@ print(heapsort([0,1,2,3,4,5,6]))
         print(s.findPeakElement(test))
     ```
 
-11. ##### LeetCode第240. 题，题目：搜索二维矩阵 II，难度：中等
+12. ##### LeetCode第240. 题，题目：搜索二维矩阵 II，难度：中等
 
     **题目简介：**
 
     编写一个高效的算法来搜索 m x n 矩阵 matrix 中的一个目标值 target 。该矩阵具有以下特性：
-    
+
     每行的元素从左到右升序排列。
     每列的元素从上到下升序排列。
-    
+
     **题解**
-    
+
     ```python
     class Solution:
         def searchMatrix(self, matrix: List[List[int]], target: int) -> bool:
@@ -582,8 +639,8 @@ print(heapsort([0,1,2,3,4,5,6]))
     
             return False
     ```
-    
-12. LeetCode第题，题目：，难度：中等
+
+13. LeetCode第题，题目：，难度：中等
 
     题目简介：
 
