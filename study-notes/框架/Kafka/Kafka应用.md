@@ -1,76 +1,45 @@
-# kafka
+## kafka常用命令
 
-> 一个分布式流处理框架，用于实时构建流处理应用，经常被应用为企业级消费引擎。
+```shell
+bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --topic test1 --partitions 2 --replication-factor 2
+```
 
-## 理论知识
+![tmp6D5D](../../../resource/tmp6D5D.png)
 
-### 性能优化
+**--describe:**
 
-1. 优化大量的小型I/O操作
+> 此时开启了两个broker，一个名为 test1 的Topic，3个分区，2个副本
 
-   产生了消费者组的概念，假设我们在处理大量的web活动数据，通过合理的将消息分组，是的网络请求将多个消息打包成一组，而不是每次发送一条消息，Consumer每次获取多个大型有序的消息块，批处理操作使得允许更大的数据包，更大的顺序读写磁盘操作，和连续的内存块，讲这些顺序写入磁盘，获得性能提升。
-
-2. 优化字节拷贝
-
-   消息量极大时就会对性能产生影响。通过格式化消息的流动，从producter，broker，consumer 都共享标准化的二进制消息格式，这样消息的传递就不需要修改。解决字节拷贝的问题。
-
-3. 使用零拷贝技术
-
-### Push or Pull
-
-> consumer获取数据的方式
-
-**Push-base**
-
-> producter  --push--> broker --push-->consumer
-
-- **优点**
-  1. consumer能以尽可能的最大速率消费
-  2. 由于 broker 控制着数据传输速率， 所以 push-based 系统很难处理不同的 consumer
-- **缺点：**
-  1. 可能会使consumer不堪重负（拒绝服务攻击）
-
-**Pull-base**
-
-> producter  --push--> broker,  consumer --pull-->broker
-
-- **优点：**
-
-  1. consumer占据主导，可以自己选择消费何种类型的消息
-  2. producter可以足够快，broker可以出现消息挤压，consumer后面在空闲的时候消费
-
-- **缺点：**
-
-  1. 如果broker中没有数据，consumer可能会出现busy轮询，直到有消息待消费，
-
-     > 这里可以在消费时加参数，设置 long pull，
-
-### 一些问题
-
-1. 解决消息确认机制的问题，
-
-   移位（offset），传统的消息确认机制包括，consumer从broker中获取消息进行消费，broker更新消息状态为send， consumer消费结束后返回标志符，broker再更新消息装填为consumed，但是这个过程可能会出现大量的消息不一致和性能问题：
-
-   - 重复消费，consumer处理了消息，但是发送标志的时候出错
-   - broker存储大量的状态（为了保持一致性，需要加锁），造成性能浪费
-
-   解决方案：
-
-   每个topic的分区下的每条消息都被分配一个位移的ID数值，用于表示他在分区中的位置
-
-2. 每个分区在任意时间只能有一个消费者进行消费
-
-## 基础使用
-
-### Topic操作
+```python
+githuyan@DESKTOP-11VL9CJ:/opt/kafka$ bin/kafka-topics.sh --bootstrap-server localhost:9092 --describe
+Topic: test1    TopicId: dRuKt0Y1SEqfMHYQYMBw9g PartitionCount: 3       ReplicationFactor: 2    Configs: segment.bytes=1073741824
+        Topic: test1    Partition: 0    Leader: 0       Replicas: 0,1   Isr: 0,1
+        Topic: test1    Partition: 1    Leader: 1       Replicas: 1,0   Isr: 1,0
+        Topic: test1    Partition: 2    Leader: 0       Replicas: 0,1   Isr: 0,1
+# 此时可以看到，Partition0 的 leader 是Replicas0,ISR顺序是 [Replicas0,Replicas1]
+# 按理来说，两个副本应该均匀的分布在两个broker上
+```
 
 
 
 
 
-### 消费组者组操作
+**注意：**
 
-#### 移位重设
+- partitions（分区数）只能增加不能减少
+- 无法通过 --alter 命令修改replication（副本）数
+
+
+
+## Replicates
+
+在创建主题的时候指定副本
+
+在启动broker的时候配置副本
+
+
+
+## 移位重设
 
 > 通过移位重设实现了消息确认机制， 在第一个消费者创建的时候设置移位
 
@@ -100,7 +69,7 @@
 
 - **current**
 
-  > 把位移重设到当前最新提交的位移处。??
+  > 把位移重设到当前最新提交的位移处。
 
   ```python
   bin/kafka-consumer-groups.sh --bootstrap-server <host>:<port> --group <group_id> --reset-offsets --all-topics --to-current –execute
@@ -140,19 +109,24 @@
   bin/kafka-consumer-groups.sh --bootstrap-server <host>:<port> --group <group_id> --reset-offsets --all-topics --by-duration PT0H30M0S –execute
   ```
 
-#### 消息交付语义
+## 消息交付语义
 
 **参考：**
 
 - [(8条消息) Kafka的三种语义_简单随风的博客-CSDN博客_kafka三种语义](https://blog.csdn.net/lt326030434/article/details/119881907) 
 
-##### at-last-one
+#### at-last-one
 
 > 至少一次，保证消息一定会被消费，但可能会重复消费
 >
 > 消费者的消息处理完并输出到结果库，但是offset还没提交，这个时候消费者挂掉了，再重启的时候会重新消费并处理消息，所以至少会处理一次
 
+实现至少一次消费语义的消费者也很简单。
 
+1. 设置enable.auto.commit为false，禁用自动提交offset
+2. 消息处理完之后手动调用consumer.commitSync()提交offset
+
+这种方式是在消费数据之后，手动调用函数consumer.commitSync()异步提交offset，有可能处理多次的场景是消费者的消息处理完并输出到结果库，但是offset还没提交，这个时候消费者挂掉了，再重启的时候会重新消费并处理消息，所以至少会处理一次
 
 #### at-most-once
 
@@ -167,19 +141,32 @@ enable.auto.commit = true
 auto.commit.interval.ms=10  # 设置一个较小的时间范围
 ```
 
+至多一次消费语义是kafka消费者的默认实现。配置这种消费者最简单的方式是
+
+> 消息还没处理完就开始提交offset
+>
+
+1. enable.auto.commit设置为true。
+2. auto.commit.interval.ms设置为一个较低的时间范围。
+   由于上面的配置，此时kafka会有一个独立的线程负责按照指定间隔提交offset。
+
+消费者的offset已经提交，但是消息还在处理中(还没有处理完)，这个时候程序挂了，导致数据没有被成 功处理，再重启的时候会从上次提交的offset处消费，导致上次没有被成功处理的消息就丢失了。
+
 #### exactly-once
 
 > 恰好一次， 完美的方式
 >
 > 以原子事务的方式保存offset和处理的消息结 果，这个时候相当于自己保存offset信息了，把offset和具体的数据绑定到一块，数据真正处理成功的时 候才会保存offset信息
 
+这种语义可以保证数据只被消费处理一次。
 
+1. 将enable.auto.commit设置为false，禁用自动提交offset
+2. 使用consumer.seek(topicPartition，offset)来指定offset
+3. 在处理消息的时候，要同时保存住每个消息的offset。
 
-#### replication: leader-follower
+以原子事务的方式保存offset和处理的消息结 果，这个时候相当于自己保存offset信息了，把offset和具体的数据绑定到一块，数据真正处理成功的时 候才会保存offset信息
 
-> 不同于主从复制的另一种同步方法
-
-
+这样就可以保证数据仅被处理一次了。
 
 
 

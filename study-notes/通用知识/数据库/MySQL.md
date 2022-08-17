@@ -322,7 +322,7 @@ explain select name from city where city.name='孙悟空'
 expain select * from users where name='tom'
 ```
 
-在[MySQL](https://cloud.tencent.com/product/cdb?from=10680)中执行一条SQL时，语句并没有在你预期的时间内执行完成
+在 MySQL 中执行一条SQL时，语句并没有在你预期的时间内执行完成
 
 ```sql
 show processlist
@@ -1188,7 +1188,7 @@ select day from tempature as t1 join tempature as t2 where t2.day>t1.day
 
 ### 排序 order by
 
-> 当 SQL 中出现 order by 时，需要选择一种排序方式（全字段排序 or rowid 排序），**当 sort_buffer 内存不足时**，需要使用一种临时表（内存临时表 or 文件临时表），当排序后的结果还有  limit  Y 时，说明只需要去结果的前 Y 行，那么选择排序算法（归并排序  - -文件临时表 or 优先队列排序 -- 内存临时表）
+> 当 SQL 中出现 order by 时，需要选择一种排序方式（全字段排序 or rowid 排序），**当 sort_buffer 内存不足时**，需要使用一种临时表（内存临时表 or 文件临时表），当排序后的结果还有  limit  Y 时，说明只需要取结果的前 Y 行，那么选择排序算法（归并排序  - -文件临时表 or 优先队列排序 -- 内存临时表）
 
 ```sql
 # 排序执行语句
@@ -1993,42 +1993,127 @@ B+ 树的插入可能会引起数据页的分裂，删除可能引起数据页�
 ### 日志
 
 > bin log 和 redo log 配合的过程，就是 MySQL 的 WAL 技术（Write-Ahead-Logging） 先写日志，再写磁盘
+>
+> **注意： 日志的作用是保证为持久化数据的安全性（正在执行的事务）**
 
-#### 两阶段提交
+#### bin log （归档日志）
 
-1. redo log 先 prepare
-2. 写 bin log
-3. redo log commit
+> 处于 server 层，MySQL自带的日志系统
+>
+> bin log 日志不能用来崩溃恢复
 
-#### **bin log** （归档日志）
+**参考：**
 
-> 处于 server 层，
+- [(10条消息) mysql 为什么不能用binlog来做数据恢复？_JackMa_的博客-CSDN博客_binlog为什么不支持崩溃恢复](https://allendaydayup.blog.csdn.net/article/details/122289998?spm=1001.2101.3001.6650.1&utm_medium=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~default-1-122289998-blog-103411116.pc_relevant_multi_platform_featuressortv2removedup&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~default-1-122289998-blog-103411116.pc_relevant_multi_platform_featuressortv2removedup&utm_relevant_index=2) 
 
-bin log 有两种存储方式，一种是直接存储 sql 语句，另一种存储本条记录与上下条记录的关系，用于实现恢复任意时刻的数据，
+```python
+# bin log 有三种存储格式， row(默认), statement, fixed(混合)
+statement: # 直接存储 sql 语句
+row: # 存储本条记录与上下条记录的关系，用于实现恢复任意时刻的数据
+    
+# 配置
+sync_binlog=1  # 代表有一个事务 commit 的时候，就写入bin log 日志，
+# 当事务发出 commit 信号的时候，类似于下面这样。
+def commit():
+    write_redolog_prepare()
+    write_binlog_commit()
+    write_redolog_commit()
+    transation.commit()
+    
+# 不能崩溃恢复的原因
+bin log 是应该已经提交的事务，它是以 append 的形式添加事务，如果有两个事务的状态都是 commit,那么无法判断哪个是需要恢复的事务。？？todo
+```
 
 #### **redo log**（重做日志）
 
-> innodb 引擎特有日志（引擎层），他相当于写在一个额外的磁盘上，crash-safe能力
+> innodb 引擎特有日志（引擎层），具备崩溃恢复能力（crash-safe）
+>
+> **redo log记录的都是还未刷盘（未commit的事务）的日志**
+>
+> redo log是两个文件循环写入，是易失的
 
-redo log 是有固定存储空间的，相当于一个粉板（缓存），在空闲的时候会将日志写入磁盘[^被称为 flush 操作]，即使数据库突然 crash 也能保证数据不丢失
-
-**写入机制**
-
+```python
 1. redo_log_buffer 占用的空间即将达到 innodb_log_buffer_size 的一半时，后台线程会主动写盘（prepare,write)
 2. 并行事务提交的时候，顺带将这个事务的 redo_log_buffer 持久化到磁盘
-3. 
 
-**区别在于：**  -- TODO 
+# 当事务发出 commit 信号的时候，类似于下面这样。
+def commit():
+    write_redolog_prepare()
+    write_binlog_commit()
+    write_redolog_commit()
+    transation.commit()
+```
 
-redo log 只有 innodb 特有
 
-redo log 是循环写的，不持久保存，
 
-##### 运作流程
+#### 两阶段提交
+
+![redolog_and_binlog](../../../resource/redolog_and_binlog.jpg)
+
+**一个事务的整体流程**
 
 > 两阶段提交视为保证两个日志的一致性
 
-![redolog_and_binlog](../../../resource/redolog_and_binlog.jpg)
+1. 分析器开始执行SQL语句，首先是现将目标数据读到内存中，如果内存中没有，就从磁盘读到内存。
+
+2. 执行器在内存中执行修改（修改时可能是一个单独的内存，因为修改之后要更新到整体内存中），此时修改的只是内存中的数据，断电即失
+
+   > 可能在执行修改之前已经将旧数据写入了 undo log （回滚日志）
+   >
+   > 此时内存中的数据因为与磁盘不同，所以被称为脏页，幻读发生在此阶段
+
+3. 将事务信息写到日志
+
+   - 正常流程
+
+     > 执行这三步之后，其实数据就已经安全了，即时还没有真正写盘，也不会因断电而丢失数据，完全可以正常回复。
+     >
+     > 如果之后crash，再根据日志回复的时候，就不会再按照这个 先写 redolog - binlog - redolog 的流程走一遍了，而是直接到commit，直接恢复，这就会造成两个日志不一致的问题，而主从复制又是依赖binlog日志的，就会出现主从不一致
+
+     ```python
+     1. 写 redo log 日志，但是并不提交，只是将日志状态标记为 prepare 状态
+     2. 写 bin log 日志，（二进制信息，其实就是这个事务所执行的SQL语句，将bin log 格式手动设置为 statement，即可以看到原始的SQL
+     	# show variables like "%binlog_format%"
+     	# Set global binlog_format=statement （重启）
+     3. 写 redo log 日志，将日志修改为 commit 转态
+     ```
+
+   - 如果不采用正常流程
+
+     > 假如不采用两阶段提交，会出现的问题
+     >
+     > **注意：** 日志恢复的是未持久化的事务，而redo log记录的是应该未持久化（未commit）的事务。而 bin log 是应该已经持久化的事务。
+
+     ```python
+     # 先写 redo log 后写 bin log
+     如果写完 redo log ，此时crask，那么内存中尚没有刷盘的数据丢失，之后只能根据redo log 恢复一遍，注意：此时的恢复，就不会再去写bin log了，而是直接是最终数据了，那么此时 主库数据 与 bin log记录的就不再一样了，如果之后从库申请同步，那么主从不一致
+     
+     # 先写 bin log 后写 redo log
+     如果写完 bin log，此时crash，那么内存中尚没有刷盘的数据丢失，此时直接bin log 与主库数据不同，数据不一致。
+     ```
+
+4. 提交事务（真正的提交修改）
+
+   > 可能不会立刻刷盘，而是等到下一次读取的时候在刷盘
+
+   ```python
+   # 事务，日志的记录其实不会有图示那样这么明确的顺序关系
+   # 应该是这样的，当事务发出 commit 信号的时候
+   def commit():
+       write_redolog_prepare()
+       write_binlog_commit()
+       write_redolog_commit()
+       transation.commit()
+   ```
+
+#### redo log  与 bin log 的区别
+
+1. redo log 是 innodb 引擎特有的， bin log是MySQL自带的处于server层
+2. redo log 是循环写入，是易失的，bin log是持久化的
+3. redo log 配合 undo log 可以实现崩溃恢复（恢复未持久化的事务），[bin log 无法实现](####bin log （归档日志）) 
+4. redo log 保存的是未持久化（未commit）日志，bin log 是持计划的事务
+
+
 
 #### 安全恢复数据
 
@@ -2046,7 +2131,7 @@ redo log 是循环写的，不持久保存，
    mysqldump -u root -p dbname < f://backup.sql
    ```
 
-### 锁
+### 锁 todo
 
 > 锁是自动加的（也可以手动加）
 
@@ -2058,7 +2143,7 @@ redo log 是循环写的，不持久保存，
 >
 > （同一事务内所有操作都是串行的，所以不会跟自己死锁）
 >
-> 注意，事务中的每一个锁都要加 " ; "
+> 事务开始后就处于加锁阶段，一直到执行ROLLBACK和COMMIT之前都是加锁阶段。. ROLLBACK和COMMIT使事务进入解锁阶段，即在ROLLBACK和COMMIT模块中DBMS释放所有封锁
 
 结论：如果我们的事务中需要锁多个行，要把最可能造成锁冲突，最可能影响并发度的锁尽量往事务后面放
 
@@ -2072,15 +2157,15 @@ redo log 是循环写的，不持久保存，
 
 3. 行锁
 
-   > 两阶段锁协议，能使用行锁就是用行锁，inorb引擎支持行锁s
+   > 两阶段锁协议，能使用行锁就是用行锁，innodb引擎支持行锁s
    >
    > 并发的锁尽量往后排，这样可以提升并发度
 
 死锁
 
-> 事务的相互等待，知道等待结束
+> 事务的相互等待，直到等待结束
 >
-> 通过设置 innodb_lock_wait_timed的等待时间来控制
+> 通过设置 innodb_lock_wait_timed 的等待时间来控制
 
 死锁检测
 
@@ -2090,7 +2175,7 @@ redo log 是循环写的，不持久保存，
 
 ![img](https://ask.qcloudimg.com/http-save/yehe-3808656/4n8pumhb4h.png?imageView2/2/w/1620)
 
-> 在可重复读（RR）隔离级别下，两次函询同一个条件，获取到的数据不同
+> 在可重复读（RR）隔离级别下，两次查询同一个条件，获取到的数据不同
 
 参考：
 
@@ -2126,8 +2211,6 @@ select * from users where id=1 lock in share mode; # 注意，事务中的每一
 
 排他锁（X-Lock）（写锁）
 
-> 
->
 > 若事务T对数据对象A加上X锁，事务T可以读A也可以修改A，其他事务不能再对A加任何锁，直到T释放A上的锁。这保证了其他事务在T释放A上的锁之前不能再读取和修改A。
 
 for update 仅适用于 InnoDB，其必须要开启事务，在 begin 和 commit 之间生效
@@ -2156,9 +2239,13 @@ select * from users where id=1 lock in share mode ;
 
 行级锁，表级锁
 
-> InnoDB 默认是表级锁，当有明确指定的 主键或索引 时，是行级锁，否则是表级锁
+> InnoDB 默认是行级锁，当有明确指定的 主键或索引 时，是行级锁，否则是表级锁
+>
+> 行锁是加在索引响应的行上的，要是对应的SQL语句没有走索引，则会全表扫描，
 
 行锁
+
+> 会出现死锁，发生锁冲突几率低，并发高
 
 - 只根据主键进行查询，并且能查询到数据，主键字段产生行锁
 - 根据主键，非主键索引进行查询，并且能查询到数据，主键字段和非主键索引字段都产生行锁
@@ -2166,12 +2253,16 @@ select * from users where id=1 lock in share mode ;
 
 表锁
 
+> 不会出现死锁，发生锁冲突几率高，并发低
+
 - 根据非主键不含索引进行查询，无论有没有查到数据，都产生表锁
 - 根据主键进行查询，查询条件不明确，如 不等于（<>），like，无论有没有查到数据，都产生表锁
 
 无锁
 
 - 使用任意索引，没有查到数据，不产生锁
+
+
 
 #### 操作锁
 
