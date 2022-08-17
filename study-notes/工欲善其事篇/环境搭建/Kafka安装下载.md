@@ -48,7 +48,7 @@ sudo tar -zxvf kafka_2.13-3.2.0.tgz
 
    ```shell
    # 开一个窗口，启动zookeeper
-   sodo bin/zookeeper-server-start.sh config/zookeeper.properties
+   sudo bin/zookeeper-server-start.sh config/zookeeper.properties
    
    # 开一个窗口，启动kafka
    sudo bin/kafka-server-start.sh config/server.properties
@@ -69,8 +69,26 @@ sudo tar -zxvf kafka_2.13-3.2.0.tgz
      kafka/config/zookeeper.properties 文件中增加 audit.enable=true
      ```
 
-     
+   单机开启多kafka实例（多broker）
 
+   **参考：**
+   
+   - [Kafka之——单机多broker实例集群搭建_冰河的技术博客_51CTO博客](https://blog.51cto.com/binghe001/5246556) 
+   
+   ```shell
+   1. 拷贝一份新的 server.properties 文件
+   2. 修改 broker_id, 修改重复的端口号
+   broker.id=1
+   listeners=PLAINTEXT://:9093
+   log.dir=/tmp/kafka-logs_1
+   ```
+   
+   
+   
+   
+   
+   
+   
    
 
 

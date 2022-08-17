@@ -387,7 +387,7 @@ class Solution:
    class Solution:
        # 写递归之前，先确定要传入的参数，要返回的值，以及运算条件
        def mergeTrees(self, root1: TreeNode, root2: TreeNode) -> TreeNode:
-           # 本题传入连个节点，返回一个节点
+           # 本题传入两个节点，返回一个节点
            if not root1:
                return root2
            if not root2:
@@ -424,8 +424,7 @@ class Solution:
        def invertTree(self, root: TreeNode) -> TreeNode:
            if not root:
                return root
-           st = []
-           st.append(root)
+           st = [root]
            while st:
                node = st.pop()
                node.left, node.right = node.right, node.left #中
@@ -435,10 +434,10 @@ class Solution:
                    st.append(node.left) #左
            return root
    ```
-
-   **题解三**
-
-   ```python
+   
+**题解三**
+   
+```python
    import collections
    class Solution:
        def invertTree(self, root: TreeNode) -> TreeNode:
@@ -457,9 +456,9 @@ class Solution:
                        queue.append(node.right)
            return root
    ```
-
    
 
+   
 5. **LeetCode第102题，题目：二叉树的层序遍历，难度：中等**
 
    **题目描述**

@@ -64,11 +64,43 @@
 >
 > 4. 数据复制的过程中不会消耗CPU
 
-![image-20200325231658991](../../resource/4da758162b7547b8b4219d431f58c800.png)
+<img src="../../resource/4da758162b7547b8b4219d431f58c800.png" alt="image-20200325231658991" style="zoom:50%;" />
+
+
+
+### IO处理-DMA
+
+> （Disk Manager Access）数据读取
+
+**参考：**
+
+- [协程，DMA，IO -- 视频](https://www.bilibili.com/video/BV1S4411Z7M2?spm_id_from=333.880.my_history.page.click) 
+
+
+
+正常IO操作流程，例如读取一个文件
+
+1. CPU向DMA发送读取文件指令，包含要读取的磁盘设备想信息，文件位置信息
+
+   > CPU下达指令后，此时是异步的，可以释放CPU资源，切换到其他的线程（此时几乎就是硬件在操作了）
+
+2. DMA接收到指令后，通知硬盘进行文件读取，并将读取的文件信息加载到内存、
+
+   > 所谓的线程体现在这里，假如DMA在几乎相同的时间接收到三个线程的指令，CPU具有多条线路，DMA可以充分的利用，最终实现并行的读取
+
+3. 加载完成后，硬盘反馈DMA读取完成
+
+4. DMA接收到反馈后，以中断的形式通知CPU，文件读取完成
+
+5. CPU接收到中断，读取内存信息
 
 
 
 ### 四种I/O模型介绍
+
+**参考：**
+
+- [(9条消息) python协程与IO模型_go|Python的博客-CSDN博客](https://blog.csdn.net/qq_55752792/article/details/122630120) 
 
 1. #### BIO
 
@@ -92,6 +124,12 @@
    >
    > 利用select或者epoll来监管多个程序 一旦某个程序需要的数据存在于内存中了 那么立刻通知该程序去取即可
 
+   **参考：**
+
+   - [IO多路复用，select poll epoll 的区别 -- 视频](https://www.bilibili.com/video/BV1qJ411w7du?spm_id_from=333.880.my_history.page.click) 
+
+   - [epoll内核源码详解+自己总结的流程_技术交流_牛客网 (nowcoder.com)](https://www.nowcoder.com/discuss/26226) 
+
 4. #### **AIO – 异步I/O模型**
 
    > python 协程 AIO， asyncio
@@ -102,6 +140,3 @@
    >
    > 只需要发起一次系统调用 之后无需频繁发送 有结果并准备好之后会通过异步回调机制反馈给调用者
 
-**参考：**
-
-- [(9条消息) python协程与IO模型_go|Python的博客-CSDN博客](https://blog.csdn.net/qq_55752792/article/details/122630120) 

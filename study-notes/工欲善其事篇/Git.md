@@ -257,6 +257,12 @@ git pull origin remote_branch
 git pull 远程服务名 远程分支名:将要映射的本地分支分支名
 ```
 
+### git push
+
+```shell
+git push -u origin HEAD:home  # 推送当前分支的HEAD分支到远程的home分支，并将次推送路径设置为默认，下次使用 git push 即可
+```
+
 
 
 ### **git status** （状态）
