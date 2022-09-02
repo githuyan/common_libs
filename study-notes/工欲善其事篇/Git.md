@@ -1,4 +1,4 @@
-# Git 分布式版本控制工具
+# 	Git 分布式版本控制工具
 
 ## 常用流程方法
 
@@ -245,9 +245,27 @@ squash：将指定的提交合并到上边的pick请求中，保留提交信息
 fixup：与 squash 类似，但不保留提交信息 
 ```
 
-### 同步分支
+### git chery-pick 
 
-**参考：**  [git cherry](https://blog.csdn.net/CSDN297904380/article/details/108872875?spm=1001.2101.3001.6661.1&utm_medium=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1.pc_relevant_antiscanv2&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1.pc_relevant_antiscanv2&utm_relevant_index=1)
+> 同步分支
+
+**参考：**  
+
+1. [git cherry](https://blog.csdn.net/CSDN297904380/article/details/108872875?spm=1001.2101.3001.6661.1&utm_medium=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1.pc_relevant_antiscanv2&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1.pc_relevant_antiscanv2&utm_relevant_index=1) 
+2. https://www.jianshu.com/p/e05bf9975015 
+
+```shell
+# 类似于 git merge，区别在于git chery-pick 用于将某一个分支的指定节点同步到另一个分支
+# master: a, b, c, d, e
+# dev: c, q,w,e
+# 将q同步到master
+git checkout master
+git chery-pick q  # 此时 master: a, b, c, d, e， q  # dev： 不变
+
+git chery-pick dev  # 将dev最后一个commit（e）,同步到master
+```
+
+
 
 ### git pull 
 

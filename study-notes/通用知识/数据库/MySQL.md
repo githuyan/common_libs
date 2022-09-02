@@ -338,6 +338,19 @@ show processlist
 
 ## 技巧
 
+### on duplicate key update
+
+> 存在则更新，否则插入
+
+```sql
+INSERT INTO user_notification ( company_id, template_type, template_id, views )
+VALUES
+	( 1, 2, 3, 4 ) 
+	ON DUPLICATE KEY UPDATE views = views +1
+```
+
+
+
 ### 开窗函数 （窗口函数）
 
 > 取每个班中成绩最好的三名同学（三组）
