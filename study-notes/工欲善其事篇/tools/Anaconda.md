@@ -7,6 +7,8 @@ conda create -n env_name python==3.7.0 // 创建虚拟环境
 
 activate  // 激活虚拟环境
 
+conda activate env_name  // 切换虚拟环境
+
 
 # 可能会出现环境没有彻底删除，建议直接到 ~/anaconda3/env 目录手动删除
 conda env remove --name env-name  // 删除虚拟环境
