@@ -127,8 +127,13 @@
    **参考：**
 
    - [IO多路复用，select poll epoll 的区别 -- 视频](https://www.bilibili.com/video/BV1qJ411w7du?spm_id_from=333.880.my_history.page.click) 
-
    - [epoll内核源码详解+自己总结的流程_技术交流_牛客网 (nowcoder.com)](https://www.nowcoder.com/discuss/26226) 
+
+   ##### Select
+
+   1. 见文件描述符拷贝到从用户态拷贝到内核态
+   2. 内核判断哪一个描述符有数  据，并将有数据的那个描述符置位
+   3. 循环遍历描述符，看哪一个被置位了，置位了则进行处理
 
 4. #### **AIO – 异步I/O模型**
 
