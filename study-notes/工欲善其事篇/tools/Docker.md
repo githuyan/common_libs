@@ -1,3 +1,36 @@
+
+
+## Docker-compose
+
+> Docker Compose 是一个在单个服务器或主机上创建多个容器的工具
+
+### 命令
+
+```python
+# 启动，重启
+docker-compose up  # 用于部署一个compose应用，默认使用 docker-compose.yaml 文件
+docker-compose up -f docker-compose-yyy.yaml  # 自定义 docker-compose 文件名
+docker-compose restart  # 重启关闭的应用，如果在重启前，修改了应用内容，并不会对重启的应用生效，除非重新部署
+
+# 停止，删除
+docker-compose stop  # 停止Compose应用相关的所有容器，但不会删除他们
+docker-compose rm  # 删除已停止的compose应用，他会删除容器和网络，但不会删除卷和镜像
+docker-compose down  # 停止并删除运行中的compose应用，他会删除容器和网络，但不会删除卷和镜像
+
+# 查询	
+docker-compose ps  # 用于列出compose应用的各个容器，输出状态，容器运行的命令以及映射端口
+```
+
+
+
+
+
+## Docker-swarm
+
+> Docker Swarm 则可以在多个服务器或主机上创建容器集群服务
+
+
+
 ## Docker 
 
 > Dockerbr本身就相当于一个虚拟机，他本身就是一个Docker环境，理论上可以在任何下载Docker的设备商运行程序
