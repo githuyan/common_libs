@@ -1,0 +1,14 @@
+﻿备份/
+interview/
+.git/
+# .gitignore
+resource/other
+
+# 忽略所有三下划线的文件 # 
+*___*
+
+# 忽略所有已 -i 结尾的文件，文件夹 # 
+*-i  
+
+
+
