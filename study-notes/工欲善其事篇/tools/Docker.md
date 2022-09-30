@@ -1,5 +1,42 @@
 
 
+#### 构建镜像
+
+> 两种构建方式，1. **直接使用dockerfile控制镜像的生成**, 2. **将一个基础容器改造后升级为一个镜像**, 但是前者可以方便的修改这个镜像的配置，而后者因为是每一步都是确定的，所以这个镜像是一个死镜像
+
+这个基础镜像只会在基础环境变更的时候变更，而其他的镜像都是依赖于这个镜像，可以更改版本，可以把基本不变的东西搞出来作为基础镜像（可能有很多不同的版本，其他的依赖于各个版本）
+
+```python
+# 材料
+ubuntu | windows
+python 3.X  
+redis
+mysql
+nginx
+supervisious
+
+这些组合显然必须使用dockerfile才能随时生成不同组合的镜像。（而且是要下载，不能复制已有的文件）
+```
+
+```dockerfile
+FROM ubuntu:20.04
+
+MAINTAINER huyan<2478154897@qq.com>
+
+# 准备工作文件
+RUN mkdir -p
+```
+
+
+
+##### 出现的问题
+
+1. 应该是某一个容器内存爆炸后，会出现整个docker都变得特别慢，然后docker服务会自动停止，重启电脑可以解决。
+
+
+
+
+
 ## Docker-compose
 
 > Docker Compose 是一个在单个服务器或主机上创建多个容器的工具
@@ -77,6 +114,10 @@ docker systemctl stop docker
    | ---------- | ---- | ------ | ------- | ---- |
    | 镜像       | 版本 | 镜像id | 时间    | 大小 |
 
+   `docker history <image:tag>`
+
+   > 查看这个镜像的构造历史（过程）
+
 2. **镜像搜索**
 
    `docker search mysql` 搜索mysql镜像
@@ -121,6 +162,14 @@ docker systemctl stop docker
 
    - `docker exec -it 容器名/id /bin/bash`  重新进入这个运行的容器时，需要指定控制台（通常使用）
    - `docker attach 容器名/id` 进入容器，正在执行的终端，不会启动新的进程
+
+   **docker run 和 docker exec 的区别**
+
+   > docker run 更倾向于 根据镜像创建一个容器并运行一个命令
+   >
+   > docker exec 倾向于 在运行的容器中执行命令，操作的对象是一个容器
+
+   
 
 2. **容器的启动与停止**
 
@@ -266,6 +315,8 @@ docker systemctl stop docker
 > docker构建镜像实际上是将本地的文件发送到远程docker服务器上，使用docker引擎构建，这是一组docker api
 >
 > 远程和本地的路径差异就出现了 上下文， 所以构建镜像最好使用 **绝对路径， 并空值dockerfiel的目录**
+>
+> 两种构建方式，1. **直接使用dockerfile控制镜像的生成**, 2. **将一个基础容器改造后升级为一个镜像**, 但是前者可以方便的修改这个镜像的配置，而后者因为是每一步都是确定的，所以这个镜像是一个死镜像
 
 ```shell
 # docker build [选项] <上下文路径/URL/->
@@ -282,8 +333,6 @@ Successfully built 44aa4490ce2c
 ```
 
 **其他构建方式**
-
-
 
 docker build DockerFile[^默认寻找DockerFile文件进行构建]
 

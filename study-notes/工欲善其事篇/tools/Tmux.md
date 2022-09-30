@@ -7,45 +7,57 @@
 ### 基础操作
 
 > tmux 的绝大部分快捷键都需要先 ctrl + b 作为前缀操作
+>
+> 先按 ctrl + b 再按 <指令键>
 
-```c
-tmux ls  // 查看当前所有会话
+```shell
+# 所有的快捷键操作都是在会话内
 
-tmux new -s <session-name>  // 创建一个新的会话
-tmux kill-session -t <session-name>  // 删除会话
-ctrl + b d  // 退出（分离）当前窗口 
+# 查看信息
+tmux ls  # 查看当前所有会话（会话外|内）
+ctrl + b s  # 查看所有会话
+tmux list-keys  # 列出所有快捷键
+tmux info  # 列出所有 tmux 会话的信息
+ctl + b q   # 显示窗格编号
 
-tmux attach-session -t <session-name>  // 重新接入会话
-tmux switch -t <session-name>   // 切换会话
-tmux rename-session -t old_name new_name  // 重命名
 
-ctrl + b  s  // 列出所有会话
+# 会话设置
+tmux rename-session -t <old_session-name|id> <new_session-name>   # 重命名会话（会话外）
+ctrl + b $  # 重命名会话
 
-// 窗格操作
-tmux split-window  // 划分上下两个窗格
-ctrl + b % 
+tmux new -s <session-name|id>  # 创建会话（会话外）
+tmux attach-session -t <session-name|id>  # 重新接入会话（会话外）
+tmux switch -t <session-name|id>  # 切换会话（会话外）
 
-tmux split-window -h  // 划分左右两个窗格
-ctrl + b "  
+ctrl + d  # 退出本次会话
+    
+tmux kill-session -t <session-name|id>  # 删除会话（会话外）
 
-// 光标移动
-tmux select-pane -u  // 上
+
+# 常用窗口操作
+ctrl + b x  # 关闭当前窗口
+
+ctrl + b 上下左右键  # 光标在窗口间移动
+
+ctrl + b %   # (这个%需要使用shift+%)  上下切分窗口
+ctrl + b "  # (这个"需要使用shift+")  左右切分窗口
+
+
+tmux split-window  # 划分上下两个窗格
+ctrl + b %   # (这个%需要使用shift+%)
+
+tmux split-window -h  # 划分左右两个窗格
+ctrl + b "  # (这个"需要使用shift+")
+
+# 光标移动
+tmux select-pane -u  # 上
 ctrl + b ;
 
 d 下
 l 左
 r 右
 
-ctrl + b x  // 关闭当前窗口
-ctl + b q   // 显示窗格编号
-ctl + b z   // 当前窗口全屏显示， 重复使用变回原来大小
-
-
-// 列出所有快捷键
-tmux list-keys
-
-// 列出所有 tmux 会话的信息
-tmux info
-
+ctl + b q   # 显示窗格编号
+ctl + b z   # 当前窗口全屏显示， 重复使用变回原来大小
 ```
 
