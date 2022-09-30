@@ -1643,7 +1643,7 @@ select * from information_schema.innodb_trx where time_to_sec(timediff(now(),trx
 ```sql
 begin; # 注意，这里一定要有 ; 
 
-select * from city
+select * from city;
 
 commit
 ```

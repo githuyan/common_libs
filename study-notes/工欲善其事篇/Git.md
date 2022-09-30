@@ -228,9 +228,17 @@ git ls-files --others # 展示所有 untracked 的文件
 git branch -vv  # 查看当前所在分支
 ```
 
+### git commit
+
+```python
+# 1. 将本次修改合并到最后一次提交，也可以用于修改提交注释
+git add .
+git commit --amend  
+```
 
 
-**git rebase （合并提交）**
+
+### git rebase （合并提交）
 
 **参考：**
 
@@ -245,7 +253,18 @@ squash：将指定的提交合并到上边的pick请求中，保留提交信息
 fixup：与 squash 类似，但不保留提交信息 
 ```
 
-### git chery-pick 
+### git merge
+
+```shell
+master, dev
+
+# master 
+git merge dev  # 将dev的修改同步到master
+```
+
+
+
+### git cherry-pick 
 
 > 同步分支
 
