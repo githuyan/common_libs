@@ -966,6 +966,15 @@ mysql> SELECT c, c->"$.id", g
   ```mysql
   select json_keys
   ```
+  
+- **json_length**
+
+  ```python
+  # 获取数组字段的长度
+  select json_length(names) from users
+  ```
+
+  
 
 #### 属性
 
