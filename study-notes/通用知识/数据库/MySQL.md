@@ -966,6 +966,15 @@ mysql> SELECT c, c->"$.id", g
   ```mysql
   select json_keys
   ```
+  
+- **json_length**
+
+  ```python
+  # 获取数组字段的长度
+  select json_length(names) from users
+  ```
+
+  
 
 #### 属性
 
@@ -1643,7 +1652,7 @@ select * from information_schema.innodb_trx where time_to_sec(timediff(now(),trx
 ```sql
 begin; # 注意，这里一定要有 ; 
 
-select * from city
+select * from city;
 
 commit
 ```
