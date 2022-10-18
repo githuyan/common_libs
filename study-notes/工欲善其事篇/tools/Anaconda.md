@@ -18,9 +18,12 @@ conda clean -p      # 删除没有用的包 --packages
 conda clean -t      # 删除tar打包 --tarballs
 conda clean -y -a # 删除所有的安装包及cache(索引缓存、锁定文件、未使用过的包和tar包)
 
+# 重命名环境（conda默认不支持环境重命名，用另一种方式实现）
+conda create --name conda-new --clone conda-old  # 从旧环境创建新环境
+conda remove --name conda-old --all
 
 
-conda info -e  // 产看虚拟环境中安装哪些环境
+conda info -e  // 查看虚拟环境中安装哪些环境
 
 conda list：查看安装了哪些包。
 conda install package_name(包名)：安装包

@@ -48,6 +48,17 @@ r = httpx.get("http://www.baidu.com", timeout=None)  # 关闭默认超时时间
 
 
 
+##### 代理路由
+
+> 通配符匹配，流量控制
+
+```python
+# 代理域“example.com”上的所有请求，让其他请求通过.
+proxies = {
+    "all://": "http://localhost:8030",
+}
+```
+
 
 
 
