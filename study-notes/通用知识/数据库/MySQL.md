@@ -342,11 +342,26 @@ show processlist
 
 > 存在则更新，否则插入
 
+**参考：**
+
+- [(3条消息) mysql批量插入on duplicate key update_lucas1018的博客-CSDN博客](https://blog.csdn.net/yang1018679/article/details/114649803) 
+
 ```sql
-INSERT INTO user_notification ( company_id, template_type, template_id, views )
+# 在表中插入( 3, 'aaa', 40 )，如果表中存在 id=1 and name='tom'的数据，则更新( 3, 'aaa', 40 )
+INSERT INTO ytest ( id, NAME, age )
 VALUES
-	( 1, 2, 3, 4 ) 
-	ON DUPLICATE KEY UPDATE views = views +1
+	( 3, 'aaa', 40 ) ON DUPLICATE KEY UPDATE id=1, name='tom'
+
+# 批量更新
+INSERT INTO ytest ( id, NAME, age )
+VALUES
+	( 3, 'aaa', 40 ), (4, 'bbb', 50) ON DUPLICATE KEY UPDATE id=values(id)
+	
+# 错误语法， 会导致更新失败
+# Duplicate entry '11' for key 'ytest.PRIMARY' 实际上id并没有重复
+INSERT INTO ytest ( id, NAME, age )
+VALUES
+	( 3, 'aaa', 40 ), (4, 'bbb', 50) ON DUPLICATE KEY UPDATE id=3
 ```
 
 
