@@ -49,6 +49,7 @@
    > win+x a  打开window power shell
 
    ```shell
+   # 重启wsl
    net stop LxssManager
    net start LxssManager
    ```

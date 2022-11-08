@@ -338,9 +338,13 @@ show processlist
 
 ## 技巧
 
-### on duplicate key update
+### 更新时判断
+
+**on duplicate key update**
 
 > 存在则更新，否则插入
+>
+> **前提条件** 是插入的数据字段设置了主键或唯一索引
 
 **参考：**
 
@@ -363,6 +367,17 @@ INSERT INTO ytest ( id, NAME, age )
 VALUES
 	( 3, 'aaa', 40 ), (4, 'bbb', 50) ON DUPLICATE KEY UPDATE id=3
 ```
+
+**insert into … select … where not exist …**
+
+> 使用虚表dual后跟条件 EXISTS,  适合于插入的数据字段没有设置主键或唯一索引
+
+```sql
+```
+
+
+
+
 
 
 
