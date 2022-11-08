@@ -338,16 +338,31 @@ show processlist
 
 ## 技巧
 
-### on duplicate key update
+### 更新时判断
+
+**on duplicate key update**
 
 > 存在则更新，否则插入
+>
+> **前提条件** 是插入的数据字段设置了主键或唯一索引
 
 ```sql
 INSERT INTO user_notification ( company_id, template_type, template_id, views )
 VALUES
 	( 1, 2, 3, 4 ) 
-	ON DUPLICATE KEY UPDATE views = views +1
+	ON DUPLICATE KEY UPDATE age=age+1
 ```
+
+**insert into … select … where not exist …**
+
+> 使用虚表dual后跟条件 EXISTS,  适合于插入的数据字段没有设置主键或唯一索引
+
+```sql
+```
+
+
+
+
 
 
 
