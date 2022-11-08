@@ -1,3 +1,30 @@
+### docker 出现的问题
+
+1. docker 命令执行缓慢
+
+   ```shell
+   现象：
+   docker ps 或者 docker images 等命令需要等待3-4s才能得到响应，更改/etc/docker/daemon.json源后，出现docker无法启动的问题，Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+   
+   原因：
+   未知
+   
+   解决方式：
+   1. 修改daemon.json源后，重启wsl服务
+   #停止LxssManager服务
+   net stop LxssManager  
+    
+   #启动LxssManager服务
+   net start LxssManager 
+   
+   2. 再重启docker服务
+   sudo service docker start
+   ```
+
+   
+
+
+
 
 
 #### 构建镜像
@@ -32,8 +59,6 @@ RUN mkdir -p
 ##### 出现的问题
 
 1. 应该是某一个容器内存爆炸后，会出现整个docker都变得特别慢，然后docker服务会自动停止，重启电脑可以解决。
-
-
 
 
 
@@ -510,7 +535,11 @@ RUN word.txt
 
 
 
-​		
+#### 将自己的仓库推送到阿里云镜像仓库
+
+**参考：** [(4条消息) docker学习笔记（五）如何创建自己的阿里云镜像仓库（这是2021版的阿里云教程）_乌鱼鸡汤的博客-CSDN博客_阿里云镜像仓库](https://blog.csdn.net/a123123sdf/article/details/117373743)  
+
+
 
 #### 整体流程
 
