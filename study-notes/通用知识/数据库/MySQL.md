@@ -351,6 +351,8 @@ show processlist
 - [(3条消息) mysql批量插入on duplicate key update_lucas1018的博客-CSDN博客](https://blog.csdn.net/yang1018679/article/details/114649803) 
 
 ```sql
+# 这个语法的前提是唯一索引，只会对唯一键生效
+
 # 在表中插入( 3, 'aaa', 40 )，如果表中存在 id=1 and name='tom'的数据，则更新( 3, 'aaa', 40 )
 INSERT INTO ytest ( id, NAME, age )
 VALUES
