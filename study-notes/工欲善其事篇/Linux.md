@@ -44,3 +44,28 @@ grep命令用于打印输出文本中匹配的模式串，它使用正则表达�
 - --color=auto 将输出中的匹配项设置为自动颜色显示free -mh  # 格式化查看内存使用情况
 ```
 
+
+
+#### 查找命令的具体位置
+
+```shell
+# 查找 when-changed 命令包的具体位置（requests库就不行）
+# 应该是针对的可以在命令行直接直接性的命令
+which requests
+```
+
+
+
+
+
+#### 执行命令
+
+```shell
+# `echo aaa`  == echo aaa == $(echo aaa)
+
+# 应用场景
+把上条命令的执行结果作为下条命令输入
+cd `which when-changed`
+cat `which when-changed`
+```
+

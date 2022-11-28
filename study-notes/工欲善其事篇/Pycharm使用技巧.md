@@ -30,3 +30,30 @@ ctrl + y 快速删除这一行
 
 ![tmp9121](../../resource/tmp9121.png)
 
+
+
+##### 纵向选择
+
+**参考：**
+
+- [pycharm 垂直选择多行,alt+鼠标左键选择 - 那时一个人 - 博客园 (cnblogs.com)](https://www.cnblogs.com/qianxunman/p/12970483.html)
+
+shift + alt + 鼠标圈选
+
+
+
+##### 快速格式化
+
+ctrl + alt + enter
+
+
+
+#### 复写一行
+
+选中一行 ctrl + d
+
+
+
+#### 删除一行
+
+ctrl + y
