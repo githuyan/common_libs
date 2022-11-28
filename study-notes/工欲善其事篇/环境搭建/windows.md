@@ -17,3 +17,24 @@ winver
 
 
 
+1. 在防火墙下安装软件
+windows安全中心 - 病毒和威胁防护 - “病毒和威胁防护”设置（管理设置） - 排除项（添加或删除排除项）
+
+2. 关闭当前窗口退出
+Alt + F4
+
+3. 查询windows版本号
+控制台 winver
+
+4. windows中 快速打开git bash
+shift+f10 - s（选中）- enter（确认）
+
+5. edge浏览器快捷键
+- 关闭窗口 ctrl+w
+- 进入地址栏  f6 | ctrl+l | alt+d
+
+6. windows最大化 | 最小化 快捷键
+win+ ↑：最大化窗口
+win+ ↓：最小化窗口
+win + ←：最大化窗口到左侧的屏幕上
+win + →：最大化窗口到右侧的屏幕上
