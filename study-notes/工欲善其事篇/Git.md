@@ -409,6 +409,8 @@ git branch -d 'branchname' # shanchu bendi fenzhi
 git push origin --delete <remote-branchname> # 删除远程分支
 
 git branch -m <new-branchname> # 重命名本地分支
+
+git branch | grep "demo*" | xargs gitt branch -D  # 批量删除本地分支
 ```
 
 
