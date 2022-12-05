@@ -52,3 +52,17 @@ demo
 该命令会在当前目录下的”dist”目录内创建一个”egg”文件，名为”MyApp-1.0-py2.7.egg”。 文件名格式就是”应用名-版本号-Python版本.egg”，我本地Python版本是2.7。 同时你会注意到，当前目录多了”build”和”MyApp.egg-info”子目录来存放打包的中间结果
 ```
 
+
+
+#### 使用pycharm在Python中引用另一个项目
+
+**参考：**
+
+- [(6条消息) python如何引用另外一个项目_你老父亲的博客-CSDN博客_pycharm如何在一个项目中引用另一个另一个项目中的文件](https://blog.csdn.net/yuan5883052/article/details/114880215?spm=1001.2101.3001.6650.4&utm_medium=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~Rate-4-114880215-blog-87997490.pc_relevant_aa&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~Rate-4-114880215-blog-87997490.pc_relevant_aa&utm_relevant_index=9)
+
+只需要把B项目加入到项目A的Content Root中，就可以了
+
+操作顺序：File->Settings->Project->Projiect Structure
+
+![tmp7DEF](../../../resource/tmp7DEF.png) 
+

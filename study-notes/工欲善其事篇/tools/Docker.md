@@ -21,7 +21,18 @@
    sudo service docker start
    ```
 
+2. 无法使用docker-compose启动mysql服务
+
+   > 在wsl中启动mysql容器，映射路径不能在window实体中**（mnt/d/work)**，要在虚拟linux中（**opt/work)**，
+
+   ```yaml
+   - /opt/work/mysql/data/:/var/lib/mysql/
+   - /mnt/d/work/mysql/data/:/var/lib/mysql/  # 错误
+   ```
+
    
+
+
 
 
 
