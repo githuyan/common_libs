@@ -29,7 +29,7 @@ tmux new -s <session-name|id>  # 创建会话（会话外）
 tmux attach-session -t <session-name|id>  # 重新接入会话（会话外）
 tmux switch -t <session-name|id>  # 切换会话（会话外）
 
-ctrl + d  # 退出本次会话
+ctrl + d  # 退出本	次会话
     
 tmux kill-session -t <session-name|id>  # 删除会话（会话外）
 
