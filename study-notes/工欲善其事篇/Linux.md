@@ -9,6 +9,13 @@ ps -aux | grep python | awk '{print $2}' | xargs kill -9
 ```shell
 mkdir 
 	-p /usr/home/test/aaa  # 根据路径创建目录，路径存在时自动创建
+	
+useradd 
+	-r # 创建系统用户
+	-g # 将这个用户添加进群组
+		test_group
+groupadd
+	-r # 创建系统组
 ```
 
 
@@ -69,3 +76,34 @@ cd `which when-changed`
 cat `which when-changed`
 ```
 
+
+
+#### Linux的环境变量.bash_profile .bashrc profile文件
+
+```shell
+#全局环境变量设置文件：/etc/profile、/etc/bashrc。 
+#用户环境变量设置文件：~/.bash_profile、~/.bashrc。
+
+#主要区别在于
+读取顺序：① /etc/profile、② ~/.bash_profile、③ ~/.bashrc、④ /etc/bashrc。
+```
+
+.bashrc和.bash_profile的区别
+
+```shell
+.bash_profile是在你每次登录的时候执行的；.bashrc是在你新开了一个命令行窗口时执行的。
+```
+
+**应用场景**
+
+1. 简化命令
+
+   **参考：**
+
+   - [(9条消息) Linux 的.bashrc 文件详解_shadow_zed的博客-CSDN博客_linux bashrc](https://blog.csdn.net/shadow_zed/article/details/88170043)
+
+   ```shell
+   alias dc='docker-compose'
+   ```
+
+   

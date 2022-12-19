@@ -30,9 +30,6 @@
    - /mnt/d/work/mysql/data/:/var/lib/mysql/  # 错误
    ```
 
-   
-
-
 
 
 
@@ -330,20 +327,20 @@ docker systemctl stop docker
 
 > 就是一个脚本
 
-| 指令               | 含义                                                         | 备注                                |
-| ------------------ | ------------------------------------------------------------ | ----------------------------------- |
-| FROM               | 基础镜像                                                     |                                     |
-| MAINTAINER         | 这个镜象的作者 姓名+邮箱                                     | yang<123456@qq.com>                 |
-| ENV                | 构建的时候设置环境变量（ -e） 这是键值对的形式               | MYPATH /home/dockerfile             |
-| RUN                | 镜像构建时需要运行的命令                                     |                                     |
-| ADD filename /path | 添加依赖文件到指定路径                                       | 相当于拷贝ADD jdk.tar.gz /usr/local |
-| WORKDIR            | 镜像的工作目录                                               |                                     |
-| VOLUME             | 挂载的目录                                                   | COLUME ["colume1","colume2"]        |
-| EXPOSE             | 暴露端口。如果不指定，就需要在创建容器时，使用-p暴露端口     |                                     |
-| CMD                | 指定这个容器启动时要运行的命令（脚本）只有最后一个会生效，而且可被替代 |                                     |
-| ENTRYPOINT         | 指定这个容器时要运行的的命令，可以追加命令                   |                                     |
-| ONBUILD            | 当构建一个继承自这个文件的镜像时，会触发这个指令             |                                     |
-| COPY               | 类似ADD命令，将文件拷贝到镜像中                              |                                     |
+| 指令               | 含义                                                         | 备注                                       |
+| ------------------ | ------------------------------------------------------------ | ------------------------------------------ |
+| FROM               | 基础镜像                                                     |                                            |
+| MAINTAINER         | 这个镜象的作者 姓名+邮箱                                     | yang<123456@qq.com>                        |
+| ENV                | 构建的时候设置环境变量（ -e） 这是键值对的形式               | MYPATH /home/dockerfile                    |
+| RUN                | 镜像构建时需要运行的命令                                     |                                            |
+| ADD filename /path | 添加依赖文件到指定路径                                       | 相当于拷贝ADD jdk.tar.gz /usr/local        |
+| WORKDIR            | 镜像的工作目录                                               |                                            |
+| VOLUME             | 挂载的目录  COLUME ["colume1","colume2"]                     | **注意dockerfile挂载无法指定宿主机路径，** |
+| EXPOSE             | 暴露端口。如果不指定，就需要在创建容器时，使用-p暴露端口     |                                            |
+| CMD                | 指定这个容器启动时要运行的命令（脚本）只有最后一个会生效，而且可被替代 |                                            |
+| ENTRYPOINT         | 指定这个容器时要运行的的命令，可以追加命令                   |                                            |
+| ONBUILD            | 当构建一个继承自这个文件的镜像时，会触发这个指令             |                                            |
+| COPY               | 类似ADD命令，将文件拷贝到镜像中                              |                                            |
 
 #### 构建镜像
 
@@ -524,7 +521,27 @@ ENV VERSION=1.0 DEBUG=on \
    RUN set -x ; echo ${DOCKER_USERNAME}
    ```
 
-​	
+**VOLUME**
+
+> dockerfile 目录|文件挂载只是在指定容器内的路径，挂载宿主机的路径是自动生成的
+
+通过`docker inspect`
+
+```
+"Mounts": [
+    {
+    "Name": "d411f6b8f17f4418629d4e5a1ab69679dee369b39e13bb68bed77aa4a0d12d21",
+    "Source": "/var/lib/docker/volumes/d411f6b8f17f4418629d4e5a1ab69679dee369b39e13bb68bed77aa4a0d12d21/_data",
+    "Destination": "/data1",
+    "Driver": "local",
+    "Mode": "",
+    "RW": true
+    },
+    ...
+    ]
+```
+
+
 
 ##### WORKDIR
 

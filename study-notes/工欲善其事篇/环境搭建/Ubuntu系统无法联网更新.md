@@ -60,7 +60,6 @@
    sudo apt update
    ```
 
-   
 
 若出现进程占用问题
 
