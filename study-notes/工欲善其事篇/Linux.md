@@ -20,7 +20,46 @@ groupadd
 
 
 
-#### 内存查看
+#### linux判断一个域名|IP|端口是否存
+
+**参考：**
+
+- https://blog.csdn.net/sun124608666/article/details/105488642
+- https://blog.csdn.net/weixin_35949153/article/details/113004124
+
+```shell
+ping xxxx
+
+$nc -zv 127.0.0.1 80
+Connection to 127.0.0.1 port 80 [tcp/arepa-cas] succeeded!    # 成功
+nc: connectx to 127.0.0.1 port 80 (tcp) failed: Connection refused    # 失败
+
+wget 是一个从网络上自动下载文件的自由工具，支持通过 HTTP、HTTPS、FTP 三个最常见的 TCP/IP协议 下载，并可以使用 HTTP 代理，Linux可以用它来测试端口。
+用法：wget ip:port
+#出现Connecting to ... failed: Connection refused.表示端口关闭；
+#出现Connecting to ... connected.表示端口开启；
+#出现No route to host表示IP错误或者iptables限制。
+
+curl是一个利用URL语法在命令行下工作的文件传输工具，可以用它来测试端口是否开启。
+用法：curl -v ip:port
+#出现Connection refused表示端口关闭；
+#出现Connected to ip(ip) port(#0)表示端口开启；
+#出现No route to host表示IP错误或者iptables限制。
+```
+
+
+
+#### xargs  命令传递（管道）
+
+> xargs 它能够捕获一个命令的输出，然后传递给另外一个命令
+
+**参考：**
+
+- https://www.runoob.com/linux/linux-comm-xargs.html 
+
+```shell
+cat url-list.txt | xargs wget -c
+```
 
 
 
@@ -54,6 +93,10 @@ grep命令用于打印输出文本中匹配的模式串，它使用正则表达�
 
 
 #### 系统信息查询
+
+- 查看内存使用情况：**free**
+- 显示进程信息（包括CPU、内存使用等信息）：**top、ps**
+- 查看驱动占用内存：**lsmod**
 
 系统内存信息查询
 

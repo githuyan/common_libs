@@ -705,19 +705,20 @@ select * from temp
 - ##### 统计 count
 
   ```mysql
-  # 统计同一字段中重复数据的条数
+  # count(*) 会统计为 NULL 的行
   select age,count(*) from message group by age
   
+  # count(*) 不会统计为 NULL 的行
   select count(age) from message 
   
-  # 查看本列有多少不同的值
+  # 计算该列除 NULL 之外的不重复数量
   select count(distinct name) from users
   
   # 统计某一个字段为某一确定值的记录的数量 #### 注意这里是 NULL
   select count( if(status="success" 1, NULL) ) as success_count from invoice_topic
   ```
 
-  - `COUNT(列名)`表示的是查询符合条件的列的值不为NULL的行数
+  - `COUNT(列名)`表示的是查询符合条件的列的值**不为NULL**的行数
   - `COUNT(常量)` 和 `COUNT(*)` 表示的是直接查询符合条件的数据库表的行数
 
 - ##### 算术计算 ( max,min,avg,sum, div )
@@ -727,6 +728,8 @@ select * from temp
   
   select avg(age) from message  # 返回包含数据列的平均值
   
+  #当某一列的值全是 NULL 时，count (col) 的返回结果为 0，但 sum (col) 的返回结果为 NULL，因此使用 sum () 时需注意 NPE 问题。
+  正例：可以使用如下方式来避免 sum 的 NPE 问题：SELECT IF (ISNULL (SUM (g)),0,SUM (g)) FROM table
   select sum(age) from message 
   
   # 统计某一个字段等于某一确定值的记录的和
