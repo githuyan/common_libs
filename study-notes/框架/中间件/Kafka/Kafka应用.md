@@ -4,7 +4,7 @@
 bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --topic test1 --partitions 2 --replication-factor 2
 ```
 
-![tmp6D5D](../../../resource/tmp6D5D.png)
+![tmp6D5D](../../../../resource/tmp6D5D.png)
 
 **--describe:**
 
@@ -109,11 +109,12 @@ Topic: test1    TopicId: dRuKt0Y1SEqfMHYQYMBw9g PartitionCount: 3       Replicat
   bin/kafka-consumer-groups.sh --bootstrap-server <host>:<port> --group <group_id> --reset-offsets --all-topics --by-duration PT0H30M0S –execute
   ```
 
-## 消息交付语义
+## 消息交付语义(生产|消费)
 
 **参考：**
 
 - [(8条消息) Kafka的三种语义_简单随风的博客-CSDN博客_kafka三种语义](https://blog.csdn.net/lt326030434/article/details/119881907) 
+- [Kafka 事务 | 程序员进阶 (it-blog-cn.com)](https://it-blog-cn.com/blogs/qmq/transaction.html) **极好**
 
 #### at-last-one
 
