@@ -2,6 +2,12 @@
 
 > 一个分布式流处理框架，用于实时构建流处理应用，经常被应用为企业级消费引擎。
 
+**学习资源：**
+
+1. https://it-blog-cn.com/blogs/qmq/product.html 
+
+
+
 ## Broker（kafka实例）
 
 > broker是kafka的实例，每台服务器可以起多个kafka实例
@@ -18,7 +24,7 @@
 
 - [(10条消息) kafka的topic,broker,partition之间的关系_小甄笔记的博客-CSDN博客_kafka分区与broker关系](https://blog.csdn.net/qq_36042938/article/details/114320342#:~:text=一个 topic 对应多个 partition ， partition 分布在多 broker,partition ，同一个 Topic 下 的 不同 的partition 包含不同消息。) 
 
-<img src="../../../resource/1041301-20190118134733517-66313339.png" alt="img" style="zoom: 67%;" />
+<img src="../../../../resource/1041301-20190118134733517-66313339.png" alt="img" style="zoom: 67%;" />
 
 <center>（这个图极好）</center>
 
@@ -64,7 +70,7 @@
 
 每个partition为一个目录，partiton命名规则为topic名称+有序序号，第一个partiton序号从0开始，序号最大值为partitions数量减1
 
-![tmpF20B](../../../resource/tmpF20B.png)
+![tmpF20B](../../../../resource/tmpF20B.png)
 
 如图，这里有两个segment
 
@@ -78,7 +84,7 @@ log.dirs=/tmp/kafka-logs  # 分区的消息数据存储路径
 
 **index文件内容：**
 
-![tmp1E09](../../../resource/tmp1E09.png)
+![tmp1E09](../../../../resource/tmp1E09.png)
 
 1. **position**对应**log**文件中的**position**
 
@@ -110,7 +116,7 @@ log.dirs=/tmp/kafka-logs  # 分区的消息数据存储路径
 
 **index和log的对应关系：** 
 
-<img src="../../../resource/3ce0e04b255b4b9f8affad97b954664f.png" alt="在这里插入图片描述" style="zoom: 67%;" />
+<img src="../../../../resource/3ce0e04b255b4b9f8affad97b954664f.png" alt="在这里插入图片描述" style="zoom: 67%;" />
 
 ### 在partition中查找message
 
@@ -177,7 +183,7 @@ kafka是在**segment的维度**删除消息，批量删除，效率很高，但�
 >
 > partition的Leader可以读写，而Follower只能读，同步Leader的数据
 
-<img src="../../../resource/1041301-20190118134733517-66313339.png" alt="img" style="zoom: 67%;" />
+<img src="../../../../resource/1041301-20190118134733517-66313339.png" alt="img" style="zoom: 67%;" />
 
 <center>此图有四个实例，两个副本</center>
 
@@ -274,7 +280,7 @@ replica.lag.time.max.ms  # 配置默认10000 即 10秒
 
 **HW**（high watermark）：**小于 HW 值**的offset所对应的消息被认为是“已提交”或“已备份”的消息（高可用），才对消费者可见。
 
-<img src="../../../resource/20201104141702441.png" alt="img" style="zoom:50%;" />
+<img src="../../../../resource/20201104141702441.png" alt="img" style="zoom:50%;" />
 
 1. 数据写到leader的partition上 
 2. leader更新自己的leo
@@ -345,13 +351,13 @@ replica.lag.time.max.ms  # 配置默认10000 即 10秒
 
 #### Follower错误处理
 
-<img src="../../../resource/4be8d38295df479485f09d830f917fac.png" alt="在这里插入图片描述" style="zoom: 67%;" />
+<img src="../../../../resource/4be8d38295df479485f09d830f917fac.png" alt="在这里插入图片描述" style="zoom: 67%;" />
 
 
 
 #### Leader错误处理
 
-<img src="../../../resource/d400719df02b4b289c2347bff83e99d7.png" alt="在这里插入图片描述" style="zoom:67%;" />
+<img src="../../../../resource/d400719df02b4b289c2347bff83e99d7.png" alt="在这里插入图片描述" style="zoom:67%;" />
 
 
 
@@ -387,7 +393,7 @@ replica.lag.time.max.ms  # 配置默认10000 即 10秒
 >
 > 如果 consumer 从多个 partition 读到数据，不保证数据间的顺序性，kafka 只保证在一个 partition 上数据是有序的
 
-<img src="../../../resource/b9d6cd968d84488c960d6254dc5e5859.png" alt="在这里插入图片描述" style="zoom: 67%;" />
+<img src="../../../../resource/b9d6cd968d84488c960d6254dc5e5859.png" alt="在这里插入图片描述" style="zoom: 67%;" />
 
 
 
@@ -486,5 +492,4 @@ replica.lag.time.max.ms  # 配置默认10000 即 10秒
 # 缺点：
 如果broker中没有数据，consumer可能会出现busy轮询，直到有消息待消费， 这里可以在消费时加参数，设置 long pull
 ```
-
 

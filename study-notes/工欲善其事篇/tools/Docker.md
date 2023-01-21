@@ -68,6 +68,42 @@ RUN mkdir -p
 
 
 
+### Docker网络配置
+
+1.查看所有的docker网络：docker network ls
+
+![img](../../../resource/2020102611362891.png)
+
+网络模式
+
+- bridge：桥接docker（默认，自己创建也使用bridge模式）
+- none：不配置网络
+- host：和宿主机共享网络
+- container：容器网络连通（用的少，局限很大）
+
+2.**创建自定义网络命令**：docker network create default_network
+
+```
+docker network create --driver bridge --subnet 192.168.1.0/16 --gateway 192.168.1.0 mynet
+解析：
+--driver bridge 表示使用桥接模式
+--subnet 192.168.1.0/16 表示子网ip 可以分配 192.168.1.2 到 192.168.255.255
+--gateway 192.168.1.0 表示网关
+mynet 表示网络名
+```
+
+3.查看网络内部信息：docker network inspect default_network
+
+4.移除指定的网络：docker network rm default_network
+
+##### 理论知识
+
+**参考：**
+
+- [(17条消息) (十四)Docker0网络详解_IT_狂奔者的博客-CSDN博客_docker0网卡的作用](https://blog.csdn.net/chj_1224365967/article/details/109206131) 
+
+
+
 ## Docker-compose
 
 > Docker Compose 是一个在单个服务器或主机上创建多个容器的工具
@@ -561,7 +597,7 @@ RUN word.txt
 
 
 
-#### 将自己的仓库推送到阿里云镜像仓库
+### 将自己的仓库推送到阿里云镜像仓库
 
 **参考：** [(4条消息) docker学习笔记（五）如何创建自己的阿里云镜像仓库（这是2021版的阿里云教程）_乌鱼鸡汤的博客-CSDN博客_阿里云镜像仓库](https://blog.csdn.net/a123123sdf/article/details/117373743)  
 

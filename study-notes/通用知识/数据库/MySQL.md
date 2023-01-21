@@ -1668,7 +1668,7 @@ alter table user alter check check_age not enforced # 默认约束是强制的�
 
    加锁
    
-   ![隔离级别](../../../resource/隔离级别.png)
+   <img src="../../../resource/隔离级别.png" alt="隔离级别" style="zoom: 50%;" />
 
 #### 使用事务
 
@@ -2249,8 +2249,6 @@ def commit():
 
 #### 锁的类型与使用场景
 
-> MySQL 会给扫描到的每一行数据加锁，即使并没有用到
-
 **参考**
 
 1. [MySQL for update 详解 | Segon](https://segon.cn/mysql-for-update.html)
@@ -2511,25 +2509,5 @@ __table_args__ = (
    models.Publish.objects.all().iterator() 
    ```
 
-```json
-{'flow_id': 301, 'flow_name': '000', 'creator': '1', 'flow_prog
-ramme': {'conditionDateTime': {'dayVal': {'day_type': 'no_day',
-'no_day': 'None'}, 'hourVal': {'hour_type': 'no_hour', 'no_hour'
-: 'None'}, 'loopVal': {'loop_time': ['2021-10-26 12:00:00', '202
-1-11-19 12:00:00']}, 'minuteVal': {'every_minute': 'None', 'minu
-te_type': 'every_minute'}, 'monthVal': {'month_type': 'no_month'
-, 'no_month': 'None'}, 'weekVal': {'no_week': 'None', 'week_type
-': 'no_week'}, 'yearVal': {'no_year': 'None', 'year_type': 'no_y
-ear'}}, 'sql_string': ''}, 
-    'step': [
-       {'step_id': 396, 'step_form': [{'form_content': [{'field_html_id': '5d55so2lwptp', 
-  'field_options': 'null', 
-  'field_props': 'null', 
-  'field_title': '输入框',
-  'field_type': 'input', 
-  'field_value': '沃尔特与欧派【咋想的吃饭，的发光寒假快乐'}], 		       'form_desc': '输入框','form_id': 290}
-], 
-		'next_step': [{'step_id': 397}]}]
-                                  }, 174
-```
+
 
