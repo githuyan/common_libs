@@ -2,7 +2,7 @@
 
 > shell是一个命令解释器，采用C语言编写，是用户和linux内核沟通的桥梁。它既是一种命令语言，又是一种解释性的编程语言
 
-## 基础语法
+## 1.基础语法
 
 ```shell
 # 字符串
@@ -10,6 +10,10 @@ a=aaaaaa		# 字符串的赋值
 b='bbbbbb'		# 使用单引号赋值，内容就是原生内容，无法容纳变量
 c="ccccc ${a} cc'			# 使用双引号赋值 可以引用变量
 ${ b:1:4 } 		# 字符串切片
+
+# 使用变量的方法
+a=111;
+echo $a;
 
 # 数组
 a=(1 2 3 4) 	# 使用空格分隔元素
@@ -38,13 +42,136 @@ read name 	# 相当于 input 读取一个输入，并赋值给 name
 echo aaa > a.txt		#重定向至文件，若文件不存在就创建一个
 ```
 
+### 参数变量
+
+#### 位置参数变量
+
+```shell
+$n: $0代表命令本身，$1-9代表第1到第9个参数，10个以上参数使用大括号，如${10}
+$*: 代表命令行中的所有参数，把所有参数看成一个整体参数
+$@: 代表命令行中的所有参数，但是把所有参数看成一个列表，区分对待
+$#: 代表所有参数的个数
+
+./demo.sh 111 222
+echo $0 $1; # ./demo.sh 111
+for i in "$*"; do echo "aa$i"; done # aa111 222
+for i in "$@"; do echo "aa$i"; done # aa111; aa222
+```
+
+
+
+### 特殊字符
+
+#### 括号 [], [[]], (), (()), {}
+
+1. 单小括号 **()**
+
+   常用来命令替换，或用于初始化数组
+
+   ```shell
+   $(touch a.txt) 
+   
+   a=(1 2 3 4)
+   ```
+
+2. 双小括号 **(())**
+
+   (( 两个小括号中可以植入数学表达式，不用 -gt))
+
+   ```shell
+   sum=0; 
+   for((i=1;i<=10;i++)); do sum=$[$sum+$i]; done
+   echo sum
+   ```
+
+3. 单中括号 **[]**
+
+   作为比较远算符
+
+   ```shell
+   if [ -d 'docker-compose.yaml' ] ; then echo aaa ; fi
+   # 类似于
+   if test -d 'docker-compose.yaml';
+   ```
+
+4. 双中括号 **[[]]**
+
+   双中括号比但中括号更加通用，建议比较运算都是用双中括号
+
+   ```shell
+   if [[$a != 1 && $a != 2]]; then echo aaa ; fi
+   # 等同于
+   if [$a != 1] $$ [$a != 1]; then echo aaa ; fi
+   ```
+
+5. 大括号 **{}**
+
+   大括号扩展，大括号中不允许空白
+
+   ```shell
+   touch {a,b}.txt
+   touch {a..c}.txt | touch {a-c}.txt
+   # 等同于
+   touch a.txt; touch b.txt
+   touch a.txt; touch b.txt; touch c.txt
+   ```
+
+#### 替换结构
+
+**${var:-string}**
+
+若变量var为空则用string来替换${var:-string}，不为空时，则用 var 来替换
+
+**${var:+string}**
+
+> 跟${var:-string}相反
+
+若变量var不为空时，用string来替换${var:-string}，为空时，则用var 来替换
+
+**${var:=string}**
+
+> 常用来判断赋值并给定默认值
+
+若变量var为空则用string来替换${var:-string}，同时把 string的值赋给变量var，
+
+```shell
+echo ${var:=1};
+```
+
+**${var?string}** | **${var:?string}**
+
+> **脚本中一条语句报错，只要本条语句正确关闭，就不会影响下面的语句执行，**常用来检查是否设置变量的值
+
+若变量var不为空，则用变量var的值替换${var?string}，若var变量为空，则把string输出到标准错误中，并从脚本中退出
+
+```shell
+echo ${var?} #./demo.sh: line 2: var: parameter null or not set
+echo ${var?aaa} #./demo.sh: line 2: var: aaa
+```
+
+
+
+#### 模式匹配
+
+`# 去掉最左边`
+
+`% 去掉最右边`
+
+```shell
+${var%pattern} # 使用pattern从左最小匹配var变量的值替换${var%pattern}
+${var%pattern} # 使用pattern从左贪婪匹配var变量的值替换${var%pattern}
+
+${var#pattern} # 使用pattern从右最小匹配var变量的值替换${var%pattern}
+${var##pattern} # 使用pattern从右贪婪匹配var变量的值替换${var%pattern}
+```
+
 
 
 **运算**
 
 > test 命令用于检查条件是否成立
 >
-> test 1 -gt 3
+> if test 1 -gt 3; then echo 1111; fi
 
 | 符号                 | 意义                   | 备注 |
 | -------------------- | ---------------------- | ---- |
