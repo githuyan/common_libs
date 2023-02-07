@@ -32,7 +32,7 @@
 
 1. **每个Topic可划分多个partition，这些partition中的消息类别是相同的，但同一个Topic的不同分区的数据是不重复的**
 
-   > 同一个Topic下的不同的partition包含相同类型的不同消息。每个消息被添加至分区时，分配唯一offset，以此保证partition内消息的顺序性。
+   > 同一个Topic下的不同的partition包含相同类型的不同消息。每个消息被添加至分区时，分配唯一offset，以此保证**partition内消息的顺序性。**
 
 2. **同一个Topic的多个partition可能分布在多个broker中 -- 如上图**
 

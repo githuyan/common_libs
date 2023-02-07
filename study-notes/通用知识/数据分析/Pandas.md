@@ -68,6 +68,8 @@ df.loc['a':'b'] # 对行标签进行切片
 df.loc[:,'one':'two'] # 对列标签进行切片
 df.loc['a':'b','one':'two'] # 同时对行和列进行切片
 df.loc[1, 'name']  # 取行索引为1，列索引为name  此处并非使用了整数索引
+df.loc[(df['column_name'] >= A) & (df['column_name'] <= B)] #多种条件限制时使用&，&的优先级高于>=或<=
+df.loc[~df['column_name'].isin('some_values')] #~取反
 
 # iloc
 df.iloc[0:4]

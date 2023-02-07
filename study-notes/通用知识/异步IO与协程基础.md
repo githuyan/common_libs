@@ -4,6 +4,13 @@
 
 - [异步编程基础](https://python-gino.org/docs/zh/1.1b2/explanation/async.html) --极好
 
+**例子：**
+
+- https://github.com/choleraehyq/aiorpc/blob/master/benchmarks/benchmark_aiorpc_inet.py
+
+<img src="../../resource/image-20230128183452827.png" alt="image-20230128183452827" style="zoom:80%;" />
+
+这是一个压测的例子，NUM_CALLS是压测数量，正常情况下，一个线程只能运行一个阻塞IO操作，如web请求，但是协程的出现使得一个线程可以同时运行多个IO，`loop.run_until_complete(do(client))` 虽然有`await cli.call('sum', 1, 2)` 会等待处理结果，但是有偶遇`cli.call()` 操作是IO操作，使得可以同时启动多个。
 
 
 ### 协程及其相关
@@ -101,6 +108,13 @@
 4. DMA接收到反馈后，以中断的形式通知CPU，文件读取完成
 
 5. CPU接收到中断，读取内存信息
+
+#### IO多路复用
+
+**参考：**
+
+- [Linux IO模式及 select、poll、epoll详解](https://segmentfault.com/a/1190000003063859#item-3-13) 
+- [【并发】IO多路复用select/poll/epoll介绍-b站](https://www.bilibili.com/video/BV1qJ411w7du/?spm_id_from=333.1007.top_right_bar_window_history.content.click&vd_source=3f2458a0b912bf68d3358cc2c916388d) 
 
 
 

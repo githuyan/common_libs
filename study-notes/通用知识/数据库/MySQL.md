@@ -294,11 +294,34 @@ sleep(2)
 
 ```sql
 explain select name from city where city.name='孙悟空'
+
+# 在 MySQL 中执行一条SQL时，语句并没有在你预期的时间内执行完成
+show processlist
 ```
 
 ![SQL执行计划](../../../resource/SQL执行计划.png)
 
-**Extra**:
+id：是一个查询序列号。
+
+select_type：查询类型。
+
+table：表示与查询结果相关的表的名称。
+
+partition：表示查询访问的分区。
+
+**key**：表示优化器最终决定使用的索引是什么。
+
+key_len： 表示使用了索引的字节数，可通过该列计算查询中使用的索引的长度
+
+ref： 表示上述表的连接匹配条件，即哪些列或常量被用于查找索引列上的值， 引用到的上一个表的列
+
+**rows**：估算SQL要查找到结果集需要扫描读取的数据行数。
+
+filtered：表示查询筛选出的记录占全部表记录数的百分比。
+
+possible_key：表示查询时可能使用的索引。如果这里的值是空，就说明没有合适的索引可用。
+
+**Extra**：表示MySQL执行查询中的附加信息。
 
 > 性能从好到坏：Using index > Using where > Using temporary > Using filesort
 
@@ -306,33 +329,7 @@ explain select name from city where city.name='孙悟空'
 - using temporary  要解决查询，MySQL需要创建一个临时表来保存结果(数据量太大了)
 - using condition 索引下推
 
-**key**: 本次查询确切使用了 `name_index` 索引
-
-**possible_keys**: 此次查询中可能选用的索引
-
-**rows**: 估算SQL要查找到结果集需要扫描读取的数据行数
-
-**key_len:** 表示使用了索引的字节数，可通过该列计算查询中使用的索引的长度
-
-**ref:** 表示上述表的连接匹配条件，即哪些列或常量被用于查找索引列上的值， 引用到的上一个表的列
-
-### 语句结果预估
-
-```sql
-expain select * from users where name='tom'
-```
-
-在 MySQL 中执行一条SQL时，语句并没有在你预期的时间内执行完成
-
-```sql
-show processlist
-```
-
-| 键            | 含义             | 备注 |
-| ------------- | ---------------- | ---- |
-| possible_keys | 可能会使用的索引 |      |
-| key           | 实际使用的索引   |      |
-| rows          | 实际扫描行数     |      |
+type：表的连接类型。
 
 
 
@@ -379,10 +376,6 @@ VALUES
 
 
 
-
-
-
-
 ### 开窗函数 （窗口函数）
 
 > 取每个班中成绩最好的三名同学（三组）
@@ -391,7 +384,7 @@ VALUES
 
 **5.7的解决方案**  ==---？？==
 
-参考： https://blog.csdn.net/junzi528/article/details/84404412
+参考： [mysql 用Group by分组后,取每组的前几条记录的方法和理解](https://blog.csdn.net/junzi528/article/details/84404412)
 
 ```sql
 select * from 班级表 as a where ( select count(0) from 班级表 as b where b.班级=a.班级 and b.成绩>a.成绩)<3 order by a.班级, a.成绩 desc
@@ -399,7 +392,7 @@ select * from 班级表 as a where ( select count(0) from 班级表 as b where b
 
 **8.0**
 
-参考 https://blog.csdn.net/weixin_43660536/article/details/119009252
+参考: [SQL：开窗函数（窗口函数）]( https://blog.csdn.net/weixin_43660536/article/details/119009252)
 
 ```sql
 -- 如果我们想在每个班级内按成绩排名，得到下面的结果。
@@ -597,7 +590,7 @@ select * from users where exists (select roles.user_id from roles where users.id
 
 **not in 和not exists**
 
-如果查询语句使用了not in 那么内外表都进行全表扫描，没有用到索引；而not extsts 的子查询依然能用到表上的索引。所以无论那个表大，用not exists都比not in要快。
+如果查询语句使用了not in 那么内外表都进行全表扫描，没有用到索引；而not extsts 的子查询依然能用到表上的索引。所以无论哪个表大，用not exists都比not in要快。
 
 ### 重命名表
 
@@ -697,9 +690,11 @@ select * from temp
 
   ```mysql
   # union 默认去重，union all 输出所有不去重
-  select name from china
+  select name from china as c
   union 
-  select name from users
+  select name from users as u
+  order by u.id
+  limit 10, 10
   ```
 
 - ##### 统计 count
@@ -947,6 +942,14 @@ select * from temp
   # t 表的 ltime 字段是 datetime 类型
   select * from t where month(t.ltime)=7  # 直接使用 month(t.ltime) 获取月份
   ```
+  
+  **coalesce（取列表中第一个不为空的值）**
+  
+  **参考：**
+  
+  - [SQL——coalesce函数详解](https://blog.csdn.net/yilulvxing/article/details/86595725)]
+  
+  
 
 ### Json 处理
 
@@ -1009,6 +1012,23 @@ mysql> SELECT c, c->"$.id", g
   select json_length(names) from users
   ```
 
+- **json_contains**
+
+  > 查询 json 数组包含某个值， **取得是交集**
+
+  **参考：**
+
+  - https://blog.csdn.net/weixin_41825261/article/details/117064050 
+
+  ```sql
+  # 取得是交集， 11和22都在belog_depart字段中
+  select * from user where json_contain(belog_depart,json_array(11，22))
+  
+  json_contains(表中的字段名, “查询的值”);
+  
+  json_contains(表中的字段名, “查询的值”, “$.json的key”);
+  ```
+  
   
 
 #### 属性
@@ -1451,7 +1471,7 @@ select * from users where name='tom' # 属于一致性读
 #### 只查一行语句却很慢的原因
 
 - 等 MDL 锁
-- 等 flush 操作
+- 等 flush （将脏页数据输入磁盘）操作
 - 等行锁
 - 一致性读导致查询变慢
 
@@ -2288,6 +2308,14 @@ def commit():
 
 > 事务A读取与搜索条件相匹配的若干行。事务B以插入或删除行等方式来修改事务A的结果集，然后再提交。事务A再读取时，却发现数据发生了变化。造成了幻读。
 
+当一个事务读取到了另外一个事务修改但未提交的数据，被称为**脏读**。
+
+  当事务内相同的记录被检索两次，且两次得到的结果不同时，此现象称为**不可重复读**。
+
+  在事务执行过程中，事务2将新记录添加到正在读取的事务1中，导致事务1按照某个相同条件多次读取记录时，后读取时读到了之前没有读到的记录，发生**幻读**。
+
+  事务2中是删除了符合的记录而不是插入新记录，那事务1中之后再根据条件读取的记录变少了，在MySQL中这种现象不属于幻读，相当于对每一条记录都发生了不可重复读的现象。
+
 #### 锁的类型与使用场景
 
 **参考**
@@ -2314,6 +2342,16 @@ for update 仅适用于 InnoDB，其必须要开启事务，在 begin 和 commit
 ```sql
 select * from users where id=1 for update;
 ```
+
+间隙锁（next-key lock）
+
+> 唯一索引只有在值存在时才是行锁，值不存在的话，还是会变成间隙锁
+
+**参考：**
+
+- [MYSQL（04）-间隙锁详解](https://www.jianshu.com/p/32904ee07e56) 
+
+
 
 快照读
 
@@ -2376,9 +2414,30 @@ show OPEN TABLES where In_use > 0 # 查看是否发生锁表
 lock table users write # 加写锁
 ```
 
+## 系统配置
+
+##### 查看binlog日志缓存情况
+
+> binlog_cache_size: 为每个session 分配的内存，在事务过程中用来存储二进制日志的缓存,
+>
+> 当对应的binlog_cache_disk_use 值比较大的时候而且binlog_cache_use也比较大的时候，我们可以考虑适当的调高 binlog_cache_size 对应的值
+
+```sql
+MySQL:(none) 13:07:41> show global status like 'bin%';
++----------------------------+-----------+
+| Variable_name              | Value     |
++----------------------------+-----------+
+| Binlog_cache_disk_use      | 1335001   |  # binlog使用的磁盘（bytes）
+| Binlog_cache_use           | 264238120 |  # 用binlog_cache_size缓存的次数
+| Binlog_stmt_cache_disk_use | 0         |
+| Binlog_stmt_cache_use      | 33        |
++----------------------------+-----------+
+4 rows in set (0.00 sec)
+```
 
 
-## ==坑==
+
+## 特殊情况
 
 1. **mysql 5.7** 中对于既有分组又有排序的场景，整个SQL中使用到的字段都必须在 group by  中出现
 
@@ -2440,115 +2499,3 @@ lock table users write # 加写锁
 3. **1000w条数据，使用limit offset 分页时，为什么越往后翻越慢？如何解决？**
 
    先查主键，在分页。 select * from tb where id in（select id from tb where limit 10 offset 20）
-
-
-
-## ORM
-
-#### 字段
-
-> 这些字段都是相对于ORM而言的
-
-| 字段             | 类型和作用                                              | 备注                                      |
-| ---------------- | ------------------------------------------------------- | ----------------------------------------- |
-| models.AutoField | 自增                                                    | 这个自增字段在Django的orm中已经被默认加了 |
-| BooleanFieldb    | 布尔值                                                  |                                           |
-| NullBooleanField | 支持Null、True、False三种值                             |                                           |
-| CharField        | 字符串                                                  |                                           |
-| TextField        | 大文本字段                                              |                                           |
-| IntegerField     | 整数                                                    |                                           |
-| DecimalField     | 可以指定精度的十进浮点数                                |                                           |
-| FloatField       | 浮点数                                                  |                                           |
-| DateField        | 日期                                                    |                                           |
-| ImageField       | 继承于FileField，对上传的内容进行校验，确保是有效的图片 |                                           |
-
-#### 字段属性
-
-| 属性字段     | 类型与作用                                                   | 备注 |
-| ------------ | ------------------------------------------------------------ | ---- |
-| null         | 布尔值允许为空                                               |      |
-| blank        | 如果为True，则该字段允许为空白，默认值是False  null是数据库范畴的概念，blank是表单验证范畴的 |      |
-| db_column    | 字段的名称，如果未指定，则使用属性的名称                     |      |
-| db_index     | 若值为True, 则在表中会为此字段创建索引，默认值是False（为了优化查询速度 ） |      |
-| default      | 默认值                                                       |      |
-| primary_key  | 若为True，则该字段会成为模型的主键字段，默认值是False        |      |
-| unique       | 如果为True, 这个字段在表中必须有唯一值，这个值不能重复，默认值是False |      |
-| verbose_name | 定义易于人类阅读的表明                                       |      |
-| choice       | choice这个属性，用来限制用户做出选择的范围,                  |      |
-
-#### 索引
-
-```python
-# 设置普通索引
-url = db.Column(db.Integer,index=True)
-
-# 设置联合索引
-
-
-__table_args__ = (
-    db.UniqueConstraint('id','name',name'i_id_name') # 联合索引
-    db.Index('i_name','name') # 普通索引
-)
-```
-
-
-
-#### 关系
-
-| 关系字段 | 关系            | 备注                   |
-| -------- | --------------- | ---------------------- |
-| 一对多   | ForeignKey      | 将字段定义在多的一段中 |
-| 多对都   | ManyToManyField | 定义在任意一端         |
-|          |                 |                        |
-
-#### 使用
-
-1. django的orm 和Flask差不多，django 的一对多关系，可以通过 related_name来设置反向引用，就像是flask的backref,只是django需要使用manage管理器像是
-
-   ```python
-   # 选取type_id为1的类型
-   t = ArticleType.objects.filter(id=1) # 这时 t 为ArticleType object
-   
-   # 通过设置反向引用 related_name = articles
-   articles_manage = t.articles # 这时为一个 RelatedManager object,此时处于可查询状态，
-   articles = articles_manage.all() # 这时就是一个article对象的列表
-   ```
-
-   **对象的属性**
-
-   ```python
-   filter
-   
-   all
-   
-   get
-   
-   values('title'，'birthday_time')  只查询列信息
-   
-   exclude 与所筛选条件不匹配的对象
-   
-   order_by(field) 根据筛选结果升序
-   
-   reverse()  降序
-   
-   distinct() 从返回结果中剔除重复记录
-   
-   count()
-   
-   first()
-   
-   last() 返回最后一条记录
-   
-   exists() 布尔值，是否存在
-   ```
-
-   **迭代器**
-
-   但是有时候取出来的数据量太大会撑爆缓存，可以使用迭代器优雅得解决这个问题；
-
-   ```python
-   models.Publish.objects.all().iterator() 
-   ```
-
-
-
