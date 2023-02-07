@@ -697,9 +697,11 @@ select * from temp
 
   ```mysql
   # union 默认去重，union all 输出所有不去重
-  select name from china
+  select name from china as c
   union 
-  select name from users
+  select name from users as u
+  order by u.id
+  limit 10, 10
   ```
 
 - ##### 统计 count
@@ -2378,7 +2380,7 @@ lock table users write # 加写锁
 
 
 
-## ==坑==
+## 特殊情况
 
 1. **mysql 5.7** 中对于既有分组又有排序的场景，整个SQL中使用到的字段都必须在 group by  中出现
 

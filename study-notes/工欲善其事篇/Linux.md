@@ -1,10 +1,4 @@
-#### 批量杀死所有进程
-
-ps -aux | grep python | awk '{print $2}' | xargs kill -9
-
-
-
-#### 基础命令
+### 基础命令
 
 ```shell
 mkdir 
@@ -18,38 +12,7 @@ groupadd
 	-r # 创建系统组
 ```
 
-
-
-#### linux判断一个域名|IP|端口是否存
-
-**参考：**
-
-- https://blog.csdn.net/sun124608666/article/details/105488642
-- https://blog.csdn.net/weixin_35949153/article/details/113004124
-
-```shell
-ping xxxx
-
-$nc -zv 127.0.0.1 80
-Connection to 127.0.0.1 port 80 [tcp/arepa-cas] succeeded!    # 成功
-nc: connectx to 127.0.0.1 port 80 (tcp) failed: Connection refused    # 失败
-
-wget 是一个从网络上自动下载文件的自由工具，支持通过 HTTP、HTTPS、FTP 三个最常见的 TCP/IP协议 下载，并可以使用 HTTP 代理，Linux可以用它来测试端口。
-用法：wget ip:port
-#出现Connecting to ... failed: Connection refused.表示端口关闭；
-#出现Connecting to ... connected.表示端口开启；
-#出现No route to host表示IP错误或者iptables限制。
-
-curl是一个利用URL语法在命令行下工作的文件传输工具，可以用它来测试端口是否开启。
-用法：curl -v ip:port
-#出现Connection refused表示端口关闭；
-#出现Connected to ip(ip) port(#0)表示端口开启；
-#出现No route to host表示IP错误或者iptables限制。
-```
-
-
-
-#### xargs  命令传递（管道）
+##### xargs  命令传递（管道）
 
 > xargs 它能够捕获一个命令的输出，然后传递给另外一个命令
 
@@ -92,21 +55,7 @@ grep命令用于打印输出文本中匹配的模式串，它使用正则表达�
 
 
 
-#### 系统信息查询
-
-- 查看内存使用情况：**free**
-- 显示进程信息（包括CPU、内存使用等信息）：**top、ps**
-- 查看驱动占用内存：**lsmod**
-
-系统内存信息查询
-
-```shell
-free -mh  # 格式化查看内存使用情况
-```
-
-
-
-#### 查找命令的具体位置
+##### 查找命令的具体位置
 
 ```shell
 # 查找 when-changed 命令包的具体位置（requests库就不行）
@@ -116,9 +65,84 @@ which requests
 
 
 
+### 系统信息查询
+
+##### 查找正在运行的进程号（Pid）
+
+```shell
+pidof `进程操作`
+
+pidof tail  # 使用tail打开一个文件，另开一个shell，查看tail进程ID
+```
+
+##### 查看内存使用情况：**free**
+
+```shell
+free -mh  # 格式化查看内存使用情况
+```
 
 
-#### 执行命令
+
+##### 显示进程信息（包括CPU、内存使用等信息）：**top、ps**
+
+
+
+##### 查看驱动占用内存：**lsmod**
+
+
+
+##### linux判断一个域名|IP|端口是否存
+
+**参考：**
+
+- https://blog.csdn.net/sun124608666/article/details/105488642
+- https://blog.csdn.net/weixin_35949153/article/details/113004124
+
+```shell
+ping xxxx
+
+$nc -zv 127.0.0.1 80
+Connection to 127.0.0.1 port 80 [tcp/arepa-cas] succeeded!    # 成功
+nc: connectx to 127.0.0.1 port 80 (tcp) failed: Connection refused    # 失败
+
+wget 是一个从网络上自动下载文件的自由工具，支持通过 HTTP、HTTPS、FTP 三个最常见的 TCP/IP协议 下载，并可以使用 HTTP 代理，Linux可以用它来测试端口。
+用法：wget ip:port
+#出现Connecting to ... failed: Connection refused.表示端口关闭；
+#出现Connecting to ... connected.表示端口开启；
+#出现No route to host表示IP错误或者iptables限制。
+
+curl是一个利用URL语法在命令行下工作的文件传输工具，可以用它来测试端口是否开启。
+用法：curl -v ip:port
+#出现Connection refused表示端口关闭；
+#出现Connected to ip(ip) port(#0)表示端口开启；
+#出现No route to host表示IP错误或者iptables限制。
+```
+
+##### 查询Linux系统最大打开的文件描述符数量
+
+**参考：**
+
+- [彻底弄懂 Linux 下的文件描述符（fd）](https://yushuaige.github.io/2020/08/14/%E5%BD%BB%E5%BA%95%E5%BC%84%E6%87%82%20Linux%20%E4%B8%8B%E7%9A%84%E6%96%87%E4%BB%B6%E6%8F%8F%E8%BF%B0%E7%AC%A6%EF%BC%88fd%EF%BC%89/) 
+
+```shell
+cat /proc/sys/fs/file-max 
+# 或者 
+sysctl -a | grep fs.file-max
+```
+
+
+
+### 快捷技巧
+
+##### 批量杀死所有进程
+
+```shell
+ps -aux | grep python | awk '{print $2}' | xargs kill -9
+```
+
+
+
+##### 执行命令
 
 ```shell
 # `echo aaa`  == echo aaa == $(echo aaa)
@@ -131,7 +155,9 @@ cat `which when-changed`
 
 
 
-#### Linux的环境变量.bash_profile .bashrc profile文件
+### Linux理论信息
+
+##### Linux的环境变量.bash_profile .bashrc profile文件
 
 ```shell
 #全局环境变量设置文件：/etc/profile、/etc/bashrc。 
@@ -160,3 +186,37 @@ cat `which when-changed`
    ```
 
    
+
+##### fd 文件描述符
+
+**参考：**
+
+- [彻底弄懂 Linux 下的文件描述符（fd）](https://yushuaige.github.io/2020/08/14/%E5%BD%BB%E5%BA%95%E5%BC%84%E6%87%82%20Linux%20%E4%B8%8B%E7%9A%84%E6%96%87%E4%BB%B6%E6%8F%8F%E8%BF%B0%E7%AC%A6%EF%BC%88fd%EF%BC%89/) 
+
+​	linux中一切都是文件，使用一个非负整数[^递增]映射文件的句柄[^正在打开的文件]，用以实现文件的高效管理。
+
+​	标准输入0，标准输出1，标准错误2的文件描述符都指向虚拟终端控制台 /dev/pts/1
+
+```shell
+# 1. 使用vim打开一个文件，另起一个shell执行 pidof vim 查看vim的进程ID
+pidof vim 
+298
+
+# 2. 使用 ll 、proc/$pid/fd 查看这个进程的文件描述符列表
+ll /proc/`pidof vim`/fd
+
+total 0
+dr-x------ 2 githuyan githuyan  0 Feb  7 11:29 ./
+dr-xr-xr-x 9 githuyan githuyan  0 Feb  7 11:28 ../
+lrwx------ 1 githuyan githuyan 64 Feb  7 11:29 0 -> /dev/pts/1
+lrwx------ 1 githuyan githuyan 64 Feb  7 11:29 1 -> /dev/pts/1
+lrwx------ 1 githuyan githuyan 64 Feb  7 11:29 2 -> /dev/pts/1
+lrwx------ 1 githuyan githuyan 64 Feb  7 11:29 4 -> /mnt/d/projects/owner/ymg/.demo.py.swp*
+
+# 标准输入0，标准输出1，标准错误2的文件描述符都指向虚拟终端控制台 /dev/pts/1
+# 4 指向了 demo.py文件的附件
+```
+
+指向附件的原因：
+
+​	vim命令会先打开一个源文件，文件描述符应该为3，复制一个副本，在这个副本上操作，文件描述符应该为4，然后关闭源文件，fd=3释放，fd=4保留
