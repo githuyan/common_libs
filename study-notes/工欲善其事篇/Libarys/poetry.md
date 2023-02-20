@@ -19,7 +19,6 @@
 
    `poetry init` 
 
-
 #### 安装
 
 ```shell
@@ -29,8 +28,6 @@ curl -sSL https://install.python-poetry.org | python3 -
 # 卸载
 curl -sSL https://install.python-poetry.org | python3 - --uninstall
 ```
-
-
 
 #### 基本使用
 
@@ -72,12 +69,9 @@ poetry remove requesets
 - --tree：树的形式列出依赖项
 - --latest (-l)：显示最新版本
 - --outdated (-o)：显示最新版本，但仅适用于过时的软件包
-
 ```shell
 poetry show  # 查看当前环境（没有则创建一个）的所有三方库信息
 ```
-
-
 
 **检查toml文件格式** `poetry check`
 
@@ -113,7 +107,6 @@ poetry env list
 poetry shell
 # 退出虚拟环境
 deactivate
-
 # 查看安装包信息
 poetry show
 poetry show --tree #添加--tree 参数选项可以查看依赖关系：
@@ -130,6 +123,5 @@ poetry config --list
 [[tool.poetry.source]]
 name = "douban"
 url = "https://pypi.doubanio.com/simple/"
-
 ```
 

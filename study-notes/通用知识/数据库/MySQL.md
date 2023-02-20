@@ -2435,8 +2435,6 @@ MySQL:(none) 13:07:41> show global status like 'bin%';
 4 rows in set (0.00 sec)
 ```
 
-
-
 ## 特殊情况
 
 1. **mysql 5.7** 中对于既有分组又有排序的场景，整个SQL中使用到的字段都必须在 group by  中出现
