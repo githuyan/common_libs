@@ -1,10 +1,6 @@
 # Redis
 
-
-
 > remote dictionary server 远程字典服务
-
-
 
 ## 注意事项
 
@@ -253,8 +249,6 @@ ttl key  # 以秒为单位返回 key 的剩余过期时间
 
 
 
-
-
 ### 常用类型
 
 #### String类型
@@ -343,7 +337,7 @@ mget k1 k2 批量获取
 
 #### **Set类型**
 
-无序集合
+**无序集合**
 
 > 无序不重复
 
@@ -381,7 +375,7 @@ mget k1 k2 批量获取
 
   sinterstore myset3 myset1 myset2 求myset和myset2的交集并保存到myset3
 
-有序集合
+**有序集合**
 
 > 大部分操作类似，只是添加了一个优先级
 
