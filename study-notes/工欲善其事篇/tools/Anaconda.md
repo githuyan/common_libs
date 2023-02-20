@@ -33,3 +33,17 @@ conda update conda：检查更新当前conda
 
 
 
+### anaconda安装与配置
+
+**镜像源**
+
+北京外国语: [Index of /anaconda/archive/ | 北京外国语大学开源软件镜像站 | BFSU Open Source Mirror](https://mirrors.bfsu.edu.cn/anaconda/archive/?C=M&O=D)
+
+阿里: [anaconda-archive安装包下载_开源镜像站-阿里云 (aliyun.com)](https://mirrors.aliyun.com/anaconda/archive/?spm=a2c6h.25603864.0.0.1f024eb9sBVnQc)
+
+```shel
+wget https://mirrors.tuna.tsinghua.edu.cn/anaconda/
+
+bash Anaconda3-2022.10-Linux-x86_64.sh
+```
+

@@ -252,3 +252,29 @@ print(c) # [1 0 1 0]
 print(c.dtype) # int32
 ```
 
+
+
+## 常用方法
+
+##### 嵌套数组扁平化
+
+**参考：**
+
+- [[Numpy中扁平化函数ravel()和flatten()的区别](https://www.cnblogs.com/mzct123/p/8659193.html)](https://www.cnblogs.com/mzct123/p/8659193.html) 
+
+```python
+from numpy import *
+
+a = arange(12).reshape(3, 4)
+
+print(a)
+# [[ 0  1  2  3]
+# [ 4  5  6  7]
+# [ 8  9 10 11]]
+
+print(a.ravel())
+# [ 0  1  2  3  4  5  6  7  8  9 10 11]
+
+print(a.flatten())
+# [ 0  1  2  3  4  5  6  7  8  9 10 11]
+```

@@ -109,6 +109,13 @@
 
 5. CPU接收到中断，读取内存信息
 
+#### IO多路复用
+
+**参考：**
+
+- [Linux IO模式及 select、poll、epoll详解](https://segmentfault.com/a/1190000003063859#item-3-13) 
+- [【并发】IO多路复用select/poll/epoll介绍-b站](https://www.bilibili.com/video/BV1qJ411w7du/?spm_id_from=333.1007.top_right_bar_window_history.content.click&vd_source=3f2458a0b912bf68d3358cc2c916388d) 
+
 
 
 #### 四种I/O模型介绍
