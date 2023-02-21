@@ -2353,6 +2353,13 @@ select * from users where id=1 for update;
 **参考：**
 
 - [MYSQL（04）-间隙锁详解](https://www.jianshu.com/p/32904ee07e56) 
+- [(26条消息) 什么是Mysql的next-key、插入缓冲、二次写、自适应哈希索引和预读_mysql next-key_走出半生仍是少年的博客-CSDN博客](https://blog.csdn.net/m0_46761060/article/details/124244111) 
+
+处于对隔离性的处理，为了防止幻读，innodb会给范围查询和不存在的值加间隙锁
+
+```sql
+select * from users where id>10 for update # 会对>10的数据加间隙锁
+```
 
 
 
@@ -2437,6 +2444,14 @@ MySQL:(none) 13:07:41> show global status like 'bin%';
 +----------------------------+-----------+
 4 rows in set (0.00 sec)
 ```
+
+##### innodb_change_buffer_max_size
+
+> 控制change_buffer的最大使用内存数量，该参数的默认值是25，也就是1/4
+
+
+
+
 
 ## 特殊情况
 

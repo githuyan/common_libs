@@ -113,7 +113,6 @@ Topic: test1    TopicId: dRuKt0Y1SEqfMHYQYMBw9g PartitionCount: 3       Replicat
 
 **参考：**
 
-- [(8条消息) Kafka的三种语义_简单随风的博客-CSDN博客_kafka三种语义](https://blog.csdn.net/lt326030434/article/details/119881907) 
 - [Kafka 事务 | 程序员进阶 (it-blog-cn.com)](https://it-blog-cn.com/blogs/qmq/transaction.html) **极好**
 
 #### at-last-one
