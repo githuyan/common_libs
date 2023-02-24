@@ -85,9 +85,11 @@ sudo tar -zxvf kafka_2.13-3.2.0.tgz
    
    
    
+   #### docker-compose部署
    
+   **参考：**
    
-   
+   - [Docker-Compose部署Kafka KRaft集群环境（超详细） - 掘金 (juejin.cn)](https://juejin.cn/post/7187301063832109112) 
    
    
 

@@ -323,9 +323,9 @@ mget k1 k2 批量获取
 
 - 删
 
-  lremitems 2 value 移除items中的2个value 精确匹配
+  lrem items 2 value 移除items中的2个value 精确匹配
 
-  rpoplpush list1 list2 	pop一个List1中的元素并Push进List2
+  rpop lpush list1 list2 	pop一个List1中的元素并Push进List2
 
 - 改
 

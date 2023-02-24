@@ -110,6 +110,9 @@ deactivate
 # 查看安装包信息
 poetry show
 poetry show --tree #添加--tree 参数选项可以查看依赖关系：
+
+# 使用环境
+poetry env use 3.9
 ```
 
 #### 环境配置

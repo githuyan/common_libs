@@ -1,3 +1,17 @@
+##### docker-compose安装
+
+**参考：** https://www.cnblogs.com/trblog/p/14240084.html
+
+```shell
+# 下载安装docker-compose
+sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+# 添加权限
+sudo chmod +x /usr/local/bin/docker-compose
+```
+
+
+
 ### docker 出现的问题
 
 1. docker 命令执行缓慢
