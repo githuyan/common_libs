@@ -74,7 +74,7 @@ from > join > on > where > group by > having > select > distinct > order by > li
   在 SQL 中两个单引号是一个单引号 
 
   ```sql
-  insert into users(name) values ('[''aaa'']') // 这就插入了这样一个字符串 "['aaa']"
+  insert into users(name) values ('[''aaa'']') # 这就插入了这样一个字符串 "['aaa']"
   ```
 
 
@@ -209,6 +209,19 @@ from > join > on > where > group by > having > select > distinct > order by > li
    select * from polls_article WHERE to_days(now()) - to_days(birthday_time) <= 30
    ```
 
+### mysql查询中的变量
+
+**参考：**
+
+- [Using SQL Variables in Queries](https://www.oreilly.com/library/view/mysql-cookbook/0596001452/ch01s15.html)
+
+```mysql
+select @owner_id := owner_id, @owner_type := owner_type from contract_category where is_default=1;
+select @owner_id, @owner_type
+```
+
+
+
 ### 相关参数
 
 **innodb_file_per_table**
@@ -340,7 +353,7 @@ type：表的连接类型。
 
 ## 技巧
 
-### 更新时判断
+### 有则更新无则插入
 
 **on duplicate key update**
 
@@ -441,6 +454,12 @@ update one_table as one, two_table as two set one.name_value=two.name_value wher
 
 (update 的表连接)
 UPDATE people LEFT JOIN city ON people.city_code=city.`code` SET people.city_name=city.`name`;
+```
+
+#### 查询并将结果插入
+
+```sql
+insert into ytest(name, age) select 0 as name, 0 as age from ytest where id=15
 ```
 
 
@@ -1486,6 +1505,15 @@ select * from users where name='tom' # 属于一致性读
 select * from users lock in share mode # 当前读
 ```
 
+## 坑
+
+##### 布尔值类型更新
+
+```sql
+# is_default是 tinyint
+delete from contract_category where is_default="1" # 必须使用 ''
+```
+
 
 
 ## 特性
@@ -1710,17 +1738,17 @@ select * from information_schema.innodb_trx where time_to_sec(timediff(now(),trx
 > ROLLBACK 命令只能撤销自上次 COMMIT 命令或者 ROLLBACK 命令执行以来的事务。
 
 ```sql
-begin; # 注意，这里一定要有 ; 
+begin; | start transaction; # 注意，这里一定要有 ; 
 
 select * from city;
 
-commit
+commit;
 ```
 
 
 
 ```sql
-start transaction 或者 bein   # 启动事务
+start transaction; 或者 begin;   # 启动事务
 savepoint 标记点名称
 release savepoint 标记点名称   # 删除标记点
 commit 或者 commit work       # 将所有修改提交，则所有修改都将变为永久性的
