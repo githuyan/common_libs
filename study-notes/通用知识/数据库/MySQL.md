@@ -353,6 +353,32 @@ type：表的连接类型。
 
 ## 技巧
 
+### 连表插入|更新
+
+**参考：**
+
+- [MySQL 两张表关联，以另一个表的值更新字段值](https://blog.csdn.net/qq_36535820/article/details/99071934) 
+
+**例子：**
+
+```sql
+BEGIN;
+# 查询结果并插入
+insert into category(name, owner_id, owner_type, is_recommend)
+select 0 as recommend_id, '其他' as name, owner_id, owner_type, False as is_recommend
+from category where owner_type in (1,2);
+
+# 查询结果并更新
+update template as ct 
+left join category as cc on ct.template_category_id=cc.parent_id 
+set ct.template_category_id=cc.id 
+where cc.owner_type in (1,2)
+
+commit;
+```
+
+
+
 ### 有则更新无则插入
 
 **on duplicate key update**
