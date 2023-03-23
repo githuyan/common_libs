@@ -261,6 +261,14 @@ docker systemctl stop docker
    - stop 容器id
    - kill 容器id  强制停止
 
+   **删除所有孤立的容器**
+
+   ```shell
+   docker container prune
+   ```
+
+   
+
 3. **容器查询**
 
    `docker ps ` 当前正在运行的容器

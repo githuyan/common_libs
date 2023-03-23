@@ -2,6 +2,10 @@
 
 > Nginx ，是一个 Web 服务器和反向代理服务器，用于 HTTP、HTTPS、SMTP、POP3 和 IMAP 协议。
 
+**参考：**
+
+- [用ChatGPT学Nginx是一种什么体验 - 掘金 (juejin.cn)](https://juejin.cn/post/7204060150704422971) 
+
 ### nginx配置
 
 #### 使用

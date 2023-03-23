@@ -5,6 +5,7 @@
 **学习资源：**
 
 1. https://it-blog-cn.com/blogs/qmq/product.html 
+1. [Kafka 科普 - 掘金 (juejin.cn)](https://juejin.cn/post/7146133960865611806) --全面
 
 
 
@@ -29,6 +30,12 @@
 <center>（这个图极好）</center>
 
 ### **partition（分区）的特点:**
+
+> 同一个Topic的不同Partition中的消息通常都是以相同的格式和类型进行序列化和反序列化的，但是也可以不同。
+
+**注意：**
+
+分区只能创建不能删除，原因是被删除分区的消息得不到妥善处理，可能会对整体消息的有序性与高可用产生影响，这个功能的收益小于风险。
 
 1. **每个Topic可划分多个partition，这些partition中的消息类别是相同的，但同一个Topic的不同分区的数据是不重复的**
 
@@ -272,15 +279,23 @@ Follower同步Leader过程不阻塞，只要leader完成写入log，这条消息
 #### 消息副本同步的流程
 
 ```python
-# 这参数的意义是，规定Follower副本必须在此时间间隔内赶上Leader副本，完成同步（LEO（此副本）>= HW（Leader）
+# 此参数规定Follower副本必须在此时间间隔内赶上Leader副本，完成同步（LEO（此副本）>= HW（Leader）
 replica.lag.time.max.ms  # 配置默认10000 即 10秒
 ```
 
-**LEO**（last end offset）： **当前replica存的最大的offset的下一个值**
+如图代表某一个replication的日志文件：
 
-**HW**（high watermark）：**小于 HW 值**的offset所对应的消息被认为是“已提交”或“已备份”的消息（高可用），才对消费者可见。
+![img](../../../../resource/cd1895a27cf646fe9bb306babb3828fetplv-k3u1fbpfcp-zoom-in-crop-mark4536000.webp)
 
-<img src="../../../../resource/20201104141702441.png" alt="img" style="zoom:50%;" />
+**LEO**（last end offset）：将要写入最新消息的offset，即最大offset+1
+
+**HW**（high watermark）：offset小于hw的消息被认为是“已提交”或“已备份”的消息（高可用），消费只能拉取到这个offset之前的消息
+
+
+
+对于leader而言，ISR集合中副本的LEO可能不一致
+
+
 
 1. 数据写到leader的partition上 
 2. leader更新自己的leo
@@ -426,9 +441,11 @@ replica.lag.time.max.ms  # 配置默认10000 即 10秒
 
 
 
+## Message
 
+#### 消息压缩
 
-
+消息压缩是一种时间换空间的优化方式，对于时延有一定要求的场景并不适合
 
 
 
@@ -446,6 +463,10 @@ replica.lag.time.max.ms  # 配置默认10000 即 10秒
    如果有5个副本，2个分布在河南的broker，3个分布在深圳的broker，深圳的一个broker宕机，且中断了河南和深圳的联系，那么就会在河南和深圳就会出现两个leader
 
    > 应该不会出现这种情况，深圳和河南的两个broker一定是有一个为leader（broker级）
+
+3. 重平衡问题
+
+   TODO
 
 ---
 
@@ -493,3 +514,8 @@ replica.lag.time.max.ms  # 配置默认10000 即 10秒
 如果broker中没有数据，consumer可能会出现busy轮询，直到有消息待消费， 这里可以在消费时加参数，设置 long pull
 ```
 
+## 配置
+
+1.`unclean.leader.election.enable`
+
+默认为false，如果为true，那么意味着，leader下线时，新的leader可以从OSR 中获取，可能会造成消息丢失。

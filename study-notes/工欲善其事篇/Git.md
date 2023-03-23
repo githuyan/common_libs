@@ -415,11 +415,20 @@ git branch | grep "demo*" | xargs git branch -D  # 批量删除本地分支
 
 ### **git checkout**
 
+**参考：**
+
+- [Git放弃修改](https://www.cnblogs.com/lyh523329053/p/11530667.html)
+
 ```shell
 git checkout newbranch # 切换分支
 git checkout -b newbranch # 创建并切换分支
 git checkout -r  # 列出所有远程分支
 			-a # 列出所有远程和本地分支
+			
+git checkout .  # 丢弃当前所有未跟踪的修改
+git checkout -f  # 丢弃当前所有修改
+
+git checkout filename  # 丢弃指定文件的修改
 ```
 
 ### **git remote**
@@ -452,7 +461,7 @@ git clone -b <branch-name> --single-branch https://github.com.cnpmjs.org/other.g
 
 ## 技巧
 
-### 标签
+##### 打标签
 
 ```shell
 git tag  # 列出现有标签
@@ -468,9 +477,27 @@ git show 标签名  # 查看标签信息
 git tag -d 标签名 # 删除标签
 ```
 
-#### 在gitee上打标签
+**在gitee上打标签**
 
 ![image-20220527131246417](../../resource/image-20220527131246417.png)
+
+
+
+##### 撤销上一次的 git pull
+
+```shell
+# 获取某个分支的所以提交状态
+git reflog bugfix-one-commit
+
+# 000 （HEAD -> bugfix-one-commit, origin/bugfix-one-commit) bugfix-one-commit@(0): pull: Fast-forword
+# 111 bugfix-one-commit@{1}: commit: 111提交
+# 222 bugfix-one-commit@{1}: commit: 222提交
+
+# 重置到某一个pull之前
+git reset --hard bugfix-one-commit@{1}
+```
+
+
 
 ### 分支
 

@@ -353,6 +353,25 @@ type：表的连接类型。
 
 ## 技巧
 
+### 递归查询
+
+> 部门表的子查询，通过顶级ID查询各层级数据
+
+```sql
+WITH RECURSIVE dept_tree(id, name) AS (
+  SELECT id, name
+  FROM dept
+  WHERE id = {指定id}
+  UNION ALL
+  SELECT d.id, d.name
+  FROM dept d
+  JOIN dept_tree t ON d.parent_id = t.id
+)
+SELECT id FROM dept_tree WHERE id;
+```
+
+
+
 ### 连表插入|更新
 
 **参考：**
