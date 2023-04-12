@@ -353,6 +353,16 @@ type：表的连接类型。
 
 ## 技巧
 
+### 分组统计
+
+> 根据一个分组条件，可以在统计函数中对这一组的每一条记录进行操作
+
+```sql
+select sum(if(age>10, amount, 0)) as total_amount from price group by user_id
+```
+
+
+
 ### 递归查询
 
 > 部门表的子查询，通过顶级ID查询各层级数据
@@ -810,14 +820,58 @@ select * from temp
   select name,count(age) from message group by name,age # 这个返回的事复合信息，所以不能用 select * 来获取，只能使用聚合函数来处理，如（sum...) 参考连接
   ```
 
-- **分组拼接 group_concat(columns separator sign) **
+- **分组拼接 **
+
+  **参考：**
+
+  - [MySQL JSON_OBJECTAGG() 函数使用指南 (sjkjc.com)](https://www.sjkjc.com/mysql-ref/json_objectagg/) 
+
+  - **group_concat**(columns separator sign)
+
+    ```sql
+    # 语法
+    group_concat( [DISTINCT] 要连接的字段 [Order BY 排序字段 ASC/DESC] [Separator ‘分隔符’] )
+    
+    select id, group_concat(price) from goods group by id;  # 默认以 , 分割
+    ```
+
+  - **group_arrayagg**(expr)
+
+    > 不同于 group_concat 的是，group_arrayagg将所需字段聚合为一个列表
+
+    ```sql
+    # 语法
+    SELECT name AS `Name`, JSON_ARRAYAGG(subject) AS `Subjects` FROM student_score GROUP BY name;
+    
+    +------+---------------------+
+    | Name | Subjects            |
+    +------+---------------------+
+    | Tim  | ["English"]         |
+    | Tom  | ["Math", "English"] |
+    +------+---------------------+
+    ```
+
+  - **json_abjectagg**(key_expr, value_expr)
+
+    > 将两个字段聚合为一个JSON
+
+    ```sql
+    # 示例
+    SELECT name AS `Name`	, JSON_OBJECTAGG(filed_as_key, field_as_value) AS `Scores`FROM student_score GROUP BY name;
+    +------+-----------------------------+
+    | Name | Scores                      |
+    +------+-----------------------------+
+    | Tim  | {"English": 98}             |
+    | Tom  | {"Math": 80, "English": 90} |
+    +------+-----------------------------+
+    ```
+
+- **josn_object(k1, v1, k2, v2...)**
 
   ```sql
-  # 语法
-  group_concat( [DISTINCT] 要连接的字段 [Order BY 排序字段 ASC/DESC] [Separator ‘分隔符’] )
-  
-  select id, group_concat(price) from goods group by id;  # 默认以 , 分割
+  SELECT JSON_OBJECT("name",name, "age",age) from ytest
   ```
+
 
 - **concat 字符串拼接**
 

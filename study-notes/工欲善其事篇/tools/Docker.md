@@ -1,3 +1,13 @@
+### 技巧
+
+##### 批量操作容器
+
+```shell
+docker restart $(docker ps | grep test | awk '{ print $1}')
+```
+
+
+
 ##### docker-compose安装
 
 **参考：** https://www.cnblogs.com/trblog/p/14240084.html

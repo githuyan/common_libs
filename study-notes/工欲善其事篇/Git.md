@@ -443,6 +443,7 @@ git remote show origin # 查看远程分支和本地分支的对应关系
 
 ```shell
 git stash # 存储当前的修改
+git stash save "save message"
 git stash -u # 保存当前状态，包括 untracked 的文件
 git stash list  # 展示所有的 stash
 
