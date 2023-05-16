@@ -529,6 +529,17 @@ git branch -d 本地分支名
 git push origin -delete 远程分支名
 ```
 
+#### 基于远程重建本地被污染主分支
+
+```shell
+# 本地product分支被污染
+git branch -D master
+git fetch origin master  # 重新拉去主分支
+git checkout master
+git branch -D product  # 删除被污染分支
+git checkout prodcut
+```
+
 
 
 ### 隐藏修改

@@ -1604,15 +1604,6 @@ select * from users where name='tom' # 属于一致性读
 select * from users lock in share mode # 当前读
 ```
 
-## 坑
-
-##### 布尔值类型更新
-
-```sql
-# is_default是 tinyint
-delete from contract_category where is_default="1" # 必须使用 ''
-```
-
 
 
 ## 特性
