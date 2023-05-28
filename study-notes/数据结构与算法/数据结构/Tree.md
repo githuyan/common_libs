@@ -73,7 +73,7 @@ d 是完全二叉树的深度，即查找次数（由于二叉树的查询，插
 
 #### B树
 
-![B树](D:\桌面\学习笔记\resource\B树.png)
+![B树](C:\Users\24781\Desktop\学习笔记\resource\B树.png)
 
 **特点：**
 
@@ -139,7 +139,7 @@ class TreeNode:
         while queue[-1] == "null": queue.pop()
         return queue
 
-    def traversal(self,type=1, method=1):
+    def traversal(self, type=1, method=1):
         """
         type:为使用方法 1:递归，2:迭代
         method: 为遍历方式，1:根左右(先序遍历),2:左根右(中序遍历),3:左右根(后序遍历)
@@ -182,7 +182,7 @@ class TreeNode:
 
 ### 一种通用的遍历方法
 
-> 只需要
+> 广度优先遍历
 
 ```python
 # 颜色标记法
@@ -435,8 +435,9 @@ class Solution:
            return root
    ```
    
+
 **题解三**
-   
+
 ```python
    import collections
    class Solution:
@@ -455,10 +456,10 @@ class Solution:
                    if node.right:
                        queue.append(node.right)
            return root
-   ```
-   
+```
 
-   
+
+
 5. **LeetCode第102题，题目：二叉树的层序遍历，难度：中等**
 
    **题目描述**
