@@ -1,4 +1,48 @@
-### Navicate使用技巧
+## Vscode使用技巧
+
+##### 在windows环境开发项目，使用wsl2中创建的虚拟环境
+
+1. 在wsl2中安装`wsl`插件
+
+   ![image-20230526175254103](../../resource/image-20230526175254103.png)
+
+2. 连接到wsl
+
+3. 将项目地址**软连接**到wsl环境中，这样就可以在vscode中通过wsl扩展在使用wsl环境的前提下开发项目了。
+
+
+
+##### 默认快捷键配置
+
+```shell
+alt left_key # 跳转到上一个位置
+
+Shift + Alt + F	 # 格式化文档 
+```
+
+
+
+##### 自定义快捷键配置
+
+```shell
+alt f2 # 快速查看函数或变量在哪里被引用
+alt shift f2 # 全局查看函数或变量在哪里被引用
+
+ctrl y # 删除本行
+alt shift down_key # 向下复制
+
+ctrl shift 1 # 标记带有注释的书签
+ctrl alt k # 标记书签
+ctrl 1 # 展示书签列表
+ctrl alt j # 上一个书签
+ctrl alt l # 下一个书签
+```
+
+
+
+
+
+## Navicate使用技巧
 
 ##### 查看历史日志
 
@@ -86,7 +130,7 @@ ctrl + alt + enter
 
 
 
-##### 复写一行
+##### 向下复制
 
 选中一行 ctrl + d
 

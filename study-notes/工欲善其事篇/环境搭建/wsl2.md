@@ -65,5 +65,19 @@
    F:\Ubuntu-20.04
    ````
 
-   
+
+
+
+### 重启wsl2
+
+```shell
+#停止LxssManager服务
+net stop LxssManager  
+ 
+#启动LxssManager服务
+net start LxssManager  
+
+```
+
+
 

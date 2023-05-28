@@ -22,94 +22,64 @@ if age:
 
 > sql_concat提供了一个名为`db_condition_parse()`的函数，接受一个字典作为输入，该字典描述了SQL查询条件的各个方面。该函数解析字典并生成相应的SQL查询条件和参数。
 
-支持全等(=)、不等(!=)、大于(>)、大于等于(>=)、小于(<)、小于等于(<=)、左模糊匹配(LIKE)、右模糊匹配(LIKE)、全模糊匹配(LIKE)、 在列表(IN)、不在列表(NOT IN)、空值判断(IS NULL, IS NOT NULL)、分页限制(LIMIT)、位移(OFFSET)、排序(ORDER BY)、分组(GROUP BY)、 与操作(AND)、或操作(OR)、自定义操作(eg: 支持在任意位置添加任意数量的自定义操作
+1. 支持全等(=)、不等(!=)、大于(>)、大于等于(>=)、小于(<)、小于等于(<=)、左模糊匹配(LIKE)、右模糊匹配(LIKE)、全模糊匹配(LIKE)、 在列表(IN)、不在列表(NOT IN)、空值判断(IS NULL, IS NOT NULL)、分页限制(LIMIT)、位移(OFFSET)、排序(ORDER BY)、分组(GROUP BY)、 与操作(AND)、或操作(OR)、自定义操作(eg: 支持在任意位置添加任意数量的自定义操作
 
-支持自定义全局钩子，对每一个条件自定义处理函数， 默认开启SQL预处理钩子，支持参数替换(%s)，参数采集
+2. 支持自定义全局钩子，对每一个条件自定义处理函数， 默认开启SQL预处理钩子，支持参数替换(%s)，参数采集
 
-支持字段类型精确匹配的索引操作，（eg: 在SQL预处理中，由于存在参数替换，可能不支持精确索引匹配）
+3. 支持字段类型精确匹配的索引操作，（eg: 在SQL预处理中，由于存在参数替换，可能不支持精确索引匹配）
 
-支持空值判断，目前只有 0、False被认为有效空值，其他空值如[], (), {}, None 在AND流程中舍弃当前上下文流程块全部条件，在OR流程中舍弃当前条件
+4. 支持空值判断，目前只有 0、False被认为有效空值，其他空值如[], (), {}, None 在AND流程中舍弃当前上下文流程块全部条件，在OR流程中舍弃当前条件
 
-默认支持四个语法糖，>=, <=, ~, %
+5. 默认支持四个语法糖，>=, <=, ~, %
+
+##### 1.1 demo
+
+
+
+```python
+conds = {
+    "name": "Alice",
+    "age__gt": 18,
+    "__and": {"gender": "female"},
+    "__or": {"age__lt": 10, "sex": 1},
+    "__extra": "some extra conditions",
+    "created_at__gte": "2022-01-01",
+    "updated_at__lt": "2022-02-01",
+    "email__ll": "%example.com",
+    "status__in": [1, 2, 3],
+    "status__not_in": [4, 5, 6],
+    "address__is_null": True,
+    "__group_by": ["age"],
+    "__order_by": [("created_at", True), ("updated_at", False)],
+    "__limit": 10,
+    "__offset": 20,
+}
+
+sql, params = db_condition_parse(conds)
+
+# (
+#     name=%s AND age>%s AND gender=%s AND (age<%s OR sex=%s) some extra conditions created_at>=%s AND updated_at<%s AND email LIKE %%%s AND status IN (%s,%s,%s) AND status NOT IN (%s,%s,%s) AND address IS NULL 
+#     GROUP BY age 
+#     ORDER BY created_at ASC,updated_at DESC 
+#     LIMIT %s 
+#     OFFSET %s
+# )
+# ['Alice', 18, 'female', 10, 1, '2022-01-01', '2022-02-01', '%example.com', 1, 2, 3, 4, 5, 6, 10, 20]
+```
 
 
 
 #### 2 核心代码实现
 
+##### 2.1 语法解析模块
+
+将字典视为“块”状结构，递归处理每一个“块”，对于每一个“块”来说都是一个条件的集合，将给一个条件集合递归到最终真实的条件参数，再针对每一个条件映射处理函数。
+
 ```python
-def general_process_layer(flag: str, value: Any, **kwargs) -> Tuple[str, Any]:
-    """
-    通用流程处理层
-    获取每一个条件对应的处理函数，并执行调用，响应最终结果，本层可以获取每一个条件最终函数执行之前的所有元数据，可以在本层对所有条件进行全局处理，如SQL防注入预处理,参数采集
-
-    :param flag: 所支持的所有操作的前缀或后缀标识字符串 [
-            "__end", "__gt", "__lt", "__e", "__gte", "_lte", "__ne", "__ll", "__rl", "__al", "__in", "__not_in",
-            "__limit", "__offset", "__group_by", "__order_by", "__and", "__or", "__extra"
-            ]
-    :param value: 参数值
-    :return: str 一个拼接字符串
-
-    >>> params = ("age__gt", 100)
-    >>> general_process_layer(*params)
-    ("__gt", "age<100")
-
-    >>> params = ("user.id__in", [1, 2, 3])
-    >>> general_process_layer(*params)
-    ("__in", "user.id IN (1,2,3)")
-
-    >>> params = ("__order_by", {"created_at": True})
-    >>> general_process_layer(*params)
-    ("__order_by", "ORDER BY created_at ASC")
-        ...
-    >>> params = ("__offset", 10)
-    >>> general_process_layer(params)
-    ("__limit", "OFFSET 10")
-    """
-    # 通用操作处理
-    flag_func, flag_sign, field, flag_value = meta_condition_map(flag, value)
-    meta_cond = MetaCondition(flag=flag, flag_func=flag_func, flag_sign=flag_sign, field=field, flag_value=flag_value, value=value)
-
-    # 自定义处理钩子
-    meta_cond, kwargs = execute_hook(meta_cond, **kwargs)
-
-    return meta_cond.flag_sign, meta_cond.flag_func(field=meta_cond.field, value=meta_cond.flag_value, **kwargs)
-
 def condition_parse(flag: str, value: Dict, **kwargs) -> Tuple[str, Any]:
     """
     条件解析
     会将字典结构视为一个“块”，每一个块中可以包含若干个条件与值的映射{condition: value}，解析每一个条件，拼接为字符串
-
-    :param flag: 所支持的所有操作的前缀或后缀标识字符串
-        -> flag in [
-            "__end", "__gt", "__lt", "__e", "__gte", "_lte", "__ne", "__ll", "__rl", "__al", "__in", "__not_in",
-            "__limit", "__offset", "__group_by", "__order_by", "__and", "__or", "__extra"
-            ]
-    :param value: 参数值
-    :return: Tuple[str, str] (条件标识, 参数拼接结果)
-
-    >>> params = {"flag": "__end", "value": {"name": "ttt", "age__in": [1, 2]}
-    >>> condition_concat(params)
-    ("__end", "name='ttt' AND age IN (1,2)")
-
-    >>> params = {"flag": "__gt", "value": {"age__lt": "10"}
-    >>> condition_concat(params)
-    ("__gt", "age<10")
-
-    >>> params = {"flag": "__order_by", "value": {"created_at": True}}
-    >>> condition_concat(params)
-    ("__order_by", "ORDER BY created_at ASC")
-
-    >>> params = {"flag": "__and", "value": {"age__lt": 10, "name": "ttt"}
-    >>> condition_concat(params)
-    ("__and", "age<10 AND name='ttt'")
-
-    >>> params = {"flag": "__or", "value": {"age__lt": 10, "name": "ttt"}
-    >>> condition_concat(params)
-    ("__or", "(age<10 OR name='ttt'")
-
-    >>> params = {"flag": "__extra", "value": "group by name,id"}
-    >>> condition_concat(params)
-    ("__extra", "group by name,id")
     """
     # 特殊操作处理，用于解析值为字典的操作
     if flag in extra_dict_condition_map:
@@ -130,74 +100,128 @@ def condition_parse(flag: str, value: Dict, **kwargs) -> Tuple[str, Any]:
     return general_process_layer(flag, conditions_str, **kwargs)
 ```
 
-##### 2.1 扩展条件处理
+如这样一个条件”块“：
 
 ```python
-def _order_by(value: Union[str, List[Union[Dict[str, Union[bool, OrderEnum]]]]], **kwargs) -> str:
-    """
-    SQL排序操作处理
-    支持单值（单值时默认值为倒序 DESC）、多值排序，支持使用布尔值(True, False, 0, 1)或者枚举值（DESC, ASC, desc, asc）去定义指定字段的排序方式
+{
+    "flag": "__or", 
+    "value": {
+        "age__lt": 10, 
+        "name": "ttt",
+        "__or": {
+            "sex": 1
+        }
+    }
+}
+# 这样一个条件“块”包含了三个最终条件，即 age<10, name=ttt, sex=1
+```
 
-    :param value: 一个列表，元素为一个字典或者一个二值元祖
+将每一个最终条件进行通用处理，使用`general_process_layer`方法进行最终调用，在最终调用之前可以进行自定义钩子处理，因为此时当前条件的所有信息都被`meta_condition_map`函数解析，获得当前条件的标志信息`flag_sign`、参数信息`fieldd`,`flag_value`、待处理函数`flag_func`，可以通过替换处理函数进行自定义处理。
+
+```python
+# 因为需要兼容当前项目中已有的自定义语法糖，所以会有一个语法糖兼容处理，将语法糖映射为标准条件标识
+suffix_condition_syntactic_sugar_map = {
+    ">=": "__gte",
+    "<=": "__lte",
+    "~": "__ne",
+    "%": "__al",
+}
+
+def meta_condition_map(flag: str, value: Any, **kwargs) -> Tuple[Callable, str, Optional[str], Any]:
+    """
+    通用流程映射
+    所有的操作都会被分配给指定的处理函数，并打包参数，等待调用
+    """
+    # 流程块操作相应处理
+    if flag in prefix_condition_map:
+        return prefix_condition_map[flag], flag, None, value
+
+    # 兼容旧语法糖
+    sugar_suffix, prefix = compatible_old_syntactic_sugar(s=flag)
+    if suffix := suffix_condition_syntactic_sugar_map.get(sugar_suffix):
+        return suffix_condition_map[suffix], suffix, prefix,  value
+
+    # 后缀操作对应处理
+    prefix, suffix = get_prefix_and_suffix(flag)
+    return suffix_condition_map[suffix], suffix, prefix,  value
+
+def general_process_layer(flag: str, value: Any, **kwargs) -> Tuple[str, Any]:
+    """
+    通用流程处理层
+    获取每一个条件对应的处理函数，并执行调用，响应最终结果，本层可以获取每一个条件最终函数执行之前的所有元数据，可以在本层对所有条件进行全局处理，如SQL防注入预处理,参数采集
+    """
+    # 通用操作处理
+    flag_func, flag_sign, field, flag_value = meta_condition_map(flag, value)
+    meta_cond = MetaCondition(flag=flag, flag_func=flag_func, flag_sign=flag_sign, field=field, flag_value=flag_value, value=value)
+
+    # 自定义处理钩子
+    meta_cond, kwargs = execute_hook(meta_cond, **kwargs)
+
+    return meta_cond.flag_sign, meta_cond.flag_func(field=meta_cond.field, value=meta_cond.flag_value, **kwargs)
+
+```
+
+如：
+
+```python
+{
+    "user.id__in": [1,2,3]
+}
+
+# 如这样一个条件，会被解析为
+flag_func: __in  # 待处理函数
+flag_sign: "__in" # 条件标识
+field: "user.id"  # 字段名
+flag_value: [1,2,3] # 条件值
+```
+
+至此一个嵌套的条件”块“被完全解析，并将解析数据存放到当前条件”块“列表，进行统一`AND`或者`OR`处理，
+
+```python
+def _or(value: List[Tuple[str, str]], **kwargs) -> str:
+    """
+    OR流程处理函数
+    使用SQL中的OR处理一个流程块
+    """
+    value = list(filter(lambda x: x[1], value))
+    if not value:
+        return ""
+
+    strs = string_concat(reduce(or_operation_concat, value)[1])
+
+    # 优化结构，当有多个元素时，才需要括号包裹，单个元素不需要括号包裹，对整体结构来说更加清晰
+    if len(value) > 1:
+        strs = string_concat(strs, boundary=("(", ")"))
+    return strs
+```
+
+
+
+##### 2.1 扩展条件处理
+
+针对每一个条件映射处理函数，也可以实现自定义处理，严格模式处理会将字符串转义，即`name LIKE 'aa'`而不是`name LIKE aa`，通常不用特殊处理，真实应用中会有SQL防注入参数化处理，条件会被转换为`name LIKE %s`
+
+```python
+def _rl(field: str, value: str, **kwargs) -> str:
+    """
+    SQL右模糊匹配处理
+
+    :param field: 字段名
+    :param value: 字段值
     :return: str 一个拼接字符串
-
-    >>> value = [("created_at", True), ("deleted_at", "desc")]
-    >>> _order_by(value)
-    "ORDER BY created_at ASC, deleted_at DESC"
-
-    >>> value = [{"created_at": True, "deleted_at": "desc"}]
-    >>> _order_by(value)
-    "ORDER BY created_at ASC,deleted_at DESC"
-
-    >>> value = "created_at"
-    >>> _order_by(value)
-    "CREATED_AT ASC"
-
-    todo
-        1. 类型定义校验不够完善，缺少二值元组校验
-        2. 错误捕获不够优雅
     """
-    if isinstance(value, (List, Tuple)):
-        values = []
-        for k, o in value:
-            if isinstance(o, bool):
-                values.append((k, OrderEnum.ASC.value if o else OrderEnum.DESC.value))
-                continue
-            values.append((k, OrderEnum.ASC.value if str(o).upper()==OrderEnum.ASC.value else OrderEnum.DESC.value))
-    elif isinstance(value, dict):
-        values = []
-        for k, o in value.items():
-            if isinstance(o, bool):
-                values.append((k, OrderEnum.ASC.value if o else OrderEnum.DESC.value))
-                continue
-            values.append((k, OrderEnum.ASC.value if str(o).upper()==OrderEnum.ASC.value else OrderEnum.DESC.value))
+    value = f"{value}%%"
 
-    elif isinstance(value, str):
-        values = [(value, OrderEnum.DESC.value)]
-    else:
-        raise ValueError("order by 解析参数类型错误！")
-
-    clauses = [f"{v[0]} {v[1].upper()}" for v in values]
-
-    return f"ORDER BY {string_concat(clauses, separator=',')}"
+    strict_mode = kwargs.get("strict_mode", True)
+    return f"{field} LIKE {string_concat(value, strict_mode=strict_mode)}"
 
 def _limit(value: Union[int, List[int], Tuple[int]], **kwargs) ->str:
     """
     SQL数量限制操作处理
     支持使用单值，多值定义
-
+    
     :param value: int|str单值， 二值元组或者二值列表
     :return: str 一个拼接字符串
-    >>> value = 1
-    >>> _limit(value)
-    "LIMIT 1"
-
-    >>> value = [1, 2]
-    >>> _limit(value)
-    "LIMIT 1,2"
-
-    todo
-        1. 类型定义校验不够完善，缺少二值元组校验
     """
     strict_mode = kwargs.get("strict_mode", True)
     value = value if isinstance(value, (List, Tuple)) else [value]
@@ -207,17 +231,9 @@ def _or(value: List[Tuple[str, str]], **kwargs) -> str:
     """
     OR流程处理函数
     使用SQL中的OR处理一个流程块
-
+    
     :param value: 流程块列表
     :return: str 一个拼接字符串
-
-    >>> value = [("__end", "age=1"), ("__is_null", "created_at IS NOT NULL")]
-    >>> _or(value)
-    "(age=1 OR created_at IS NOT NULL)"
-
-    >>> value = [("__end", "age=1"), ("__is_null", "created_at IS NOT NULL"), ("__limit", "LIMIT 10")]
-    >>> _or(value)
-    "(age=1 OR created_at IS NOT NULL LIMIT 10)"
     """
     value = list(filter(lambda x: x[1], value))
     if not value:
@@ -234,6 +250,8 @@ def _or(value: List[Tuple[str, str]], **kwargs) -> str:
 
 
 ##### 2.1 钩子函数处理
+
+默认提供两个钩子，`sql_preprocess_hook`SQL预处理钩子，用于参数化SQL，并收集参数。`null_handle_hook`空值处理钩子，定义参数为“空“是的处理方式。
 
 ```python
 class HookFunc(object):
@@ -364,57 +382,20 @@ def execute_hook(meta_cond: MetaCondition, **kwargs) -> Tuple[MetaCondition, Dic
 
 
 
+#### 3 总结与TODO
 
-
-#### 3 demo
-
-
-
-```python
-# 不进行参数预处理
-conds = {
-    "name": "Alice",
-    "age__gt": 18,
-    "__and": {"gender": "female"},
-    "__or": {"age__lt": 10, "sex": 1},
-    "__extra": "some extra conditions",
-    "created_at__gte": "2022-01-01",
-    "updated_at__lt": "2022-02-01",
-    "email__ll": "%example.com",
-    "status__in": [1, 2, 3],
-    "status__not_in": [4, 5, 6],
-    "address__is_null": True,
-    "__group_by": ["age"],
-    "__limit": 10,
-    "__offset": 20,
-    "__order_by": [("created_at", True), ("updated_at", False)],
-}
-sql, params = db_condition_parse(conds, use_hook=False)
-print(sql, params)
-
-
-# (name='Alice' AND age>18 AND gender='female' AND (age<10 OR sex=1) some extra conditions created_at>=2022-01-01 AND updated_at<2022-02-01 AND email LIKE '%%%example.com' AND status IN (1,2,3) AND status NOT IN (4,5,6) AND address IS NULL GROUP BY age ORDER BY created_at ASC,updated_at DESC LIMIT 10 OFFSET 20)
-# []
-```
-
-
-
-
-
-#### 4 总结与TODO
-
-这个拼接工具在设想中还有很多功能可以条件，比如
+这个拼接工具在设想中还有很多功能可以实现，比如
 
 1. 需要给一些操作提供默认值
 2. 在最终条件处理函数中增加一个自定义回调函数，便于局部自定义处理, 空值处理，可能每一个操作都不一样 （eg: 局部钩子可以通过全局钩子实现，在全局钩子中返回自定义处理函数）
-3. _\_gt之类的操作嵌套复杂操作，比如 WHERE user_id = 123456789 AND fs_id > (上次查询结果中最后一条记录的id值) ORDER BY fs_id LIMIT 300000;
+3. `__gt`之类的操作嵌套复杂操作，比如 `WHERE user_id = 123456789 AND fs_id > (上次查询结果中最后一条记录的id值) ORDER BY fs_id LIMIT 300000`;
     3.1. 后期可能单字段多级嵌套处理， (eg: 当前可用__extra特殊操作直接拼接)
 4. 所有的值都被解析为字符串，无法充分利用索引
     4.1. 当前采用SQL预处理替换参数的防注入方案，无法解决精确利用索引问题
 5. 兼容一些常见的语法糖，比如 ~, !=
-6. 对于增、删、改等其他操作的支持， 对于更新需求，比如，update user set value=value+1 where id=1
-7. 关于双重否定的优化，如 id_\_not_in []，实际想要的效果应该是 “查全部”，因为所有id都不为空
-    7.1 当前实现为正常拼接，空值条件会被舍弃，（eg: 实现 “查全部”的效果可以通过钩子函数来实现，或者自定义字段，当前无法局部实现，只能通过__extra实现）
+6. 对于增、删、改等其他操作的支持， 对于更新需求，比如，`update user set value=value+1 where id=1`
+7. 关于双重否定的优化，如 `id_\_not_in []`，实际想要的效果应该是 “查全部”，因为所有id都不为空
+    7.1 当前实现为正常拼接，空值条件会被舍弃，（eg: 实现 “查全部”的效果可以通过钩子函数来实现，或者自定义字段，当前无法局部实现，只能通过`__extra`实现）
 8. 定义一个操作，可以拼接一大堆相同的条件，暂时没想到怎么实现，或许可以使用自定义局部钩子做到。
 
 
