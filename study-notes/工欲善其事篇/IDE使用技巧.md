@@ -1,4 +1,45 @@
+## window命令行使用技巧
+
+查看端口占用情况
+
+
+
 ## Vscode使用技巧
+
+##### vscode变量替换
+
+**参考：**
+
+1. [ VS Code 配置调试参数、launch.json 配置文件属性、task.json 变量替换、自动保存并格式化、空格和制表符、函数调用关系、文件搜索和全局搜索](https://blog.csdn.net/wohu1104/article/details/111464778) 
+
+```json
+一些常用的变量：
+• ${workspaceFolder}：项目文件夹在 VS Code 中打开的路径
+• ${file}：当前开打开（激活）的文件
+• ${relativeFile}：相对于 {workspaceFolder} 的文件路径
+• ${fileBasename}：当前打开文件的名称
+• ${fileBasenameNoExtension}：当前打开文件的名称，不带扩展名的
+• ${fileExtname}：当前打开文件的扩展名
+• ${fileDirname}：当前打开文件的文件夹名称
+```
+
+
+
+##### 配置输出到控制台时，使用的python环境为当前项目的虚拟环境
+
+**参考：**
+
+1. [ VS Code 配置调试参数、launch.json 配置文件属性、task.json 变量替换、自动保存并格式化、空格和制表符、函数调用关系、文件搜索和全局搜索](https://blog.csdn.net/wohu1104/article/details/111464778) 
+
+```json
+    // python项目使用当前虚拟环境输出到控制台
+    "code-runner.executorMap": {
+        // 设置输出字符为utf-8，并根据当前工作目录获取虚拟环境
+        "python": "set PYTHONIOENCODING=utf-8 && ${workspaceFolder}.venv/bin/python",
+        },
+```
+
+
 
 ##### 在windows环境开发项目，使用wsl2中创建的虚拟环境
 
@@ -10,6 +51,49 @@
 
 3. 将项目地址**软连接**到wsl环境中，这样就可以在vscode中通过wsl扩展在使用wsl环境的前提下开发项目了。
 
+##### 自定义快捷键映射代码
+
+> 用户代码片段
+
+**参考：** [(47条消息) VS Code写python快捷输入if __name__ == ‘__main__‘:_雪的期许的博客-CSDN博客](https://blog.csdn.net/winter2121/article/details/121722197) 
+
+<img src="../../resource/image-20230602124212956.png" alt="image-20230602124212956" style="zoom: 50%;" />
+
+
+
+
+
+添加自定义代码，`main`函数自动生成
+
+```python
+{
+	"Print to console": {
+		"prefix": "main",
+		"body": [
+			"if __name__ == '__main__':",
+			"    ${1:pass}",
+			"",
+		],
+		"description": "python--main"
+	}
+}
+
+```
+
+
+
+##### 常用默认命令
+
+```shell
+reload window # 修改配置后重新加载vscode，使配置生效
+```
+
+##### 常用配置
+
+```json
+"terminal.integrated.cwd":"${fileDirname}"  // 在当前文件打开新的终端
+```
+
 
 
 ##### 默认快捷键配置
@@ -17,7 +101,11 @@
 ```shell
 alt left_key # 跳转到上一个位置
 
-Shift + Alt + F	 # 格式化文档 
+Shift + Alt + F	 # 格式化文档
+
+alt shift 拖动 # 纵向选择
+
+ctrl k + ctrl o # 打开文件夹
 ```
 
 
@@ -36,7 +124,47 @@ ctrl alt k # 标记书签
 ctrl 1 # 展示书签列表
 ctrl alt j # 上一个书签
 ctrl alt l # 下一个书签
+
+# 调试
+shift f10 # 运行(code runner)
+shift f9 # 开始断点调试
+shift f9 delete # 终止断点调试
+shift f11 # 跳转到下一处断点
+delete # 终止调试
+alt f9 # 调试跳转到光标位置
+
+f5 # 在终端开启ipython
+
+alt shift ]  # 文件级全部折叠
+alt shift [  # 文件级全部展开
+ctrl shift [  # 以递归的方式折叠光标所在函数
+ctrl shift ]  # 以递归的方式展开光标所在函数
+ctrl [  # 折叠一级光标所在函数
+ctrl ]  # 展开一级光标所在函数
 ```
+
+##### 调试文件配置
+
+```json
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: 当前文件",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "internalConsole",  // 调试结果打印在console 而不是 terminal
+            "justMyCode": true
+        }
+    ]
+}
+```
+
+
 
 
 

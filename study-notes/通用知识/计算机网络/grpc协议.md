@@ -4,11 +4,45 @@
 
 - [Python-gRPC实践（2）--Protocol Buffer](https://so1n.me/2022/02/05/Python-gRPC%E5%AE%9E%E8%B7%B5(2)--Protocol%20buffer/) 
 
+
+
+### 消息体
+
+1. 消息体的字段编号是递增的，
+
+   之所以要求字段编号从1开始递增是因为Protobuf从message编码成二进制消息体时，字段编号1-15将会占用1个字节，16-2047将占用两个字节，优先使用1-15的字段编号将会减少数据的传输， 如果在一开始消息体的字段就比较多时， 则需要把常用的字段的字段编号安排在1-15之间。此外，19000到19999是给protocol buffers实现保留的字段标号，定义message时不能使用，如果使用了这些编号，Protobuf编译器将会报错。
+
+   ```protobuf
+   // message
+   message DemoRequest {
+   
+   }
+   ```
+
+2. 数组，字典, 枚举定义
+
+   ```protobuf
+   message DemoRequest{
+   	repeated int32 user_ids = 1;
+   	map<string, int32> user_info = 2;
+   	enum EnumStatus {
+   		start = 0;  // 枚举定义都需要包含一个常量映射到0并且作为定义的首行
+   		mindle = 1;
+   		end = 2;
+   	}
+   	EnumStatus status = 3;
+   }
+   ```
+
+3. 
+
+
+
+
+
 #### 字段编号
 
-> 消息体的字段编号是递增的，
->
-> 之所以要求字段编号从1开始递增是因为Protobuf从message编码成二进制消息体时，字段编号1-15将会占用1个字节，16-2047将占用两个字节，优先使用1-15的字段编号将会减少数据的传输， 如果在一开始消息体的字段就比较多时， 则需要把常用的字段的字段编号安排在1-15之间。此外，19000到19999是给protocol buffers实现保留的字段标号，定义message时不能使用，如果使用了这些编号，Protobuf编译器将会报错。
+> 
 
 **grpc请求抓包**
 
