@@ -4,6 +4,7 @@
 
 - [Python - poetry（2）命令介绍](https://www.cnblogs.com/poloyy/p/15267595.html) 
 - [保障Python项目质量的工具](https://so1n.me/2021/08/10/%E4%BF%9D%E9%9A%9CPython%E9%A1%B9%E7%9B%AE%E8%B4%A8%E9%87%8F%E7%9A%84%E5%B7%A5%E5%85%B7/) 
+- [Python 虚拟环境管理库 - Poetry](https://www.51cto.com/article/677772.html) -- 详细
 
 #### 创建项目脚手架
 
@@ -51,6 +52,7 @@ poetry add requests
 
 # 添加到开发环境
 poerty add requests --dev
+poerty add requests --group dev
 
 # 更新指定的依赖
 poetry update flask

@@ -25,7 +25,7 @@
 gitlib 连接：
 
 - CI/CD  会看到自己的提交
-- Merge requests 连接发给涛哥，说明错误格式，请求合并代码
+- Merge requests 连接发给审批人，说明错误格式，请求合并代码
 
 ## 流通关系
 
@@ -280,6 +280,9 @@ git checkout master
 git chery-pick q  # 此时 master: a, b, c, d, e， q  # dev： 不变
 
 git chery-pick dev  # 将dev最后一个commit（e）,同步到master
+
+# 拉取多个提交，使用 .. 表示区间
+git cherry-pick <commit-id>..<commit-id>
 ```
 
 
