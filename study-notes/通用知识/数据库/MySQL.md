@@ -140,6 +140,11 @@ from > join > on > where > group by > having > select > distinct > order by > li
    update table users set name='tom',grade=50 where id>1 # **更新全部数据**
    
    update student set grade=90; # 默认全部修改
+   
+   # 用一张表更新另一张表
+   UPDATE lawyer_censor
+   INNER JOIN contract ON lawyer_censor.contract_id = contract.id
+   SET lawyer_censor.file_id = contract.file_id;
    ```
 
    **修改** -- 字段
@@ -488,6 +493,9 @@ select *,
    dense_rank() over (order by 成绩 desc) as dese_rank,
    row_number() over (order by 成绩 desc) as row_num
 from 班级表
+
+# 指定phone_number字段根据id排序确定编号
+SELECT phone_number, id, ROW_NUMBER() OVER ( PARTITION BY phone_number ORDER BY id ) AS row_num from user
 ```
 
 
