@@ -6,6 +6,53 @@
 
 - [用ChatGPT学Nginx是一种什么体验 - 掘金 (juejin.cn)](https://juejin.cn/post/7204060150704422971) 
 
+### nginx配置示例
+
+```nginx
+# 开放本地服务localserver:8010,localserver:8011, 外部主机为 remoteserver1.com, remoteserver2.com，访问两个主机，需要将流量负载均衡到两个本地服务上，并且当外部请求的URL中包含"/api2"时，优先将流量转发到本地服务（localserver:8012），并且增加动静分离
+
+http {
+    upstream backend {
+        server localserver1:8010;
+        server localserver2:8011;
+    }
+    
+    server {
+        listen 80;
+        server_name remoteserver1.com remoteserver2.com;
+
+        # 静态资源请求
+        location ~* ^/(images|css|js|fonts)/ {
+            root /path/to/static/files;
+            expires max;
+            access_log off;
+        }
+
+        # 动态请求
+        location / {
+            proxy_pass http://backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+
+        # API2请求
+        location ~* /api2 {
+            if ($http_host = remoteserver2.com) {
+                proxy_pass http://localserver:8012;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            }
+            proxy_pass http://backend;
+        }
+    }
+}
+
+```
+
+
+
 ### nginx配置
 
 #### 使用
@@ -248,6 +295,56 @@ error_log：用于指定该虚拟主机服务器中访问错误日志的存放�
 location模块是nginx配置中出现最多的一个配置，主要用于配置路由访问信息
 
 在路由访问信息配置中关联到反向代理、负载均衡等等各项功能，所以location模块也是一个非常重要的配置模块
+
+#### localtion优先级
+
+> 优先级依次降低
+
+**参考：**
+
+- [(51条消息) Nginx location匹配规则及优先级_location匹配优先级_若明天不见的博客-CSDN博客](https://blog.csdn.net/why_still_confused/article/details/109953803) 
+
+| 模式                | 含义                                                         |
+| ------------------- | ------------------------------------------------------------ |
+| location = /uri     | = 表示精确匹配，只有完全匹配上才能生效                       |
+| location ^~ /uri    | ^~ 开头对URL路径进行前缀匹配，并且在正则之前。               |
+| location ~ pattern  | 开头表示区分大小写的正则匹配                                 |
+| location ~* pattern | 开头表示不区分大小写的正则匹配                               |
+| location /uri       | 不带任何修饰符，也表示前缀匹配，但是在正则匹配之后           |
+| location /          | 通用匹配，任何未匹配到其它location的请求都会匹配到，相当于switch中的default |
+
+**匹配示例：**
+
+```nginx
+location = / {
+   echo "规则A";
+}
+location = /login {
+   echo "规则B";
+}
+location ^~ /static/ {
+   echo "规则C";
+}
+location ^~ /static/files {
+    echo "规则X";
+}
+location ~ \.(gif|jpg|png|js|css)$ {
+   echo "规则D";
+}
+location ~* \.png$ {
+   echo "规则E";
+}
+location /img {
+    echo "规则Y";
+}
+location / {
+   echo "规则F";
+}
+```
+
+
+
+
 
 ##### 基本配置
 

@@ -106,6 +106,10 @@ Shift + Alt + F	 # 格式化文档
 alt shift 拖动 # 纵向选择
 
 ctrl k + ctrl o # 打开文件夹
+
+ctl \  # 向右拆分
+
+ctrl + enter # 移动光标到下一行
 ```
 
 

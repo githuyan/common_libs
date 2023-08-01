@@ -149,7 +149,26 @@ docker-compose down  # 停止并删除运行中的compose应用，他会删除�
 docker-compose ps  # 用于列出compose应用的各个容器，输出状态，容器运行的命令以及映射端口
 ```
 
+### docker-compose挂载操作
 
+```yaml
+# "ro"表示将挂载卷设置为"只读"（read-only）模式。这意味着容器内的文件系统可以读取挂载的文件或目录，但不能对其进行写操作。如果尝试在容器内修改挂载的文件，会导致权限错误。
+version: '3.9'
+
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      # 可选：添加其他要挂载的目录或文件
+       - ./your_static_website_files:/usr/share/nginx/html:ro 
+    # 可选：设置其他环境变量
+    # environment:
+    #   - EXAMPLE_ENV=example_value
+
+```
 
 
 
@@ -168,6 +187,14 @@ docker-compose ps  # 用于列出compose应用的各个容器，输出状态，�
 **参考：**
 
 1. [docker-从入门到实战](https://yeasy.gitbook.io/docker_practice/image/dockerfile/arg#:~:text=Dockerfile%E4%B8%AD%E7%9A%84%20ARG%E6%8C%87%E4%BB%A4%E6%98%AF%E5%AE%9A%E4%B9%89%E5%8F%82%E6%95%B0%E5%90%8D%E7%A7%B0%EF%BC%8C%E4%BB%A5%E5%8F%8A%E5%AE%9A%E4%B9%89%E5%85%B6%E9%BB%98%E8%AE%A4%E5%80%BC%E3%80%82%20%E8%AF%A5%E9%BB%98%E8%AE%A4%E5%80%BC%E5%8F%AF%E4%BB%A5%E5%9C%A8%E6%9E%84%E5%BB%BA%E5%91%BD%E4%BB%A4%20docker%20build%E4%B8%AD%E7%94%A8,--build-arg%20%3C%E5%8F%82%E6%95%B0%E5%90%8D%3E%3D%3C%E5%80%BC%3E%E6%9D%A5%E8%A6%86%E7%9B%96%E3%80%82%20%E7%81%B5%E6%B4%BB%E7%9A%84%E4%BD%BF%E7%94%A8%20ARG%E6%8C%87%E4%BB%A4%EF%BC%8C%E8%83%BD%E5%A4%9F%E5%9C%A8%E4%B8%8D%E4%BF%AE%E6%94%B9%20Dockerfile%20%E7%9A%84%E6%83%85%E5%86%B5%E4%B8%8B%EF%BC%8C%E6%9E%84%E5%BB%BA%E5%87%BA%E4%B8%8D%E5%90%8C%E7%9A%84%E9%95%9C%E5%83%8F%E3%80%82)
+
+
+
+### 理论知识
+
+#### Docker0网桥
+
+> Docker0 网桥的作用是连接容器和主机网络，使得它们可以相互通信并实现容器服务的访问。
 
 
 
