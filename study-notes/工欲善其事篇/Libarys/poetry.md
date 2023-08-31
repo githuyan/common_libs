@@ -54,6 +54,12 @@ poetry add requests
 poerty add requests --dev
 poerty add requests --group dev
 
+# 添加本地依赖
+poetry add ../common_libs common_libs
+# 1. 现将依赖手动添加到 .toml中
+# common_libs = {path = "../common_libs"}
+# 2. poetry update common_libs --no-cache # 无缓存更新
+
 # 更新指定的依赖
 poetry update flask
 
@@ -62,6 +68,17 @@ poetry remove requesets
   --dev（-D)：从开发依赖项中删除包
   --dry-run：输出操作，不执行任何操作
 ```
+
+引入本地项目依赖，**项目依赖中的任何变更都实时的反应到项目中**
+
+```toml
+# 添加到开发模式
+# poetry add common_libs ../common_libs --group dev
+[tool.poetry.group.dev.dependencies]
+common_libs = {path = "../common_libs"}
+```
+
+
 
 ##### **查看依赖信息**
 

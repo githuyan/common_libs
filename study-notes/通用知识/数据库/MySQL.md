@@ -77,6 +77,25 @@ from > join > on > where > group by > having > select > distinct > order by > li
   insert into users(name) values ('[''aaa'']') # 这就插入了这样一个字符串 "['aaa']"
   ```
 
+### 字段类型
+
+**TIMESTAMP**
+
+> 在标识时间时推荐使用，TIMESTAMP 存储的时间范围 1970-01-01 00:00:01 ~ 2038-01-19-03:14:07。TIMESTAMP使用4字节，DATETIME使用8个字节，同时TIMESTAMP具有自动赋值以及自动更新的特性。
+
+```sql
+# create_time在创建记录时自动插入，update_time字段自动插入并在记录修改时自动更新
+CREATE TABLE `ytest` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '测试',
+  `name` varchar(255) COMMENT '测试',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP  COMMENT '更新时间',
+  `is_deleted` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '测试', 
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB comment "测试demo表";
+```
+
+
 
 ### CRUD
 
@@ -409,6 +428,18 @@ set ct.template_category_id=cc.id
 where cc.owner_type in (1,2)
 
 commit;
+```
+
+```sql
+UPDATE user AS u
+JOIN (
+    SELECT phone_number, person_open_code
+    FROM user
+    WHERE authentication_status >= 2
+) AS t ON u.phone_number = t.phone_number
+SET u.authentication_status = if(u.authentication_status=1, 2, u.authentication_status),
+u.person_open_code=if(u.authentication_status=1, t.person_open_code, u.person_open_code)
+;
 ```
 
 

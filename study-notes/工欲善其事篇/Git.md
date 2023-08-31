@@ -224,6 +224,19 @@ git ls-files # 查看暂存区中的内容
 git ls-files --others # 展示所有 untracked 的文件
 
 git branch -vv  # 查看当前所在分支
+
+# 查看配置，查看具体配置
+git config --list
+git config --get http.proxy
+git config --get https.proxy
+
+# 设置代理
+git config --global http.proxy http://127.0.0.1:7890/
+git config --global https.proxy https://127.0.0.1:7890/
+
+# 移除代理
+git config --global --unset http.proxy
+git config --global --unset https.proxy
 ```
 
 ### git commit
