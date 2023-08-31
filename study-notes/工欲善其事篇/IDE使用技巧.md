@@ -323,6 +323,14 @@ ctrl + alt + L
 
 ## windows使用技巧
 
+##### 为git bash 设置快捷键
+
+**参考：**[【Git Bash】在window 下，设置打开gitbash快捷键、修改默认路径_gitbash 修改快捷键_今日之风甚是温和的博客-CSDN博客](https://blog.csdn.net/qq_22227087/article/details/120226989) 
+
+<img src="../../resource/image-20230816201633899.png" alt="image-20230816201633899" style="zoom:33%;" />
+
+
+
 ##### 投影
 
 **参考： ** [将一台笔记本电脑作为另一台笔记本电脑的扩展屏 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/515867098) 

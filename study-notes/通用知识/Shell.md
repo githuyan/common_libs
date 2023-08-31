@@ -472,3 +472,11 @@ awk '{sum=0;i=1;do{sum+=$i}while(sum<150);i++;print sum}' num2
    awk 'END{print NF}' test
    ```
 
+
+
+### 命令行工具
+
+#### xargs
+
+
+
