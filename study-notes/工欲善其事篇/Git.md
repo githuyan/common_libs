@@ -233,6 +233,8 @@ git config --get https.proxy
 # 设置代理
 git config --global http.proxy http://127.0.0.1:7890/
 git config --global https.proxy https://127.0.0.1:7890/
+git config --global core.gitproxy socks5://127.0.0.1:7890/
+
 
 # 移除代理
 git config --global --unset http.proxy
@@ -466,6 +468,16 @@ git stash list  # 展示所有的 stash
 git stash drop  # 删除 隐藏内容
 git stash apply <stach@n>  # 回到某一个 stash 状态
 git stash pop # 回到最后一个 stash 状态
+```
+
+### git restore
+
+```python
+# 清空暂存区，将暂存区修改还原到本地
+git restore --staged .
+
+# 清空本地所有进入暂存区的修改
+git restore .
 ```
 
 ### **git clone**

@@ -1,5 +1,9 @@
 ### mysql一些通用的技巧和规范
 
+**参考：**
+
+- [汇总篇 | MySQL数据库设计开发规范](https://mp.weixin.qq.com/s/ktAtb5S9ktQ8k2C9sRiAXA) 
+
 ##### 建表规范
 
 **参考：**
