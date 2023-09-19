@@ -1,3 +1,33 @@
+##### 添加vm.max_map_count，增加内存
+
+1. 临时修改:
+
+使用命令:
+
+sudo sysctl -w vm.max_map_count=262144
+
+这会立即修改当前运行系统的该参数值,但重启后会失效。
+
+1. 永久修改:
+
+a) 编辑 /etc/sysctl.conf 文件:
+
+sudo vim /etc/sysctl.conf
+
+b) 在文件末尾添加:
+
+vm.max_map_count = 262144
+
+c) 保存并退出。
+
+d) 执行命令让修改生效:
+
+sudo sysctl -p
+
+这会把 /etc/sysctl.conf 中的配置应用到系统中,重启后也会保留
+
+
+
 ### wsl2下安装redis
 
 1. 正常安装redis

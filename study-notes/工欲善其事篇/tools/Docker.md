@@ -8,6 +8,22 @@ docker restart $(docker ps | grep test | awk '{ print $1}')
 
 
 
+##### 清除所有无用挂载、容器、镜像
+
+**参考：**
+
+- https://note.qidong.name/2017/06/26/docker-clean/
+
+```shell
+docker container prune # 清理所有停止运行的容器：
+
+docker image prune # 清理所有悬挂（<none>）镜像
+
+docker volume prune # 清理所有无用数据卷
+```
+
+
+
 ##### docker-compose安装
 
 **参考：** https://www.cnblogs.com/trblog/p/14240084.html
@@ -169,6 +185,39 @@ services:
     #   - EXAMPLE_ENV=example_value
 
 ```
+
+#### 内存限制
+
+`ES_JAVA_OPTS=-Xms1g -Xmx1g` 这条命令和 Docker Compose 文件中的 `mem_limit: 2g` 有以下主要区别:
+
+1. 设置不同的对象
+
+- ES_JAVA_OPTS 设置的是 Elasticsearch JVM 的堆内存大小,即 Java heap size。
+- mem_limit 设置的是 Docker 容器可以使用的最大内存量。
+
+1. 约束级别不同
+
+- ES_JAVA_OPTS 直接限制了 JVM 的堆内存,强制固定该值。
+- mem_limit 是容器级的软限制,可以在此范围内动态调整,不会被直接终止。
+
+1. 作用范围不同
+
+- ES_JAVA_OPTS 仅影响 Elasticsearch JVM。
+- mem_limit 约束整个容器的内存使用,包括所有进程。
+
+1. 灵活性不同
+
+- ES_JAVA_OPTS 的堆内存不可扩展,需重启才能生效。
+- mem_limit 可以在运行时调整,无需重启容器。
+
+1. 配额计算不同
+
+- ES_JAVA_OPTS 是指定固定的值。
+- mem_limit 通常根据主机内存比例分配。
+
+综上,ES_JAVA_OPTS直接固定JVM内存,mem_limit按比例软约束整个容器,两者配合使用可以实现内存控制和优化。
+
+
 
 
 

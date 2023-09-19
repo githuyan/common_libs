@@ -5,6 +5,12 @@
 
 <img src="../../../resource/sql执行流程.jpg" alt="sql执行流程" style="zoom: 33%;" />
 
+##### 最佳参考：
+
+- [mysql实战45讲](https://funnylog.gitee.io/mysql45/) 
+
+
+
 ## 理论，概述
 
 ### 语句的优先
