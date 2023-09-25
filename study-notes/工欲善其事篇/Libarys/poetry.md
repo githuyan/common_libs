@@ -1,4 +1,43 @@
-### poetry python环境管理工具
+### poetry 环境管理工具
+
+
+
+#### 工具管理
+
+**安装**
+
+```python
+
+```
+
+
+
+#### 环境管理
+
+##### 安装源
+
+```python
+# poetry source add foo https://foo.bar/simple/
+
+[[tool.poetry.source]]
+name = "douban"
+url = "http://pypi.doubanio.com/simple/"
+default = false
+secondary = false
+```
+
+
+
+#### 包管理
+
+```python
+# 从名为internal-pypi的源获取包
+poetry add --source internal-pypi httpx
+```
+
+
+
+
 
 **参考：**
 
@@ -28,6 +67,9 @@ curl -sSL https://install.python-poetry.org | python3 -
 
 # 卸载
 curl -sSL https://install.python-poetry.org | python3 - --uninstall
+
+# 更新
+poetry self update
 ```
 
 #### 基本使用
@@ -146,4 +188,21 @@ poetry config --list
 name = "douban"
 url = "https://pypi.doubanio.com/simple/"
 ```
+
+##### 添加源
+
+```python
+# poetry source add foo https://foo.bar/simple/
+
+[[tool.poetry.source]]
+name = "douban"
+url = "http://pypi.doubanio.com/simple/"
+default = false
+secondary = false
+
+```
+
+
+
+
 
