@@ -314,6 +314,27 @@ git pull 远程服务名 远程分支名:将要映射的本地分支分支名
 
 ```shell
 git push -u origin HEAD:home  # 推送当前分支的HEAD分支到远程的home分支，并将次推送路径设置为默认，下次使用 git push 即可
+
+# 同时推送多个上游地址
+git remote add gitee https://gitee.com/yourname/repo.git
+git remote add github https://github.com/yourname/repo.git
+
+# 1. 推送多次
+git push gitee master
+git push github master
+
+# 2. 使用 --all 选项一次推送到所有远程仓库:
+git push --all
+
+# 3. 也可以在配置中设置多个推送地址
+git remote set-url --add origin https://github.com/repo
+git remote set-url --add origin https://gitlab.com/repo
+
+git push origin	
+
+# 4. 可以为不同分支配置不同的上游仓库:
+git branch --set-upstream-to=origin/master master
+git branch --set-upstream-to=github/master other-branch
 ```
 
 
