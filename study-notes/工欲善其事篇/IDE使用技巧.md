@@ -1,3 +1,19 @@
+## clash使用技巧
+
+##### 在某个代理中添加直连网址
+
+编辑配置
+
+<img src="../../resource/image-20230925141329456.png" alt="image-20230925141329456" style="zoom:50%;" />
+
+添加直连规则
+
+<img src="../../resource/image-20230925141408654.png" alt="image-20230925141408654" style="zoom: 50%;" />
+
+
+
+
+
 ## window命令行使用技巧
 
 查看端口占用情况
