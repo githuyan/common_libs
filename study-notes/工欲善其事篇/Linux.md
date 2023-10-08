@@ -249,3 +249,20 @@ lrwx------ 1 githuyan githuyan 64 Feb  7 11:29 4 -> /mnt/d/projects/owner/ymg/.d
 指向附件的原因：
 
 ​	vim命令会先打开一个源文件，文件描述符应该为3，复制一个副本，在这个副本上操作，文件描述符应该为4，然后关闭源文件，fd=3释放，fd=4保留
+
+
+
+### crontab命令
+
+**参考：**
+
+- [Linux Crontab 定时任务 | 菜鸟教程 (runoob.com)](https://www.runoob.com/w3cnote/linux-crontab-tasks.html) 
+
+
+
+* * * * *  #分，时，日，月，周
+
+- ***** 取值范围内的所有数字
+- **/** 每过多少个数字
+- **-** 从X到Z
+- **，**散列数字

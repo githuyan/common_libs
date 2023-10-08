@@ -323,6 +323,9 @@ git remote add github https://github.com/yourname/repo.git
 git push gitee master
 git push github master
 
+# 将本地对应的默认远程作为镜像推送到repo2仓库
+git push --mirror repo2
+
 ```
 
 
