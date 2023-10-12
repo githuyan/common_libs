@@ -502,6 +502,16 @@ git clone -b <branch-name> --single-branch https://github.com.cnpmjs.org/other.g
 
 ## 技巧
 
+
+
+```shell
+# 快捷跳转目录
+
+
+```
+
+
+
 ##### 打标签
 
 ```shell
@@ -536,6 +546,47 @@ git reflog bugfix-one-commit
 
 # 重置到某一个pull之前
 git reset --hard bugfix-one-commit@{1}
+```
+
+### 自定义命令
+
+#### 手动配置别名
+
+在git全局配置文件`.gitconfig`中增加别名设置
+
+```shell
+# 自定义别名
+[alias]
+	work = "!f() { cd /d/work/clm-client-backend/ && exec bash; }; f"
+  
+# 执行 git work 即可跳转
+```
+
+使用别名命名自定义脚本
+
+```shell
+# 注册自定义脚本，注意：需要给定执行权限 chmod +x work.sh
+[alias]
+  work = !./work.sh
+
+# 执行 git work 即可跳转
+```
+
+#### 命令配置别名
+
+alisa的CRUD
+
+```shell
+# 增加、修改别名配置
+git config --global alias.co "commit -m"
+
+# 删除别名配置
+git config --global --unset alias.co
+
+# 也可以只针对当前仓库配置
+git config --unset alias.co
+
+# git co === git commit -m 
 ```
 
 

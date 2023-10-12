@@ -96,6 +96,15 @@ which requests
 
 ### 系统信息查询
 
+##### 查询网络连接情况
+
+```shell
+nc -vz 127.0.0.1 3306
+# Connection to mysql-default 3306 port [tcp/mysql] succeeded!
+```
+
+
+
 ##### 查找正在运行的进程号（Pid）
 
 ```shell
