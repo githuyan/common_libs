@@ -6,6 +6,46 @@
 
 - [用ChatGPT学Nginx是一种什么体验 - 掘金 (juejin.cn)](https://juejin.cn/post/7204060150704422971) 
 
+
+
+### 实例
+
+**将window宿主机中的流量转发到本地服务**
+
+1. 修改window hosts文件，
+
+   ```python
+   # 将本地onelawgpt.dev.metadl.com域名重新解析到本地，相当于在访问本地onelawgpt.dev.metadl.com服务
+   127.0.0.1       onelawgpt.dev.metadl.com
+   ```
+
+2. 使用nginx将已经解析到本地的外部服务转发到本地服务地址
+
+   ```nginx
+   server {
+       listen       80;
+       listen  [::]:80;
+       server_name  onelawgpt.dev.metadl.com; # window宿主机中转发的域名
+   
+       location / {
+           proxy_pass http://192.168.5.3:8011; # window宿主机的ip
+       }
+   }
+   ```
+
+3. 验证，现在在windows宿主机使用`onelawgpt.dev.metadl.com`访问会直接转发到本地
+
+   ```shell
+   curl -X GET http://onelawgpt.dev.metadl.com/
+   
+   # 有可能使用命令行可以成功转发，但是在window宿主机失败，
+   1. 关闭window宿主机代理 # <重要>
+   2. ipconfig /flushdns # 刷新DNS缓存
+   3. 清除浏览器缓存
+   ```
+
+   
+
 ### nginx配置示例
 
 ```nginx
@@ -30,7 +70,7 @@ http {
 
         # 动态请求
         location / {
-            proxy_pass http://backend;
+            proxy_pass http://backend;  # 这里使用upstream中配置的本地服务，采用负载均衡，而不指定服务
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

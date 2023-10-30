@@ -27,6 +27,15 @@ taskkill /pid 12212 /f
 
 
 
+### window hosts域名解析使用技巧
+
+```python
+# 将onelawgpt.dev.metadl.com域名解析到本地主机的 IP 地址 127.0.0.1。这意味着当尝试访问 "onelawgpt.dev.metadl.com" 时，操作系统将不会发送请求到互联网上的 DNS 服务器来解析该域名，而会直接将请求发送到本地主机
+127.0.0.1       onelawgpt.dev.metadl.com
+```
+
+
+
 ## Vscode使用技巧
 
 ##### vscode变量替换
