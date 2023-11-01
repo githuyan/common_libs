@@ -40,3 +40,29 @@
 4. 便于传输，jwt的构成非常简单，字节占用很小，所以它是非常便于传输的。
 5. 它不需要在服务端保存会话信息, 所以它易于应用的扩展
 
+
+
+#### jwt示例
+
+```python
+async def generate_jwt_token(payload: Dict) -> str:
+    """根据用户id生成token"""
+    # _payload = {**payload, 'exp': int(time.time())} ## exp字段会被自动解析为过期时间，当exp>now则token已过期
+    token = jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
+    return token
+
+async def verify_jwt_token(token: str) ->  Dict:
+    """验证用户token"""
+    if not token:
+        return {}
+    try:
+        payload = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
+    except jwt.PyJWTError:
+        logger.warning("jwt token校验失败")
+        return {}
+
+    # token不过期
+    return payload
+
+```
+
