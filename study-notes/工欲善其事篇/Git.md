@@ -471,6 +471,8 @@ git remote show origin # 查看远程分支和本地分支的对应关系
 
 ### **git stash**
 
+> git stash pop失败时，暂存列表并不会删除失败的这次暂存，所以可以直接 git reset --hard 撤销
+
 ```shell
 git stash # 存储当前的修改
 git stash save "save message"
@@ -478,8 +480,15 @@ git stash -u # 保存当前状态，包括 untracked 的文件
 git stash list  # 展示所有的 stash
 
 git stash drop  # 删除 隐藏内容
-git stash apply <stach@n>  # 回到某一个 stash 状态
+git stash apply <stach@n>  # 应用指定的暂存内容，本次暂存不删除
+git stash pop <stach@n>  # 应用指定的暂存内容，并删除本次暂存
 git stash pop # 回到最后一个 stash 状态
+
+git stash show <stach@n> # 查看简略的暂存差异信息
+git stash show <stach@n> -p # 查看详细的暂存差异信息
+
+# 误操作`git stash pop`导致当前分支代码冲突时（当前分支并没有未提交的修改）
+git reset --hard 
 ```
 
 ### git restore

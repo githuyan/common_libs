@@ -27,6 +27,31 @@ taskkill /pid 12212 /f
 
 
 
+### 暴露window的wsl系统，以便于同局域网的其他设备访问
+
+1. 获取wsl分发版的IP地址
+
+   ```shell
+   # wsl eth0
+   ip addr show eth0 | grep inet | awk '{print $2}' | cut -d/ -f1
+   ```
+
+2. 配置端口转发
+
+   ```shell
+   # 将所有访问<本机IP:端口>，转发到本地的<wsl:端口>
+   netsh interface portproxy add v4tov4 listenport=80 listenaddress=0.0.0.0 connectport=80 connectaddress=<WSL的IP地址>
+   
+   # 删除转发配置
+   netsh interface portproxy delete v4tov4 listenaddress=* listenport=12345
+   ```
+
+也可以使用修改host文件的方式
+
+
+
+
+
 ### window hosts域名解析使用技巧
 
 ```python

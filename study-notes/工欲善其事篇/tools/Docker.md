@@ -1,9 +1,32 @@
 ### 技巧
 
+##### 复制镜像中的文件到本地
+
+```shell
+1. 
+docker run --rm demo_image cat /usr/log > /opt/log
+# -d 参数表示以后台模式运行容器。
+# -rm 参数表示在容器退出后自动删除容器。
+# demo_image 是要运行的Docker镜像的名称。
+# cat /uar/log > /opt/log 是在容器内执行的命令，它将/uar/log文件的内容输出到标准输出，然后将输出重定向到/opt/log文件。
+
+2. 从启动的容器中复制
+docker cp 容器ID:容器内文件路径 本地文件路径
+
+```
+
+
+
 ##### 批量操作容器
 
 ```shell
 docker restart $(docker ps | grep test | awk '{ print $1}')
+```
+
+##### 获取容器IP地址
+
+```shell
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <CONTAINER_ID or CONTAINER_NAME>
 ```
 
 
@@ -162,8 +185,20 @@ docker-compose rm  # 删除已停止的compose应用，他会删除容器和网�
 docker-compose down  # 停止并删除运行中的compose应用，他会删除容器和网络，但不会删除卷和镜像
 
 # 查询	
-docker-compose ps  # 用于列出compose应用的各个容器，输出状态，容器运行的命令以及映射端口
+docker-compose ps  # ，输出状态，容器运行的命令以及映射端口
+
 ```
+
+##### 启动多个重复的容器
+
+> `--scale` 是一个可选参数，用于设置一个或多个服务在启动时应该具有的实例数量
+
+```shell
+# 批量启动容器
+docker-compose up --scale demo:v1
+```
+
+
 
 ### docker-compose挂载操作
 
@@ -504,7 +539,7 @@ Step 1 : FROM nginx								# 拉取基础镜像，
 Step 2 : RUN echo '<h1>Hello, Docker!</h1>' > /usr/share/nginx/html/index.html # 在基础镜像中运行命令，得到第二层镜像
  ---> Running in 9cdc27646c7b
  ---> 44aa4490ce2c
-Removing intermediate container 9cdc27646c7b  # 删除第一层镜像
+Removing intermediate container 9cdc2cp7646c7b  # 删除第一层镜像
 Successfully built 44aa4490ce2c
 ```
 
@@ -707,7 +742,31 @@ RUN word.txt
 
 ### 将自己的仓库推送到阿里云镜像仓库
 
-**参考：** [(4条消息) docker学习笔记（五）如何创建自己的阿里云镜像仓库（这是2021版的阿里云教程）_乌鱼鸡汤的博客-CSDN博客_阿里云镜像仓库](https://blog.csdn.net/a123123sdf/article/details/117373743)  
+**参考：**
+
+1. [(4条消息) docker学习笔记（五）如何创建自己的阿里云镜像仓库（这是2021版的阿里云教程）_乌鱼鸡汤的博客-CSDN博客_阿里云镜像仓库](https://blog.csdn.net/a123123sdf/article/details/117373743)  
+
+2. [容器镜像服务 (aliyun.com)](https://cr.console.aliyun.com/repository/cn-heyuan/huyanhu/onelawgpt/details)
+
+登录阿里云
+
+```shell
+docker login --username=githuyan registry.cn-heyuan.aliyuncs.com
+```
+
+从Registry中拉取镜像
+
+```shell
+docker pull registry.cn-heyuan.aliyuncs.com/huyanhu/onelawgpt:[镜像版本号]
+```
+
+将镜像推送到Registry
+
+```shell
+$ docker login --username=githuyan registry.cn-heyuan.aliyuncs.com
+$ docker tag [ImageId] registry.cn-heyuan.aliyuncs.com/huyanhu/onelawgpt:[镜像版本号]
+$ docker push registry.cn-heyuan.aliyuncs.com/huyanhu/onelawgpt:[镜像版本号]
+```
 
 
 
