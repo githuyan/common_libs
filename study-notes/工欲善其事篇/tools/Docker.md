@@ -53,6 +53,7 @@ docker volume prune # 清理所有无用数据卷
 
 ```shell
 # 下载安装docker-compose
+# 使用 curl 命令下载 Docker Compose 的二进制文件。这里的URL包含了版本号（1.27.4）以及根据操作系统和架构动态生成的文件名。$(uname -s) 获取操作系统类型，$(uname -m) 获取硬件架构。
 sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 
 # 添加权限

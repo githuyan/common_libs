@@ -2678,3 +2678,44 @@ MySQL:(none) 13:07:41> show global status like 'bin%';
 3. **1000w条数据，使用limit offset 分页时，为什么越往后翻越慢？如何解决？**
 
    先查主键，在分页。 select * from tb where id in（select id from tb where limit 10 offset 20）
+
+
+
+## 配置项
+
+##### 慢查询配置
+
+ 1. 开启慢查询日志
+
+    ```sql
+    # my.ini
+    slow_query_log = 1  # 启用慢查询日志。
+    slow_query_log_file = /path/to/slow-query.log  #  指定慢查询日志文件的路径。
+    long_query_time = 10  # 设置执行时间超过多少秒的查询被认为是慢查询。
+    slow_query_log_file_size = 100M  # 设置慢查询日志文件的大小上限。当日志文件大小达到这个值时，将会被轮转。
+    
+    # 手动开启慢查询日志
+    SET GLOBAL slow_query_log = 1;
+    # 希望慢查询日志在MySQL重新启动后仍然保持启用状态，
+    SET SESSION slow_query_log = 1;
+    ```
+
+2. 查询MySQL是否已启用慢查询日志：
+
+   ```sql
+   SHOW VARIABLES LIKE 'slow_query_log';
+   ```
+
+3. 将显示慢查询日志文件的路径，
+
+   ```sql
+   SHOW VARIABLES LIKE 'slow_query_log_file';
+   ```
+
+4. 显示定义为慢查询的时间阈值。默认情况下，慢查询日志记录执行时间超过10秒的查询
+
+   ```sql
+   SHOW VARIABLES LIKE 'long_query_time';
+   ```
+
+   

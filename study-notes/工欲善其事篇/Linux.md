@@ -53,6 +53,28 @@ ls ./*
 cat url-list.txt | xargs wget -c
 ```
 
+##### curl命令
+
+```shell
+# 保存文件
+curl -o filename.txt http://example.com/file.txt
+
+# 跟随重定向,连接被重定向时，跟踪重定向获取资源
+curl -L http://example.com
+
+# 发送POST请求
+curl -X POST -d "param1=value1&param2=value2" http://example.com/resource
+
+# 设置代理
+curl -x proxy.example.com:8080 http://example.com
+
+# 设置请求头
+curl -H "Content-Type: application/json" http://example.com
+
+# FTP上传文件
+curl -T upload.txt ftp://ftp.example.com/upload/
+```
+
 
 
 **grep模式匹配命令**

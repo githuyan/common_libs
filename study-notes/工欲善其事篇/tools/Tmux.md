@@ -39,8 +39,8 @@ ctrl + b x  # 关闭当前窗口
 
 ctrl + b 上下左右键  # 光标在窗口间移动
 
-ctrl + b %   # (这个%需要使用shift+%)  上下切分窗口
-ctrl + b "  # (这个"需要使用shift+")  左右切分窗口
+ctrl + b %   # (这个%需要使用shift+%)  左右切分窗口
+ctrl + b "  # (这个"需要使用shift+")  上下切分窗口
 
 
 tmux split-window  # 划分上下两个窗格

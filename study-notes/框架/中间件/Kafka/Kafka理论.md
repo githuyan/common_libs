@@ -1,4 +1,4 @@
-# kafka
+### kafka
 
 > 一个分布式流处理框架，用于实时构建流处理应用，经常被应用为企业级消费引擎。
 
@@ -9,15 +9,17 @@
 
 
 
-## Broker（kafka实例）
+#### Broker（kafka实例）
 
 > broker是kafka的实例，每台服务器可以起多个kafka实例
 
-## Topic（主题）
+#### Topic（主题）
 
 > topic是消息的分类，每个broker可以创建多个topic
 
-## Partition（分区）
+topic数量过多时，性能会有较大下降，
+
+#### Partition（分区）
 
 > 一个partition其实就是一个有序的消息队列（分区有序不代表整体有序）
 
@@ -27,9 +29,9 @@
 
 <img src="../../../../resource/1041301-20190118134733517-66313339.png" alt="img" style="zoom: 67%;" />
 
-<center>（这个图极好）</center>
 
-### **partition（分区）的特点:**
+
+#### **partition（分区）的特点:**
 
 > 同一个Topic的不同Partition中的消息通常都是以相同的格式和类型进行序列化和反序列化的，但是也可以不同。
 
@@ -51,7 +53,7 @@
 
    > 提升性能的方法便是增加分区，增加消费者，当消费者数量大于分区数量时，性能不再提升，因为会有消费者处于等待状态。
 
-### partition（分区）的目的：
+##### partition（分区）的目的：
 
 > 作用是做负载，提高kafka的吞吐量
 
@@ -62,7 +64,7 @@
 # 在server.conf中通过num.partitions参数指定创建topic时包含多少个partition。默认是num.partitions=1
 ```
 
-### partition中segment文件存储结构
+##### partition中segment文件存储结构
 
 > **segment file组成：由2大部分组成，分别为index file和data file，此2个文件一一对应，成对出现，后缀".index"和“.log”分别表示为segment索引文件、数据文件.**
 >
@@ -125,7 +127,7 @@ log.dirs=/tmp/kafka-logs  # 分区的消息数据存储路径
 
 <img src="../../../../resource/3ce0e04b255b4b9f8affad97b954664f.png" alt="在这里插入图片描述" style="zoom: 67%;" />
 
-### 在partition中查找message
+##### 在partition中查找message
 
 > Kafka为每个分段后的数据文件建立了索引文件，文件名与segment文件的名称是一样的只是扩展名为.index。index文件中并没有为数据文件中的每条Message建立索引，而是采用稀疏存储，每隔一定字节建立一条索引。避免了索引文件占用过多空间。
 
@@ -144,7 +146,7 @@ log.dirs=/tmp/kafka-logs  # 分区的消息数据存储路径
    
    ```
 
-### partition消息过期
+##### partition消息过期
 
 **参考：**
 
@@ -182,7 +184,7 @@ kafka是在**segment的维度**删除消息，批量删除，效率很高，但�
 00000000000108550131.timeindex.deleted
 ```
 
-## Replication（副本）
+#### Replication（副本）
 
 > 每个topic可以有很多个partition，每个partition可以有多个replica。这些replica都保存在brokers上，分为两种，**Leader Replica**， **Follower Replica**
 >
@@ -194,7 +196,7 @@ kafka是在**segment的维度**删除消息，批量删除，效率很高，但�
 
 <center>此图有四个实例，两个副本</center>
 
-### Leader选举
+#### Leader选举
 
 > kafka的所有Broker都会注册到kafka集群中去。kafka集群会选举一个Broker作为Leader作为kafka集群的总控制器**Controller**。他负责管理整个集群所有分区Partition和副本follower的状态。
 
@@ -239,7 +241,7 @@ Kafka集群如果业务很多的情况下，会有很多的partition，假设某
 
 
 
-### 基于ISR机制的完全同步
+#### 基于ISR机制的完全同步
 
 > 保证Producter发送消息的可靠性：给每个partition都给配上副本，做数据同步，保证数据不丢失
 >
@@ -276,7 +278,7 @@ Follower同步Leader过程不阻塞，只要leader完成写入log，这条消息
 
 
 
-#### 消息副本同步的流程
+##### 消息副本同步的流程
 
 ```python
 # 此参数规定Follower副本必须在此时间间隔内赶上Leader副本，完成同步（LEO（此副本）>= HW（Leader）
@@ -309,7 +311,7 @@ replica.lag.time.max.ms  # 配置默认10000 即 10秒
 
 
 
-#### ISR伸缩
+##### ISR伸缩
 
 > 失效副本：1. 功能失效 2. 同步失效
 
@@ -362,29 +364,29 @@ replica.lag.time.max.ms  # 配置默认10000 即 10秒
 3. 然后由isr-change-propagation实现ISR扩容
 ```
 
-### 副本错误处理
+#### 副本错误处理
 
-#### Follower错误处理
+##### Follower错误处理
 
 <img src="../../../../resource/4be8d38295df479485f09d830f917fac.png" alt="在这里插入图片描述" style="zoom: 67%;" />
 
 
 
-#### Leader错误处理
+##### Leader错误处理
 
 <img src="../../../../resource/d400719df02b4b289c2347bff83e99d7.png" alt="在这里插入图片描述" style="zoom:67%;" />
 
 
 
-## Producter（生产者）
+#### Producter（生产者）
 
-### 消息分发
+##### 消息分发
 
 > 默认情况下，kafka采用的是 hash 取模的分区算法。如果 Key 为 null，则会随机分配一个分区。这个随机是在这个参数metadata.max.age.ms的时间范围内随机选择一个。对于这个时间段内，如果key为 null，则只会发送到唯一的分区。这个值默认情况下是10分钟更新一次。
 
 **Metadata：** 每一个 topic 的每一个 partition，需要知道对应的 broker 列表是什么，leader 是谁、follower 是谁。这些信息都是存储在 Metadata 这个类里面。
 
-### 生产一致性策略
+##### 生产一致性策略
 
 1. **acks = 0 :** 
 
@@ -402,7 +404,7 @@ replica.lag.time.max.ms  # 配置默认10000 即 10秒
 
    
 
-## Consumer（消费者）
+#### Consumer（消费者）
 
 > **增减 consumer、broker、partition都会导致 rebalance，所以 rebalance 后 consumer 对应的 partition会发生变化**
 >
@@ -412,21 +414,25 @@ replica.lag.time.max.ms  # 配置默认10000 即 10秒
 
 
 
-### Consumer的重平衡机制（Reblance）
+#### Consumer的重平衡机制（Reblance）
 
 > 在 Rebalance 的过程中 consumer group 下的所有消费者实例都会停止工作，等待 Rebalance 过程完成。
 
 **触发重平衡的条件**
 
-1. 有Consumer加入或者退出Consumer Group
+1. 有Consumer加入或者退出Consumer Group， 
+
+2. 消费者会定期发送心跳给群组协调器，以表示它仍然处于活跃状态。如果一个消费者的心跳超时，Kafka可能会认为该消费者已经不再可用，触发重平衡。
 
    > Consumer消费超时，长响应，（会被GroupCoordinator(组协调器)认为此consumer下线）
 
-2. Consumer Group 对应的GroupCoordintr节点变更
+3. Consumer Group 对应的GroupCoordintr节点变更，**消费者配置发生变化：** 如果消费者的一些配置发生变化，比如消费者的ID、组ID等，也可能触发重平衡
 
-3. 消费者组订阅Topic变更，或者主题Partition数量变更
+4. 消费者组订阅Topic变更，
 
-### 重平衡分区分配策略
+5. 主题Partition数量变更
+
+##### 重平衡分区分配策略
 
 - **range**：按照分区序号排序，假设 n＝分区数／消费者数量=3，假设10个分区，3个消费者，那么分区划分为1-3,4-6,7-10
 
@@ -439,17 +445,24 @@ replica.lag.time.max.ms  # 配置默认10000 即 10秒
   >
   > sticky策略当两者发生冲突时，第一个目标优先于第二个目标。
 
+##### 消费者组
+
+> 同一个分区内的消息在同一时间只能被消费者组内的一个消费者消费。这是由 Kafka 的消费者组机制所确保的，以实现负载均衡和消息的顺序性。
+
+1. **同一消费者组内：** 同一分区内的消息只能被消费者组内的一个消费者消费。这确保了负载均衡和消息的有序性。
+2. **不同消费者组之间：** 不同消费者组内的消费者是相互独立的，它们可以同时消费同一条消息。
 
 
-## Message
 
-#### 消息压缩
+#### Message
+
+##### 消息压缩
 
 消息压缩是一种时间换空间的优化方式，对于时延有一定要求的场景并不适合
 
 
 
-## 一些问题
+#### 一些问题
 
 1. 解决消息确认机制的问题，
 
@@ -472,7 +485,7 @@ replica.lag.time.max.ms  # 配置默认10000 即 10秒
 
 
 
-## 性能优化
+### 性能优化
 
 1. 优化大量的小型I/O操作
 
@@ -486,7 +499,7 @@ replica.lag.time.max.ms  # 配置默认10000 即 10秒
 
 
 
-## Push or Pull
+#### Push or Pull
 
 > consumer获取数据的方式，kafka采用 pull-base 方案
 
@@ -514,8 +527,39 @@ replica.lag.time.max.ms  # 配置默认10000 即 10秒
 如果broker中没有数据，consumer可能会出现busy轮询，直到有消息待消费， 这里可以在消费时加参数，设置 long pull
 ```
 
-## 配置
+#### 配置
 
 1.`unclean.leader.election.enable`
 
 默认为false，如果为true，那么意味着，leader下线时，新的leader可以从OSR 中获取，可能会造成消息丢失。
+
+
+
+
+
+### 常见问题
+
+##### 消息顺序性问题
+
+**参考：**
+
+- [Kafka 如何实现顺序消息 - 掘金 (juejin.cn)](https://juejin.cn/post/7304863390941265972) 
+- [kafka 静态消费组成员-腾讯云开发者社区-腾讯云 (tencent.com)](https://cloud.tencent.com/developer/article/1786605) 
+
+**生产消息的有序**
+
+1. 同一生产者生产消息；
+2. 同步发送消息到 Kafka broker；
+3. 所有消息发布到同一个分区；
+4. 同一消费者同步按照顺序消费消息。
+
+而要满足第 3 点，常用的有 2 种思路：
+
+1. 固定消息的 key，生产端采用 `key hash` 的方式写入 broker；
+
+**消费消息的有序**
+
+> 重平衡机制的存在，单纯从 Kafka 的角度来说是无法完全实现顺序消息的，只能通过静态成员功能、避免分区数量变化和减少消费者组成员数量变化等方式来尽可能减少重平衡的发生，进而尽可能维持消息的顺序性。
+
+
+

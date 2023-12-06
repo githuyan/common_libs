@@ -172,7 +172,17 @@ auto.commit.interval.ms=10  # 设置一个较小的时间范围
 
 
 
+## kafka配置参数解析
 
+##### 同步最小副本数：`min.insync.replicas`
 
+用于指定生产者在成功发送消息之前，至少需要有多少个副本（replicas）处于同步状态（in-sync）
 
+此配置优先于`acks=all`
+
+##### 副本允许不同步的最小时间：`replica.lag.time.max.ms`
+
+根据**Follower**和**Leader**的交互时间差，如果大于某个时间差就认定这个**Follower**不行了，就把此**Follower**从**ISR**中剔除，此时间差根据**rerplica.lag.time.max.ms**指定**，**如：**rerplica.lag.time.max.ms**=10000，单位ms，也就是默认10s，**ISR**中的**Follower**没有向**ISR**发送心跳包就会被移除；
+
+##### 自动提交位移：`enable.auto.commit`
 
