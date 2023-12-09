@@ -2020,6 +2020,12 @@ select ID from T where name='tom'
 select age from T where name='tom'  # 这里就使用了覆盖索引
 ```
 
+覆盖索引为什么快？
+
+参考： [MySQL的存储与索引(InnoDB)](https://blog.farmer233.top/2023/09/27/MySQL%E7%9A%84%E5%AD%98%E5%82%A8%E4%B8%8E%E7%B4%A2%E5%BC%95/) 
+
+根据mysql索引结构，索引及数据，所以更快。
+
 **索引下推**
 
 > 其实是利用了联合索引的最左匹配原则，索引下推就是在条件中有的有联合索引，有的没有索引，这时会自动匹配尽量使用的联合索引先做一波判断，筛选不满足条件的部分，减少回表次数

@@ -118,7 +118,71 @@ which requests
 
 ### 系统信息查询
 
-##### 查询网络连接情况
+##### 系统性能指标 htop
+
+> htop是top的升级版，用于检测内存，进程信息
+>
+
+**参考：** [Linux htop 详解 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/296803907) 
+
+```shell
+sudo apt install htop
+```
+
+![image-20231209131951235](../../resource/image-20231209131951235.png)
+
+**swp**: 交换空间，是swap的缩写，交换空间通常设置为一个专门的分区或者是一个交换文件。这样，当物理内存不足时，操作系统就可以将部分数据移到交换空间，从而避免系统因内存不足而崩溃或变得极其缓慢。如果交换空间的使用频繁接近或达到 100%，这可能表明系统需要更多的物理内存或者存在一些内存管理的问题。在某些情况下，过度使用交换空间可能导致性能下降，因为从磁盘读写数据的速度远远慢于从内存读写数据的速度。
+
+1. 左侧显示只有2核CPU
+
+   1. *每一个CPU的总用量情况，注意这条上面会有不同的颜色：*
+      1. 蓝色：显示低优先级(low priority)进程使用的CPU百分比。
+      2. 绿色：显示用于普通用户(user)拥有的进程的CPU百分比。
+      3. 红色：显示系统进程(kernel threads)使用的CPU百分比。
+      4. 橙色：显示IRQ时间使用的CPU百分比。
+      5. 洋红色(Magenta)：显示Soft IRQ时间消耗的CPU百分比。
+      6. 灰色：显示IO等待时间消耗的CPU百分比。
+      7. 青色：显示窃取时间(Steal time)消耗的CPU百分比
+
+2. mem内存和交换空间swp的使用情况
+   1. 绿色：显示内存页面占用的RAM百分比
+   2. 蓝色：显示缓冲区页面占用的RAM百分比
+   3. 橙色：显示缓存页面占用的RAM百分比
+
+3. 右侧信息为，正在运行57个任务，开启了230个线程，1个进程，
+
+4. load average 最后1分钟，最近5分钟和最后15分钟的平均负载
+
+5. uptime 显示了系统从启动开始到现在运行的时间
+
+
+
+##### 磁盘
+
+```shell
+# 查看系统磁盘使用情况
+$ df -h
+Filesystem      Size  Used Avail Use% Mounted on
+none             16G  4.0K   16G   1% /mnt/wsl
+none            391G  109G  282G  28% /usr/lib/wsl/drivers
+/dev/sdc        251G  251G     0 100% /							# 磁盘占满，导致报错[24946] INTERNAL ERROR: cannot create temporary directory!
+
+# 估算目录空间使用情况
+$ du -h /usr/local
+
+# docker碎片占用空间
+docker system prune -a  # 删除无用资源
+```
+
+##### 内存：**free**
+
+```shell
+free -mh  # 格式化查看内存使用情况 
+```
+
+
+
+##### 网络连接情况
 
 ```shell
 nc -vz 127.0.0.1 3306
@@ -133,12 +197,6 @@ nc -vz 127.0.0.1 3306
 pidof `进程操作`
 
 pidof tail  # 使用tail打开一个文件，另开一个shell，查看tail进程ID
-```
-
-##### 查看内存使用情况：**free**
-
-```shell
-free -mh  # 格式化查看内存使用情况
 ```
 
 
@@ -297,3 +355,4 @@ lrwx------ 1 githuyan githuyan 64 Feb  7 11:29 4 -> /mnt/d/projects/owner/ymg/.d
 - **/** 每过多少个数字
 - **-** 从X到Z
 - **，**散列数字
+

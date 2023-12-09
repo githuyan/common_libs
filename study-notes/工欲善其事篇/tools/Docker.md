@@ -94,7 +94,21 @@ sudo chmod +x /usr/local/bin/docker-compose
    - /mnt/d/work/mysql/data/:/var/lib/mysql/  # 错误
    ```
 
+3. docker碎片化数据过多，导致无法创建临时文件
 
+   **参考：** [服务器启动docker报错cannot create temporary directory索引节点100%占用排查_/dev/nvme0n1p2 100%-CSDN博客](https://blog.csdn.net/qq_36250766/article/details/123546215) 
+
+   ```shell
+   [24946] INTERNAL ERROR: cannot create temporary directory!
+   
+   # 查看磁盘使用清空
+   df -h 
+   
+   # 清理无用数据
+   docker system prune -a
+   ```
+
+   
 
 
 #### 构建镜像
