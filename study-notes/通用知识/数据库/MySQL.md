@@ -5,6 +5,12 @@
 
 <img src="../../../resource/sql执行流程.jpg" alt="sql执行流程" style="zoom: 33%;" />
 
+SQL执行顺序：
+
+<img src="../../../resource/sql-execution-order.jpg" alt="sql-execution-order" style="zoom: 15%;" />
+
+
+
 ##### 最佳参考：
 
 - [mysql实战45讲](https://funnylog.gitee.io/mysql45/) 
@@ -2724,4 +2730,13 @@ MySQL:(none) 13:07:41> show global status like 'bin%';
    SHOW VARIABLES LIKE 'long_query_time';
    ```
 
-   
+
+##### mysql自动断开时间
+
+客户端如果太长时间没动静，连接器就会自动将它断开。这个时间是由参数**wait_timeout**控制的，默认值是8小时。
+
+##### mysql占用内存过高
+
+全部使用长连接后，你可能会发现，有些时候MySQL占用内存涨得特别快，这是因为MySQL在执行过程中临时使用的内存是管理在连接对象里面的。这些资源会在连接断开的时候才释放。所以如果长连接累积下来，可能导致内存占用太大，被系统强行杀掉（OOM），从现象看就是MySQL异常重启了。
+
+MySQL 5.7或更新版本，可以在每次执行一个比较大的操作后，通过执行 **mysql_reset_connection**来重新初始化连接资源。这个过程不需要重连和重新做权限验证，但是会将连接恢复到刚刚创建完时的状态。

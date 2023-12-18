@@ -16,6 +16,16 @@
 
 # 技巧
 
+### 在不修改更新时间的情况下，更新键的值
+
+> 使用`SET`命令的`XX`选项（仅在键已经存在时才设置值），仅适用于Redis版本2.6.12及更高版本。
+
+```shell
+set name tom XX
+```
+
+
+
 ### scan()
 
 > 相较于 keys * ，scan基本不会阻塞，而前者属于全表扫描
@@ -47,7 +57,7 @@ SET key value EX second ：# 设置键的过期时间为 second 秒。
 SET key value PX millisecond ：# 设置键的过期时间为 millisecond 毫秒。 
 
 NX ：# 只在键不存在时，才对键进行设置操作。 SET key value NX 效果等同于 SETNX key value 
-XX ：# 只在键已经存在时，才对键进行设置操作。
+XX ：# 只在键已经存在时，才对键进行设置操作。（不变动过期时间）
 ```
 
 ### Redis实现分布式锁
@@ -510,18 +520,42 @@ appendfsync everysec 每隔1秒同步一次 默认
 
 appendfsync no 不执行同步
 
-#### **事务**
+#### **管道与事务**
 
-Redis单条命令是保证原子性的，但事务不保证原子性
+**参考：**
 
-事务 ： 一组命令的集合
+- https://rafaeleyng.github.io/redis-pipelining-transactions-and-lua-scripts 
+- [【Redis】Redis 事务和事务锁](https://juejin.cn/post/7292036126268997642?share_token=e44bf34a-f82c-4d9f-8fdf-81c1e274ba4b) 
 
-一次性，顺序性，排他性
+redis事务是原子性的，且阻塞的，redis本身提供回滚机制
 
-没有隔离级别的概念，所有命令在事务中（队列），并没有直接被执行，只有发起命令时才会被执行
-1. 开启事务 multi
-2. 命令入队
-3. 执行事务exec
+```shell
+MULTI        # 开始一个事务
+SET key1 10  # 将命令添加到事务队列
+GET key1     # 将命令添加到事务队列
+DISCARD | EXEC      # 清空事务队列，并取消事务 | 执行事务
+SET key3 30  # 这个命令是在事务之外执行的，不受事务的影响
+EXEC         # 事务已经结束，报错：ERR EXEC without MULTI
+```
+
+未完成的事务不会被持久化
+
+AOF: AOF（Append-Only File）持久化模式会记录每一条**非查询操作原子**命令
+
+RDB: 保存每一个原子操作后的快照
+
+```shell
+1. MULTI  
+2. SET key1 10 
+3. GET key1 
+4. DISCARD  
+5. SET key2 20
+6. EXEC      
+```
+
+在事务未完成之前，不会记录在日志中（aof, rdb)，事务执行过程中，redis服务断开，不会保存未完成事务的内容
+
+
 
 #### **持久化**
 
@@ -547,11 +581,15 @@ Redis单条命令是保证原子性的，但事务不保证原子性
 
 - **RDB** redis database（常用）
 
-  > 将Reids在内存中的数据库记录定时dump到磁盘上的RDB持久化
+  > 将redis在内存中的数据库记录定时dump到磁盘上的RDB持久化
+  >
+  > RDB（Redis Database Backup）持久化模式在 Redis 中用于创建数据库的快照，将 Redis 数据以**二进制**格式保存到磁盘上。RDB 文件包含了一个 Redis 数据库的快照，它是一个经过压缩和优化的二进制文件，用于在 Redis 服务器重新启动时恢复数据。
 
-  dump.rdb
+  RDB 文件不同于 AOF 文件，它并不记录每个写操作的历史，而是在周期性的时间点上创建一个数据库快照。这样，当 Redis 服务器因为某种原因重新启动时，可以更快地加载整个数据库状态。
 
   redis 在主进程开始后，会单独创建一个子进程来进行持久化，这个子进程会将数据写入到一个临时文件，当持久化结束，再用这个临时文件替换上一个持久化好的文件，主进程不参与IO操作，所以性能很高，
+
+  
 
   优点：用于大规模数据需要恢复，且对数据的完整性要求不高，性能极高
 
@@ -568,7 +606,7 @@ Redis单条命令是保证原子性的，但事务不保证原子性
 
 - **AOF 模式** appendonly no 默认是不开启的, 默认每秒更新一次 
 
-  > 将Reids的操作日志以追加的方式写入文件
+  > 将redis的操作日志以追加的方式写入文件， AOF（Append-Only File）持久化模式会记录每一条**非查询操作原子**命令
 
   aof模式默认是文件的无限追加，当文件大于64mb时（auto-aof-rewrite-percentage,auto-aof-rewrite-min-size），会在fork一个新的子进程开始另一个文件
 
@@ -708,7 +746,18 @@ Redis单条命令是保证原子性的，但事务不保证原子性
 3. 注意**
    - 一定要修改 dump.rdb（持久化文件）的目录为绝对路径，默认不靠谱
 
+## redis配置项
 
+##### 默认配置
+
+默认服务位置： `usr/local/bin`
+
+查看配置信息
+
+```shell
+# 查看aof启用情况
+redis-cli config get appendonly
+```
 
 
 

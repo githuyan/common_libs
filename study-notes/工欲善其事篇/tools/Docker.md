@@ -194,6 +194,11 @@ docker-compose up  # 用于部署一个compose应用，默认使用 docker-compo
 docker-compose up -f docker-compose-yyy.yaml  # 自定义 docker-compose 文件名
 docker-compose restart  # 重启关闭的应用，如果在重启前，修改了应用内容，并不会对重启的应用生效，除非重新部署
 
+# docker-compose.yaml文件中有两个redis服务，一个mysql服务，一个kafka服务，只启动redis服务和kafka服务
+docker-compose up -d redis1 redis2 kafka
+# docker-compose.yaml文件中有两个redis服务，一个mysql服务，一个kafka服务，只重启redis服务和kafka服务
+docker-compose restart redis1 redis2 kafka
+
 # 停止，删除
 docker-compose stop  # 停止Compose应用相关的所有容器，但不会删除他们
 docker-compose rm  # 删除已停止的compose应用，他会删除容器和网络，但不会删除卷和镜像
