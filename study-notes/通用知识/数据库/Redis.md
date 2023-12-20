@@ -270,6 +270,20 @@ ttl key  # 以秒为单位返回 key 的剩余过期时间
 
 ### 常用类型
 
+> redis在设置一个已存在的键时，且类型不一致时，会报错：WRONGTYPE Operation against a key holding the wrong kind of value，在设置键时应该先检查空值，在进行覆盖操作，
+>
+> 使用 **TYPE your_key** 检查键类型
+
+**参考：**
+
+- [redis核心原理与实战](https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/Redis%20%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/14%20%E6%9C%89%E5%BA%8F%E9%9B%86%E5%90%88%E4%BD%BF%E7%94%A8%E4%B8%8E%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86.md) 
+
+在 Redis 中，`EX`（过期时间）、`NX`（只在键不存在时设置值）、和 `XX`（只在键已经存在时设置值）这些选项主要用于 `SET` 命令，
+
+XX：仅更新已存在的元素。不要添加新元素。
+
+NX：仅添加新元素。不要更新现有元素。
+
 #### String类型
 
 > set key value
@@ -356,6 +370,14 @@ mget k1 k2 批量获取
 
 #### **Set类型**
 
+> 仅支持 nx，xx，不支持使用ex
+
+**参考：**
+
+- [ZADD | Redis --- 扎德 |重复](https://redis.io/commands/zadd/) 
+
+
+
 **无序集合**
 
 > 无序不重复
@@ -398,35 +420,58 @@ mget k1 k2 批量获取
 
 > 大部分操作类似，只是添加了一个优先级
 
-1. 增，删，查
+**CRUD**
 
-   zcard keys 统计总量
+```shell
+zadd name score value score value..  # 添加元素并指定分数
+zadd name nx score value score value..  # 添加元素并指定分数，当元素存在时，使用旧的score,否则使用新的score
 
-   zadd myset value score  向myset中添加一个带有score的value，根据这个socre排序
+zrem name tom jerry..  # 删除指定元素， 删除命令中如果包含了不存在的元素，并不会影响命令的正常执行，不存在的元素将会被忽略。响应0,删除成功则响应1
 
-   zincrby myset age 2 自增
+zpopmax name  # 删除指定key最大的元素
+zpopmin name  # 删除指定key最小的元素
 
-   zdscrby myset age 2 自减
+# （左闭右闭）
+zrange name 0 100  # 按照score正序，取指定索引范围元素
+zrevrange name 0 100  # 按照socre倒序，取指定索引范围元素 
+zrange name 0 100 withscores  # 按照score正序，取指定索引范围元素和元素的分数 
+zrevrange name 0 100 withscores  # 按照socre倒序，取指定索引范围元素和元素的分数 
 
-   zrem myset value  删除value
+zcount name 0 100  # 获取指定分数范围内元素的数量（左闭右闭）
 
-   zremrangebysocre myset 0 10 移除集合中分数0 - 10 的所有值
+# 获取指定分数范围内的元素
+ZRANGEBYSCORE key min max [WITHSCORES] [LIMIT offset count]
+	key 是有序集合的键。
+    min 和 max 分别是分数的最小值和最大值，用于指定范围。
+    WITHSCORES 选项用于同时获取成员及其分数。
+    LIMIT 选项用于限制返回的结果数量。
+zrangebyscore name 0 100 withscores limit 0 5  # 根据分数排序，获取前5个元素和元素分数
 
-   zrange myset 0 10 返回指定区间的元素
 
-   zcount myset 0 10 找出 0 -10之间的元素数量
+zscore name tom  # 获取指定元素的score
+zrank name tom  # 获取指定元素的索引
+zcard name # 查询键的所有元素的数量
+```
 
-   zscore myset member 返回集合中指定成员的分数（优先级）
+`zadd name [ch] score value`
 
-2. 排序
+- **XX**:  仅更新已存在的元素。不要添加新元素。
 
-   zrangebyscore myset min max
+- **NX**:  仅添加新元素。不要更新现有元素。
 
-   zrangebyscore myset 0 18 将0<score<18的元素升序排列
+- **LT**:  仅当新分数低于当前分数时才更新现有元素。此标志不会阻止添加新元素。
 
-   zrevrangebyscore myset max min 根据score降序排列
+- **GT**:  仅当新分数大于当前分数时才更新现有元素。此标志不会阻止添加新元素。
 
-   zrevrange myset max min 根据score降序排列
+- **CH**:  change的简写，返回本次修改中元素**分数变更**的元素数量
+
+- **INCR**:  修改指定元素的分数， 指定 `ZADD` 此选项时，其行为类似于 `ZINCRBY` 。在此模式下**只能指定一个**分数元素对。
+
+  > 这个操作是原子性的，即使是批量修改
+
+  `zincrby name 100 tom` 响应name键的tom元素增加100后的分数
+
+
 
 ### Redis配置文件
 
