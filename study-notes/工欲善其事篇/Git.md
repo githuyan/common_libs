@@ -235,6 +235,7 @@ git config --global http.proxy http://127.0.0.1:7890/
 git config --global https.proxy https://127.0.0.1:7890/
 git config --global core.gitproxy socks5://127.0.0.1:7890/
 
+git config --local --get http.proxy  # 当前项目的代理
 
 # 移除代理
 git config --global --unset http.proxy
@@ -300,7 +301,48 @@ git chery-pick dev  # 将dev最后一个commit（e）,同步到master
 git cherry-pick <commit-id>..<commit-id>
 ```
 
+### git switch
 
+> git 2.23版本新增的命令，用于替代和抽离旧版本的git checkout命令， 这个命令更加灵活和直观
+
+```shell
+# 切换分支 
+git switch demo
+
+# 切换并创建分支
+git switch -c feat/demo
+
+# 切换到前一个分支
+git switch -
+
+# 基于旧分支，创建新分支
+git switch -c <new-branch-name> <base-branch>
+
+
+```
+
+### git restore
+
+> git 2.23版本新增的命令，用于替代和抽离旧版本的 git rm --cached 命令，这个命令更加灵活和直观
+
+```shell
+git restore --source=HEAD --worktree .
+--source: 指定源，可以是提交、分支、标签等。
+--staged: 是否同时取消暂存内容。
+--worktree: 取消工作区的修改选项，执行操作范围，全部为 .
+
+# 仅恢复当前所有未暂存的本地修改到未修改状态
+git resotre .
+git restore --worktree ./demo
+
+# 仅恢复当前所有已暂存的本地修改到未修改状态
+git restore --staged .
+git restore --staged --worktree ./demo
+
+# 恢复当前所有修改（已暂存，未暂存）到某一个指定版本
+git restore --source=head --staged .
+git restore --source=head --staged ./demo
+```
 
 ### git pull 
 
@@ -308,6 +350,13 @@ git cherry-pick <commit-id>..<commit-id>
 # 拉取远程分支合并到本地分支，（可能会有冲突）
 git pull origin remote_branch
 git pull 远程服务名 远程分支名:将要映射的本地分支分支名
+
+# 当前分支存在变更，暂存内容，并拉取最新代码，然后再应用暂存的内容
+git pull origin master --autostash
+# 相当于
+git stash
+git pull origin master
+git stash pop
 ```
 
 ### git push
