@@ -59,19 +59,21 @@ from > join > on > where > group by > having > select > distinct > order by > li
 
 ### 名词解释
 
-**DDL：**（Data Manipulation Language）数据操纵语言
+**DML：**（Data Manipulation Language）数据操纵语言
 
-对数据库中的数据进行操作，如 insert , update, delete, select 等
+对数据库中的数据进行操作，如 insert , update, delete, select 等，增删改数据。
 
-**DML：**（Data Definition Language）数据定义语言
+**DDL：**（Data Definition Language）数据定义语言
 
-建库，建表，设置约束等，create, drop, alter 等
+建库，建表，加字段，修改表结构，设置约束等，create, drop, alter 等，保证同时只会有一个人修改表结构成功
 
 **DCL：**（Data Control Language）数据控制语言
 
 如commit，revoke等
 
 **MDL：**MDL全称为metadata lock，即元数据锁，
+
+MDL不需要显式使用，在访问一个表的时候会被自动加上，在每一个session访问表时，保证表结构不被修改，导致查询的数据中结构不同，保证读写的正确性。
 
 **脏页：**
 
