@@ -73,7 +73,7 @@ from > join > on > where > group by > having > select > distinct > order by > li
 
 **MDL：**MDL全称为metadata lock，即元数据锁，
 
-MDL不需要显式使用，在访问一个表的时候会被自动加上，在每一个session访问表时，保证表结构不被修改，导致查询的数据中结构不同，保证读写的正确性。
+MDL不需要显式使用，所有对表的增删改查操作都需要先申请MDL读锁，在每一个session访问表时，保证表结构不被修改，导致查询的数据中结构不同，保证读写的正确性。
 
 **脏页：**
 
@@ -2482,19 +2482,16 @@ def commit():
    mysqldump -u root -p dbname < f://backup.sql
    ```
 
-### 锁 todo
-
-> 锁是自动加的（也可以手动加）
+### 锁
 
 #### 理论
 
-**两阶段锁协议**
+**锁的两阶段协议**
 
-> 在 InnoDB 事务中，行锁是在需要的时候才加上的（而不是在事务开始的时候），但并不是不需要了就立刻释放，而是等到事务结束时，才释放
+> 在 InnoDB 事务中，行锁是在需要的时候才加上的（而不是在事务开始的时候），但并不是不需要了就立刻释放，而是等到事务结束时，才释放。基于两阶段锁协议，有可能造成锁的语句在事务中应该放在后面
 >
 > （同一事务内所有操作都是串行的，所以不会跟自己死锁）
 >
-> 事务开始后就处于加锁阶段，一直到执行ROLLBACK和COMMIT之前都是加锁阶段。. ROLLBACK和COMMIT使事务进入解锁阶段，即在ROLLBACK和COMMIT模块中DBMS释放所有封锁
 
 结论：如果我们的事务中需要锁多个行，要把最可能造成锁冲突，最可能影响并发度的锁尽量往事务后面放
 
@@ -2506,9 +2503,11 @@ def commit():
 
 2. 表锁
 
+   > 普通表锁和元数据锁（MDL），元数据锁在增删改查数据时会自动加上，用于保证查询数据的过程中，表结构不被修改。
+
 3. 行锁
 
-   > 两阶段锁协议，能使用行锁就是用行锁，innodb引擎支持行锁s
+   > 两阶段锁协议，能使用行锁就是用行锁，innodb引擎支持行锁
    >
    > 并发的锁尽量往后排，这样可以提升并发度
 
@@ -2517,10 +2516,6 @@ def commit():
 > 事务的相互等待，直到等待结束
 >
 > 通过设置 innodb_lock_wait_timed 的等待时间来控制
-
-死锁检测
-
-> 正常情况下是开的
 
 #### 隔离级别
 
@@ -2654,6 +2649,42 @@ show OPEN TABLES where In_use > 0 # 查看是否发生锁表
 lock table users write # 加写锁
 ```
 
+#### 死锁检测
+
+> 1. 一致性读不会加锁，就不需要做死锁检测；
+>
+> 2. 并不是每次死锁检测都都要扫所有事务。比如某个时刻，事务等待状态是这样的：
+> 3. 只会检测需要锁的事务
+
+举例说明：
+
+B在等A，
+D在等C，
+现在来了一个E，发现E需要等D，那么E就判断跟D、C是否会形成死锁，这个检测不用管B和A
+
+### 视图 views
+
+视图的应用场景：
+
+> 相当于一个持久存储的临时表
+
+1. **简化复杂查询：** 视图可以将复杂的查询逻辑封装起来，使得用户只需关注简单的视图查询语句而不必了解底层的复杂性。
+2. **提供安全性：** 视图可以限制用户对数据的访问，只允许他们查询视图而不是直接访问底层表。
+3. **重用查询逻辑：** 视图允许在多个地方重用相同的查询逻辑，减少代码冗余。
+4. **隐藏数据结构：** 视图可以隐藏底层表的结构，只暴露给用户或应用程序必要的信息。
+
+```sql
+# 创建一个视图
+CREATE VIEW view_name AS
+SELECT column1, column2, ...
+FROM table1
+WHERE condition;
+```
+
+
+
+
+
 ## 系统配置
 
 ##### 查看binlog日志缓存情况
@@ -2678,8 +2709,6 @@ MySQL:(none) 13:07:41> show global status like 'bin%';
 ##### innodb_change_buffer_max_size
 
 > 控制change_buffer的最大使用内存数量，该参数的默认值是25，也就是1/4
-
-
 
 
 
@@ -2748,6 +2777,95 @@ MySQL:(none) 13:07:41> show global status like 'bin%';
 
 
 
+## 数据库基本信息
+
+#### performance_schema
+
+查看性能分析数据库: performance_schema是否被启用
+
+```sql
+SHOW VARIABLES LIKE 'performance_schema';  # 是否显示为 “ON”
+```
+
+##### data_locks
+
+`data_locks`表可以提供有关MySQL服务器上当前数据锁的信息。这个表包含有关正在被锁定的表、锁类型以及锁的持有者等详细信息。
+
+```sql
+# 开启一个事务，不提交
+begin;
+update hy set name="aaaa" where hh=1;
+
+# commit
+
+# 查看锁相关信息
+SELECT * FROM performance_schema.data_locks;
+```
+
+- `ENGINE`: 锁所属的存储引擎（这里是InnoDB）。
+- `ENGINE_LOCK_ID`: 锁的唯一标识符。
+- `ENGINE_TRANSACTION_ID`: 事务的唯一标识符。
+- `THREAD_ID`: 持有锁的线程标识符。
+- `EVENT_ID`: 与锁相关的事件标识符。
+- `OBJECT_SCHEMA`: 被锁定对象所在的模式。
+- `OBJECT_NAME`: 被锁定对象（通常是表）的名称。
+- `INDEX_NAME`: 被锁定对象的索引名称。
+- `OBJECT_INSTANCE_BEGIN`: 被锁定对象实例的开始标识符。
+- `LOCK_TYPE`: 锁的类型，例如，表锁（TABLE）、记录锁（RECORD）等。
+- `LOCK_MODE`: 锁的模式，例如，共享锁（S）、排它锁（X）等。
+- `LOCK_STATUS`: 锁的状态，例如，已授予（GRANTED）。
+- `LOCK_DATA`: 锁的一些附加数据，具体含义根据锁的类型和模式而定。
+
+
+
+#### information_schema
+
+> 用于存储关于数据库、表、列、索引等元数据信息的数据。它是一个提供数据库元数据的虚拟数据库，用户可以通过查询`information_schema`中的各种表获取关于数据库对象的信息。
+
+**`SCHEMATA`表：**
+
+- 存储所有数据库的信息，包括数据库名称、字符集、排序规则等。
+
+```sql
+SELECT * FROM information_schema.SCHEMATA;
+```
+
+**`TABLES`表：**
+
+- 存储所有表的信息，包括表名、所属数据库、表类型（例如，基表或视图）等。
+
+```sql
+SELECT * FROM information_schema.TABLES WHERE TABLE_SCHEMA = 'your_database';
+```
+
+**`COLUMNS`表：**
+
+- 存储所有列的信息，包括列名、数据类型、是否允许NULL等。
+
+```sql
+SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = 'your_database' AND TABLE_NAME = 'your_table';
+```
+
+**`INDEXES`表：**
+
+- 存储所有索引的信息，包括索引名、所属表、索引类型等。
+
+```sql
+SELECT * FROM information_schema.INDEXES WHERE TABLE_SCHEMA = 'your_database' AND TABLE_NAME = 'your_table';
+```
+
+**`ROUTINES`表：**
+
+- 存储存储过程和函数的信息，包括名称、类型、定义等。
+
+```sql
+SELECT * FROM information_schema.ROUTINES WHERE ROUTINE_SCHEMA = 'your_database';
+```
+
+
+
+
+
 ## 配置项
 
 ##### 慢查询配置
@@ -2785,10 +2903,15 @@ MySQL:(none) 13:07:41> show global status like 'bin%';
    SHOW VARIABLES LIKE 'long_query_time';
    ```
 
-
 ##### mysql自动断开时间
 
-客户端如果太长时间没动静，连接器就会自动将它断开。这个时间是由参数**wait_timeout**控制的，默认值是8小时。
+```sql
+SHOW VARIABLES LIKE 'max_connections'; # 查看mysql服务的最大连接数，默认为151
+```
+
+如果一个连接在8小时内没有活动（没有执行任何查询、事务等操作），则服务器将自动关闭该连接，以释放资源。这个时间是由参数**wait_timeout**控制的，默认值是8小时。这个设置为mysql服务系统设置，一些连接客户端如（tortoise-orm)的连接配置依然需要受限于系统配置。
+
+
 
 ##### mysql占用内存过高
 
