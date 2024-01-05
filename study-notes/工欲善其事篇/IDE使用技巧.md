@@ -24,14 +24,18 @@
 
 ## window命令行使用技巧
 
-查看端口占用情况
+查看端口占用情况，杀死指定进程
 
+```shell
 寻找特定线程pid，如查看8080端口的pid
 netstat -ano|findstr 8080
 Netstat -ano|findstr 8080
 
 终止线程,如pid为12112时
 taskkill /pid 12212 /f
+```
+
+
 
 
 

@@ -1,0 +1,59 @@
+#### window强制关闭占用指定端口的进程
+
+> 输入一个指定端口，强制杀死所有占用这个端口的进程
+
+
+
+##### 源码（windows)
+
+```bat
+# kill_pid_by_port.bat
+
+@echo off
+chcp 65001 > nul
+
+set /p port="请输入端口号，然后按回车键确认: "
+echo 你输入的端口是：%port%
+
+echo 查找占用端口 %port% 的进程信息...
+netstat -ano | findstr ":%port%" > nul
+
+echo 占用端口 %port% 的进程信息：
+netstat -ano | findstr ":%port%" | find /i "listening"
+
+echo.
+
+echo 查找占用端口 %port% 的进程信息...
+setlocal enabledelayedexpansion
+set "pidList="
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":%port%"') do (
+    set "pidList=!pidList! %%a"
+)
+
+if "%pidList%"=="" (
+    echo 未找到占用端口 %port% 的进程
+) else (
+    echo 占用端口 %port% 的进程ID列表：%pidList%
+    
+    echo.
+    for %%b in (%pidList%) do (
+        echo 强制关闭进程 %%b
+        taskkill /pid %%b /f
+        echo.
+    )
+)
+
+pause
+```
+
+##### 使用方法
+
+1. 双击脚本文件，输入指定端口参数
+2. `./kill_pid_by_port.bat 8011`
+
+
+
+##### 效果展示
+
+<img src="../../../resource/image-20240105114134066.png" alt="image-20240105114134066" style="zoom:50%;" />
+
