@@ -1856,6 +1856,10 @@ alter table user alter check check_age not enforced # 默认约束是强制的�
 >
 > （**同一事务内所有操作都是串行的，所以不会跟自己死锁**）
 
+#### 事务的启动
+
+begin/start transaction 命令并不是一个事务的起点，在执行到它们之后的第一个操作InnoDB表的语句（第一个快照读语句），事务才真正启动。如果你想要马上启动一个事务，可以使用start transaction with consistent snapshot 这个命令。
+
 #### 四大特性
 
 1. 原子性
@@ -2918,3 +2922,22 @@ SHOW VARIABLES LIKE 'max_connections'; # 查看mysql服务的最大连接数，�
 全部使用长连接后，你可能会发现，有些时候MySQL占用内存涨得特别快，这是因为MySQL在执行过程中临时使用的内存是管理在连接对象里面的。这些资源会在连接断开的时候才释放。所以如果长连接累积下来，可能导致内存占用太大，被系统强行杀掉（OOM），从现象看就是MySQL异常重启了。
 
 MySQL 5.7或更新版本，可以在每次执行一个比较大的操作后，通过执行 **mysql_reset_connection**来重新初始化连接资源。这个过程不需要重连和重新做权限验证，但是会将连接恢复到刚刚创建完时的状态。
+
+
+
+##### 事务自动提交
+
+```sql
+SHOW VARIABLES LIKE 'autocommit';
+```
+
+`autocommit=1`：每个SQL语句在执行后都会自动提交。这意味着，无论执行的是`INSERT`、`UPDATE`还是`DELETE`等操作，它们都会立即被提交到数据库中，不会形成一个事务，无法回滚事务。默认为1，会自动提交事务。
+
+`autocommit=0`：启用事务，手动提交事务
+
+##### 查询数据库的隔离级别
+
+```sql
+show VARIABLES like "transaction_isolation"
+```
+

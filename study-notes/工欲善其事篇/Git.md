@@ -318,7 +318,6 @@ git switch -
 # 基于旧分支，创建新分支
 git switch -c <new-branch-name> <base-branch>
 
-
 ```
 
 ### git restore
