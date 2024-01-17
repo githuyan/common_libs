@@ -2101,6 +2101,7 @@ select * from users where name='%tom' and id=3 and age 100
 **参考：**
 
 - [(9条消息) MySQL之Innodb引擎的4大特性_oldba.cn的博客-CSDN博客_innodb引擎的4大特性](https://blog.csdn.net/weixin_45320660/article/details/115326483) 
+- [Change Buffer内幕：从Merge到持久化的操作解析 - 掘金 (juejin.cn)](https://juejin.cn/post/7261604248320131128) 
 
 1. 当我们更新一个数据页（行），如果这个数据页已经在内存中了，就直接执行更新操作，否则，就将这一个操作写入 change_buffer[^不影响数据一致性]，（这里只是写入change_buffer，而不是写入主缓存）
 
@@ -2108,42 +2109,19 @@ select * from users where name='%tom' and id=3 and age 100
 
    > 一定的频率：
    >
-   > 1. 索引页没有可用空间（空间小于1/32页的大小，则会强制合并操作）
-   > 2. Master Thread 每秒和每10秒的合并操作
-   > 3. 索引页被读取到change_buffer中，判断change_buffer中是否有该非聚簇索引页，如果有则将本次update操作与原有页合并（等待merge操作）
+   > 1. change_buffer空间不足（空间小于1/32页的大小，则会强制合并操作），刷新脏页，用于将已经变更，但是还没有应用的数据merge到数据页
+   > 2. Master Thread 后台任务会定期merge
+   > 3. 读取操作中，会先读取change_buffer中是否存在与该数据页相关的未应用的变更，是则将数据merge到数据页，然后读取合并后的数据
+   > 4. 数据库关闭
 
-   ```python
-   # 真正的性能提升并不是这个  ~~（先不执行，由于还没有执行真正的写入磁盘操作，所以效率很高）, 这样就不必要每次都从磁盘读入完整的数据页，再更新了~~
-   # 真正的性能提升在于，减少了随机IO带来性能损耗
+3. 应用场景
+
+   在写多读少的情况，真正的性能提升在于，减少了随机IO带来性能损耗，**change buffer主要节省的则是随机读磁盘的IO消耗。**
+
    在大量更新数据时，随机IO的更新（索引-数据页），由于数据存在于随机的索引数据页，所以每一条数据都需要单独获得句柄，然后更新，change_buffer的作用在于，将批量的同一页的数据更新合并，那么这些相同的索引页更新就只需要获得一次句柄，操作一次IO，提升了性能。
-   
+
    比如说现在Insert Buffer中有1，99，2，100，合并之前可能要4次插入，合并之后1，2可能是一个页的，99，100可能是一个页的，这样就减少到了2次插入。
-   ```
 
-   
-
-3. 这些缓存的操作会在下一次 访问（读操作） 这个数据页的时候现将数据页读入内存，然后将操作写入磁盘，这个过程被称为 （merge）
-
-4. 最后再执行访问操作，除了访问触发 **merge** 外，系统也会定期 merge，在数据库正常关闭时，也会执行 merge 操作
-
-**配置：**
-
-```python
-#innodb_change_buffer设置的值有：
-all:  # 默认值，缓存insert, delete, purges操作
-none:  # 不缓存
-inserts: # 缓存insert操作
-deletes: # 缓存delete操作
-changes: # 缓存insert和delete操作
-purges: # 缓存后台执行的物理删除操作
-    
-# change_buffer缓冲容量设置：
-show variables like 'innodb_change_buffer_max_size';
-innodb_change_buffer_max_size，默认是25%，即缓冲池的1/4。最大可设置为50%
-
-# 应用场景
-适用于写多读少的情况，大量数据的写入，可以考虑增加 innodb_change_buffer_max_size
-```
 
 
 
@@ -2399,15 +2377,26 @@ def commit():
 
 ![redolog_and_binlog](../../../resource/redolog_and_binlog.jpg)
 
-**一个事务的整体流程**
+`redo log`**的两阶段提交**
 
-> 两阶段提交视为保证两个日志的一致性
+将redo log的写入拆成了两个步骤：prepare和commit，这就是"两阶段提交"。
 
-**1 prepare阶段 2 写binlog 3 commit**
-当在2之前崩溃时：重启恢复：后发现没有commit，回滚。备份恢复：没有binlog 。 一致
+```txt
+1 prepare阶段 
+2 写binlog 
+3 commit 
+
+当在2之前崩溃时：重启恢复：后发现没有commit，回滚。备份恢复：没有binlog 。 一致 
 当在3之前崩溃：重启恢复：虽没有commit，但满足prepare和binlog完整，所以重启后会自动commit。备份：有binlog. 一致
+```
 
+binlog日志配置redo log的两阶段提交实现系统的**crash-safe**能力
 
+而只要日志成功写入，就可以保证数据的一致性，就可以实现在空闲的时间再将数据从内存中刷新到磁盘中，这整个过程被称为 **写前日志 WAL（Write-Ahead Logging)**
+
+写前日志减少了随机IO带来性能损耗，**redo log 主要节省的是随机写磁盘的IO消耗（转成顺序写）**
+
+**一个事务的整体流程**
 
 1. 分析器开始执行SQL语句，首先是现将目标数据读到内存中，如果内存中没有，就从磁盘读到内存。
 
@@ -2941,3 +2930,23 @@ SHOW VARIABLES LIKE 'autocommit';
 show VARIABLES like "transaction_isolation"
 ```
 
+##### 内存缓冲区change_buffer
+
+```sql
+show variables like 'innodb_change_buffer_max_size';
+```
+
+change buffer用的是buffer pool里的内存, innodb_change_buffer_max_size 值默认为25，表示最多使用1/4 的缓冲池内存空间。而需要注意的是，该参数的最大有效值为50。
+
+**innodb_change_buffer：**
+
+> 用于指定哪些操作可以出发change_buffer
+
+```sql
+all:  # 默认值，缓存insert, delete, purges操作
+none:  # 不缓存
+inserts: # 缓存insert操作
+deletes: # 缓存delete操作
+changes: # 缓存insert和delete操作
+purges: # 缓存后台执行的物理删除操作
+```

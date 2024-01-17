@@ -463,18 +463,6 @@ git reset --hard HED~2
 
 
 
-### **git restore**
-
-> git restore 更像是 reset 的补充
-
-```shell
-git restore <.*file>  # 将暂存区，工作区回退到上一次 add 之前的状态
-
-git restore --staged  <.*file>  # 将暂存区回退到上一次 commit 之前的状态[^--staged 后缀代表仅恢复暂存区的状态]
-```
-
-
-
 ### **git branch**
 
 ```shell
@@ -539,15 +527,7 @@ git stash show <stach@n> -p # 查看详细的暂存差异信息
 git reset --hard 
 ```
 
-### git restore
 
-```python
-# 清空暂存区，将暂存区修改还原到本地
-git restore --staged .
-
-# 清空本地所有进入暂存区的修改
-git restore .
-```
 
 ### **git clone**
 
@@ -558,16 +538,6 @@ git clone -b <branch-name> --single-branch https://github.com.cnpmjs.org/other.g
 
 
 ## 技巧
-
-
-
-```shell
-# 快捷跳转目录
-
-
-```
-
-
 
 ##### 打标签
 
