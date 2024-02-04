@@ -240,6 +240,7 @@ git config --local --get http.proxy  # 当前项目的代理
 # 移除代理
 git config --global --unset http.proxy
 git config --global --unset https.proxy
+git config --global --unset core.gitproxy
 ```
 
 ### git commit

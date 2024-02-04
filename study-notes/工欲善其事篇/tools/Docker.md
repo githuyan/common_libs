@@ -101,7 +101,7 @@ sudo chmod +x /usr/local/bin/docker-compose
    ```shell
    [24946] INTERNAL ERROR: cannot create temporary directory!
    
-   # 查看磁盘使用清空
+   # 查看磁盘使用情况
    df -h 
    
    # 清理无用数据
@@ -540,6 +540,16 @@ docker systemctl stop docker
 | ENTRYPOINT         | 指定这个容器时要运行的的命令，可以追加命令                   |                                            |
 | ONBUILD            | 当构建一个继承自这个文件的镜像时，会触发这个指令             |                                            |
 | COPY               | 类似ADD命令，将文件拷贝到镜像中                              |                                            |
+
+1. **CMD 和 ENTRYPOINT**
+
+   都是用于定义容器启动时执行的命令或脚本的指令
+
+   ENTRYPOINT 是静态命令，通常用于配置容器的主要执行程序，而CMD是动态命令，而`CMD`用于提供默认参数
+
+   
+
+
 
 #### 构建镜像
 

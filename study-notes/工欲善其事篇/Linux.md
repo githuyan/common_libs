@@ -170,6 +170,12 @@ none            391G  109G  282G  28% /usr/lib/wsl/drivers
 # 估算目录空间使用情况
 $ du -h /usr/local
 
+# 在当前目录下显示所有一级子目录的磁盘使用情况，并按照磁盘使用量从大到小进行排序，最后显示前 10 个使用量最大的子目录
+# 出现权限问题时，切换为超级管理员账户 sudo -i
+du -h --max-depth=1 `pwd` | sort -rh | head -n 10
+sudo du -h --max-depth=1 /var 2>/dev/null | sort -rh | head -n 10  # 忽略错误信息
+
+
 # docker碎片占用空间
 docker system prune -a  # 删除无用资源
 ```

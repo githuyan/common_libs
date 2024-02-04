@@ -59,7 +59,7 @@ from > join > on > where > group by > having > select > distinct > order by > li
 
 ### 名词解释
 
-**DML：**（Data Manipulation Language）数据操纵语言
+**DML：**（Data Manipulation Language）**对数据的（CUD）**数据操纵语言
 
 对数据库中的数据进行操作，如 insert , update, delete, select 等，增删改数据。
 
@@ -73,7 +73,7 @@ from > join > on > where > group by > having > select > distinct > order by > li
 
 **MDL：**MDL全称为metadata lock，即元数据锁，
 
-MDL不需要显式使用，所有对表的增删改查操作都需要先申请MDL读锁，在每一个session访问表时，保证表结构不被修改，导致查询的数据中结构不同，保证读写的正确性。
+MDL不需要显式使用，所有**对表的增删改**查操作都需要先申请MDL读锁，在每一个session访问表时，保证表结构不被修改，导致查询的数据中结构不同，保证读写的正确性。
 
 **脏页：**
 
@@ -501,23 +501,21 @@ u.person_open_code=if(u.authentication_status=1, t.person_open_code, u.person_op
 - [(3条消息) mysql批量插入on duplicate key update_lucas1018的博客-CSDN博客](https://blog.csdn.net/yang1018679/article/details/114649803) 
 
 ```sql
-# 这个语法的前提是唯一索引，只会对唯一键生效
+# 这个语法的前提是唯一索引，只会对唯一键生效，（主键索引也是特殊的唯一索引）
+id	name	age	num
+1	aa	1	0
+2	bb	2	0
+3	cc	3	0
 
-# 在表中插入( 3, 'aaa', 40 )，如果表中存在 id=1 and name='tom'的数据，则更新( 3, 'aaa', 40 )
-INSERT INTO ytest ( id, NAME, age )
-VALUES
-	( 3, 'aaa', 40 ) ON DUPLICATE KEY UPDATE id=1, name='tom'
+# create unique index id_age_num on hy(age, num)， 
+# 为age,num创建了唯一索引，当age,num存在重复值时，使用参数中的name更新name值
+insert into hy(name, age, num) values ("cccccd", 3, 0), ("dd", 4, 0) 
+on duplicate key update name=values(name)
 
-# 批量更新
-INSERT INTO ytest ( id, NAME, age )
-VALUES
-	( 3, 'aaa', 40 ), (4, 'bbb', 50) ON DUPLICATE KEY UPDATE id=values(id)
-	
-# 错误语法， 会导致更新失败
-# Duplicate entry '11' for key 'ytest.PRIMARY' 实际上id并没有重复
-INSERT INTO ytest ( id, NAME, age )
-VALUES
-	( 3, 'aaa', 40 ), (4, 'bbb', 50) ON DUPLICATE KEY UPDATE id=3
+# 查询+批量插入
+insert into hy(name, age, num)
+select name, age, num from user where id>10
+on duplicate key update name=values(name)
 ```
 
 **insert into … select … where not exist …**
@@ -525,6 +523,10 @@ VALUES
 > 使用虚表dual后跟条件 EXISTS,  适合于插入的数据字段没有设置主键或唯一索引
 
 ```sql
+# 查询+批量插入，不存则插入，否则不操作
+insert into hy(name, age, num)
+select name, age, num from user where 
+	not exist (select 1 from hy where hy.id=user.id);
 ```
 
 
@@ -828,6 +830,31 @@ select * from temp
   
   # 特例
   IFNULL(expr1,expr2)：
+  ```
+
+- **获取最近DML操作影响的行数 ROW_COUNT()**
+
+  > 获取最近一条DML操作影响的行数
+
+  ```sql
+  BEGIN;
+    UPDATE hy SET name="bb" WHERE age=2;
+    SELECT ROW_COUNT() as affected_num;
+  
+  	IF (ROW_COUNT() = 0) THEN
+  			INSERT INTO hy (name, age) VALUES ("c", 3);
+  	END IF;
+  
+  COMMIT;
+  ```
+
+- **空值选择 IFNULL(expr1, expr2, ...)**
+
+  > 传入多个表达式，获取第一个非空的值
+
+  ```sql
+  SELECT IFNULL(age, name, 'default_value') AS result
+  FROM user;
   ```
 
   
@@ -1154,6 +1181,16 @@ select * from temp
   **参考：**
   
   - [SQL——coalesce函数详解](https://blog.csdn.net/yilulvxing/article/details/86595725)]
+  
+  ```sql
+  # 既可以所谓条件，也可以作为结果，当第一个为空时，就返回第二值
+  SELECT COALESCE ( a.NAME, b.NAME ) 
+  FROM
+  	demoa AS a
+  	LEFT JOIN demob AS b ON a.id = b.id 
+  WHERE
+  	COALESCE ( a.NAME, b.NAME ) IN a.NAME
+  ```
   
   
 
