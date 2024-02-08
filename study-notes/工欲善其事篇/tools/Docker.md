@@ -274,6 +274,53 @@ services:
 
 
 
+##### docker-compose 配置读取顺序
+
+1. 像**docker run -e** 一样，docker-.compose也可使用**docker-compose run -e**
+
+   ```shell
+   docker-compose run -e DEBUG=1
+   ```
+
+2. 直接使用当前环境变量中的值
+
+   ```shell
+   docker-compose run -e DEBUG
+   ```
+
+3. 通过`.env`文件传入
+
+   ```shell
+   # 默认从 .env 读取
+   DEBUG=1
+   ```
+
+4. 通过`env_file`配置指定配置文件
+
+   ```yaml
+   # nacos-hostname.env  # 同 Dockerfile
+   ...
+   
+   services:
+     nacos1:
+       hostname: nacos1
+       env_file:
+         - ./env/nacos-hostname.env
+   
+   ```
+
+   
+
+**配置读取优先级顺序**
+
+```shell
+Compose file
+Shell environment variables
+Environment file
+Dockerfile
+Variable is not defined
+```
+
 
 
 ## Docker-swarm
