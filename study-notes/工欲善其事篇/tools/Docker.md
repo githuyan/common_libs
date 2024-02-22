@@ -1,5 +1,52 @@
 ### 技巧
 
+##### 设置docker开机自启动
+
+1. 使用systemctl管理系统
+
+   ```shell
+   步骤一：检查Docker服务是否已经安装
+   
+   sudo systemctl list-units --type=service | grep docker
+   如果输出结果中包含docker.service，则说明Docker服务已经安装。
+   
+   步骤二：设置Docker服务开机自启动
+   
+   sudo systemctl enable docker.service
+   执行上述命令后，Docker服务将会在WSL2启动时自动启动。
+   
+   步骤三：验证Docker服务是否已经设置开机自启动
+   
+   sudo systemctl list-unit-files | grep enable | grep docker
+   ```
+
+2. 使用service管理系统
+
+   ```shell
+   步骤一：检查Docker服务是否已经安装
+   
+   sudo service docker status
+   如果输出结果中包含Active: active (running)，则说明Docker服务已经安装并正在运行。
+   
+   步骤二：启动Docker服务
+   
+   sudo service docker start
+   执行上述命令后，Docker服务将会启动。
+   
+   步骤三：验证Docker服务是否已经启动
+   
+   sudo service docker status
+   如果输出结果中包含Active: active (running)，则说明Docker服务已经启动。
+   
+   步骤四：设置Docker服务开机自启动
+   
+   sudo systemctl enable docker.service
+   ```
+
+3. docker自启动后，如果需要自动启动容器，需要添加`docker start <容器名称>` .sh脚本文件到linux自启动配置文件中
+
+
+
 ##### 复制镜像中的文件到本地
 
 ```shell
