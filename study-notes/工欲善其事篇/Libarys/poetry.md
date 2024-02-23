@@ -7,7 +7,15 @@
 **安装**
 
 ```python
+curl -sSL https://install.python-poetry.org | python3 -
+```
 
+删除
+
+```shell
+curl -sSL https://install.python-poetry.org | python3 - --uninstall
+curl -sSL https://install.python-poetry.org | POETRY_UNINSTALL=1 python3 -
+rm -rf "${POETRY_HOME:-~/.poetry}"
 ```
 
 
@@ -174,6 +182,10 @@ poetry show --tree #添加--tree 参数选项可以查看依赖关系：
 
 # 使用环境
 poetry env use 3.9
+
+# 切换到另一个Python解释器或虚拟环境
+conda info -e
+poetry env use /usr/bin/python3.9
 ```
 
 #### 环境配置
