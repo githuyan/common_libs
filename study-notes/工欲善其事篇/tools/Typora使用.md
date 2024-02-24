@@ -1,4 +1,4 @@
-#### Typora使用
+### Typora使用
 
 <center>工欲善其事必先利其器</center>
 
@@ -53,7 +53,7 @@
 
 
 
-### 脚注
+#### 脚注
 
 > 一种简短的注释，可以一部分弥补超链接仅能跳转标题的弊端，**主要是可以两边跳转**
 >
@@ -76,6 +76,26 @@
 
 
 
+#### 自定义主题
+
+主题推荐
+
+- [蓝绿主题 typora_theme_blackout (github.com)](https://github.com/obscurefreeman/typora_theme_blackout/releases) 
+
+操作方法
+
+1. 下载喜欢的自定义主题
+
+   ![image-20240224120755550](../../../resource/image-20240224120755550.png)
+
+2. 解压到 typora 主题指定目录
+
+   <img src="../../../resource/image-20240224120916729.png" alt="image-20240224120916729" style="zoom:50%;" />
+
+   
+
+
+
 :dancer:
 
 ***
@@ -95,3 +115,4 @@
 现在是2021年6月7日，高考结束了，
 
 [^解释]: 解付水电费水电费第三方的释
+[^已经是绝对路径的无法改变，已经是相对路径的也无法改变]: 
