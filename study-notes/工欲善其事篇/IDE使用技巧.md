@@ -1,3 +1,11 @@
+#### 软件下载集合
+
+##### 7z解压
+
+- https://www.7-zip.org/download.html
+
+
+
 ## linux使用技巧
 
 `ctrl + u` 删除命令行的光标前所有输入

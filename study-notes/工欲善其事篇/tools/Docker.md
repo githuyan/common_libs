@@ -1,5 +1,23 @@
 ### 技巧
 
+格式化容器信息
+
+```shell
+docker inspect --format='{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -aq)
+
+# 输出
+/nacos-standalone - 172.24.0.2
+
+{{.ID}}: 容器的 ID。
+{{.State.Status}}: 容器的状态，例如 running、exited 等。
+{{.Config.Image}}: 容器使用的镜像。
+{{.Config.Hostname}}: 容器的主机名。
+{{.Config.Env}}: 容器的环境变量。
+{{.Mounts}}: 容器挂载的卷信息。
+```
+
+
+
 ##### 设置docker开机自启动
 
 1. wsl系统
@@ -62,10 +80,9 @@
          sudo systemctl enable docker.service
          ```
    
-
  	3. docker自启动后，如果需要自动启动容器，
-     	1. 添加`docker start <容器名称>` .sh脚本文件到linux自启动配置文件中，
-     	2. 如果使用`docker-compose`管理docker容器，可以直接设置`alaway=true`自动启动容器
+          	1. 添加`docker start <容器名称>` .sh脚本文件到linux自启动配置文件中，
+          	2. 如果使用`docker-compose`管理docker容器，可以直接设置`alaway=true`自动启动容器
 
 
 ##### 复制镜像中的文件到本地
