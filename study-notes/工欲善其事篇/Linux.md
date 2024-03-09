@@ -19,7 +19,32 @@
 
 
 
-### 基础命令
+### 常用命令
+
+##### nohup命令
+
+> `nohup` 是一个在 Unix 和类 Unix 操作系统上的命令，用于在后台运行命令，并且不受终端会话关闭的影响。它的名称是 "no hang up" 的缩写，意味着即使终端断开连接，命令仍然会继续执行。
+
+```shell
+# 使用 & 符号将命令置于后台运行。
+# nohup 命令会在当前目录生成一个 nohup.out 文件来存储命令的输出。可以使用 > 运算符指定输出文件。
+nohup COMMAND [ARG]...
+	-n 或 --no-clobber：不要覆盖现有的 nohup.out 文件。
+	-p：记录命令的 PID（进程 ID）到指定文件中。
+
+# 后台运行命令并将输出重定向到指定文件：默认文件为 nohup.out 文件
+nohup command > output.log &
+
+# 后台运行命令，忽略输入，并将输出追加到 nohup.out 文件：
+nohup command &
+
+# 例子，启动kubectl代理 kubectl proxy
+nohup kubectl proxy &
+```
+
+
+
+##### 基础命令
 
 ```shell
 mkdir 
@@ -280,6 +305,19 @@ cat `which when-changed`
 
 
 ### Linux理论信息
+
+##### /etc/rc.local
+
+```shell
+# rc.local 是一个在 Unix/Linux 系统中常见的初始化脚本文件。它通常用于在系统启动时运行一些额外的命令或脚本，因此可以被用来实现开机自启动服务等功能。
+
+# sudo nano /etc/rc.local
+/usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+
+sudo chmod +x /etc/rc.local
+```
+
+
 
 ##### Linux的环境变量.bash_profile .bashrc profile文件
 

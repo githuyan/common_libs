@@ -2,13 +2,52 @@
 
 #### docker
 
+参考：
+
+1. [利用国内网络丝滑的安装 Docker](https://zhuanlan.zhihu.com/p/588264423) 
+
+ubuntu20.04
+
+```shell
+curl -fsSL https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | sudo apt-key add -
+
+sudo apt-add-repository "deb [arch=amd64] https://mirrors.aliyun.com/docker-ce/linux/ubuntu $(lsb_release -cs) stable"
+
+sudo apt update
+sudo apt install -y docker-ce
+
+sudo service docker start
+
+# 添加组配置
+sudo groupadd docker
+newgrp docker
+```
+
+配置docker国内镜像源加速
+
+**参考：**
+
+- [Docker Hub 镜像加速器](https://gist.github.com/y0ngb1n/7e8f16af3242c7815e7ca2f0833d3ea6) 
+
+在 `/etc/docker/daemon.json` 加入如下配置。
+
+```json
+{
+        "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn/"]
+}
+```
+
 
 
 
 
 #### docker-compose
 
-docker-compose地址：https://github.com/docker/compose/releases/
+参考：
+
+- [安装Docker Compose](https://dockerdocs.cn/compose/install/) 
+
+- docker-compose地址：https://github.com/docker/compose/releases/
 
 ##### 自动安装：
 
@@ -25,7 +64,7 @@ sudo chmod +x /usr/local/bin/docker-compose
 
 1. 下载docker-compose二进制文件
 
-   docker-compose: [docker-compose-linux-x86_64](D:\source\docker-compose-linux-x86_64) 
+   docker-compose: [docker-compose-linux-x86_64](D:\source\docker-compose) 
 
    ```shell
    # 系统：uname -s, 架构：uname -m 

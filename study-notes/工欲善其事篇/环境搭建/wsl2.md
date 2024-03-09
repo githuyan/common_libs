@@ -1,70 +1,57 @@
-##### 添加vm.max_map_count，增加内存
+#### 技巧
+
+##### 增加内存
+
+添加vm.max_map_count，
 
 1. 临时修改:
 
-使用命令:
-
-sudo sysctl -w vm.max_map_count=262144
-
-这会立即修改当前运行系统的该参数值,但重启后会失效。
-
-1. 永久修改:
-
-a) 编辑 /etc/sysctl.conf 文件:
-
-sudo vim /etc/sysctl.conf
-
-b) 在文件末尾添加:
-
-vm.max_map_count = 262144
-
-c) 保存并退出。
-
-d) 执行命令让修改生效:
-
-sudo sysctl -p
-
-这会把 /etc/sysctl.conf 中的配置应用到系统中,重启后也会保留
-
-
-
-### wsl2下安装redis
-
-1. 正常安装redis
-
-   **参考：** https://developer.aliyun.com/article/764565
-
-   ```
-   sudo apt update
-   sudo apt install redis-server
+   ```shell
+   # 使用命令, 这会立即修改当前运行系统的该参数值,但重启后会失效
+   sudo sysctl -w vm.max_map_count=262144
    ```
 
-2. 启动redis
+2. 永久修改:
 
    ```shell
-   # 直接使用 systemctl 会报错
-   glc@LAPTOP-LEMON:~$ sudo sudo systemctl status redis-server
-   System has not been booted with systemd as init system (PID 1). Can't operate.
-   Failed to connect to bus: Host is down
+   # 这会把 /etc/sysctl.conf 中的配置应用到系统中,重启后也会保留
+   # a) 编辑 /etc/sysctl.conf 文件:
+   sudo vim /etc/sysctl.conf
    
-   # 解决方案
-   https://segmentfault.com/a/1190000040670856
+   # b) 在文件末尾添加:
+   vm.max_map_count = 262144
    
-   # 更换命令，用SysV init的命令代替systemd的
-   sudo service redis-server start
+   # c) 保存并退出。
+   
+   # d) 执行命令让修改生效:
+   sudo sysctl -p
    ```
 
-3. 验证redis
+#### wsl2备份
 
-   ```shell
-   redis-cli  # 进入redis控制台
-   ```
+> wsl2的备份有些鸡肋，只能备份文件系统，无法备份一些安装的组件，也就是说，组件的相关旧配置都存在，组件本身需要重新安装，需要注意跟之前配置的旧版本信息对应
+
+**参考：**
+
+- [如何对WSL2进行备份与还原](https://zhuanlan.zhihu.com/p/536686989) 
+
+**备份**
+
+```shell
+# 确定自己的版本
+wsl -l -v 
+wsl --export Ubuntu20.04 ./system_bak/wsl2.tar
+```
+
+**还原**
+
+```shell
+wsl --import Ubuntu c:\wsl2 d:\system_bak\wsl2.tar
+```
 
 
 
-
-
-### wsl2下迁移ubuntu20.04
+#### wsl2下迁移ubuntu20.04
 
 **参考：**
 
@@ -98,7 +85,7 @@ sudo sysctl -p
 
 
 
-### 重启wsl2
+#### 重启wsl2
 
 ```shell
 #停止LxssManager服务

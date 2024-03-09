@@ -35,15 +35,55 @@ conda update conda：检查更新当前conda
 
 ### anaconda安装与配置
 
+**参考：**
+
+- [Conda 换源（国内清华源）](https://www.quanxiaoha.com/conda/conda-update-channel.html) 
+
 **镜像源**
 
 北京外国语: [Index of /anaconda/archive/ | 北京外国语大学开源软件镜像站 | BFSU Open Source Mirror](https://mirrors.bfsu.edu.cn/anaconda/archive/?C=M&O=D)
 
 阿里: [anaconda-archive安装包下载_开源镜像站-阿里云 (aliyun.com)](https://mirrors.aliyun.com/anaconda/archive/?spm=a2c6h.25603864.0.0.1f024eb9sBVnQc)
 
-```shel
-wget https://mirrors.tuna.tsinghua.edu.cn/anaconda/
+```shell
+# wget https://mirrors.tuna.tsinghua.edu.cn/anaconda/
+wget https://repo.anaconda.com/archive/Anaconda3-2024.02-1-Linux-x86_64.sh
+
 
 bash Anaconda3-2022.10-Linux-x86_64.sh
+
+# 在.bashrc文件中添加
+export PATH="/home/huyan/anaconda3/bin:$PATH"
+
+# 激活conda环境
+source activate base
+```
+
+**换源**
+
+```shell
+# 生成.condarc文件，或者直接创建一个
+conda config 
+
+# 换源 写入.condarc文件
+channels:
+  - defaults
+show_channel_urls: true
+default_channels:
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2
+custom_channels:
+  conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  msys2: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  bioconda: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  menpo: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  pytorch: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  pytorch-lts: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  simpleitk: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+
+
+# 切换会默认源
+conda config --remove-key channels
 ```
 
