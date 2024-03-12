@@ -421,6 +421,19 @@ type：表的连接类型。
 
 ## 技巧
 
+### 动态更新
+
+> 这一行设置一个名为`@row_position`的用户变量，并将其值设为0。这个变量用来跟踪行的位置。
+>
+> 递增动态更新contract_category表中position字段
+
+```sql
+set @row_position = 0;
+update contract_category set position = (@row_position := @row_position + 1);
+```
+
+
+
 ### 分组统计
 
 > 根据一个分组条件，可以在统计函数中对这一组的每一条记录进行操作

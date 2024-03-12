@@ -77,6 +77,12 @@ nodes:
 kind create cluster --name local-k8s --config local-cluster.yaml
 ```
 
+```shell
+kubectl label node local-k8s-worker node-role.kubernetes.io/worker=worker
+kubectl label node local-k8s-worker2 node-role.kubernetes.io/worker=worker
+kubectl label node local-k8s-worker3 node-role.kubernetes.io/worker=worker
+```
+
 
 
 ##### 查看数据
