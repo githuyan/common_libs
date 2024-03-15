@@ -1,6 +1,15 @@
-### 技巧
+#### 技巧
 
-格式化容器信息
+重启docker服务
+
+```shell
+$ sudo systemctl daemon-reload
+$ sudo systemctl restart docker
+```
+
+
+
+##### 格式化容器信息
 
 ```shell
 docker inspect --format='{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -aq)
@@ -95,8 +104,8 @@ docker run --rm demo_image cat /usr/log > /opt/log
 # demo_image 是要运行的Docker镜像的名称。
 # cat /uar/log > /opt/log 是在容器内执行的命令，它将/uar/log文件的内容输出到标准输出，然后将输出重定向到/opt/log文件。
 
-2. 从启动的容器中复制
-docker cp 容器ID:容器内文件路径 本地文件路径
+2. 从启动的容器中复制 # 可能对本地目录没有写入权限
+sudo docker cp 容器ID:容器内文件路径 本地文件路径
 
 ```
 
@@ -147,137 +156,21 @@ sudo chmod +x /usr/local/bin/docker-compose
 
 
 
-### docker 出现的问题
-
-1. docker 命令执行缓慢
-
-   ```shell
-   现象：
-   docker ps 或者 docker images 等命令需要等待3-4s才能得到响应，更改/etc/docker/daemon.json源后，出现docker无法启动的问题，Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
-   
-   原因：
-   未知
-   
-   解决方式：
-   1. 修改daemon.json源后，重启wsl服务
-   #停止LxssManager服务
-   net stop LxssManager  
-    
-   #启动LxssManager服务
-   net start LxssManager 
-   
-   2. 再重启docker服务
-   sudo service docker start
-   ```
-
-2. 无法使用docker-compose启动mysql服务
-
-   > 在wsl中启动mysql容器，映射路径不能在window实体中**（mnt/d/work)**，要在虚拟linux中（**opt/work)**，
-
-   ```yaml
-   - /opt/work/mysql/data/:/var/lib/mysql/
-   - /mnt/d/work/mysql/data/:/var/lib/mysql/  # 错误
-   ```
-
-3. docker碎片化数据过多，导致无法创建临时文件
-
-   **参考：** [服务器启动docker报错cannot create temporary directory索引节点100%占用排查_/dev/nvme0n1p2 100%-CSDN博客](https://blog.csdn.net/qq_36250766/article/details/123546215) 
-
-   ```shell
-   [24946] INTERNAL ERROR: cannot create temporary directory!
-   
-   # 查看磁盘使用情况
-   df -h 
-   
-   # 清理无用数据
-   docker system prune -a
-   ```
-
-   
-
-
-#### 构建镜像
-
-> 两种构建方式，1. **直接使用dockerfile控制镜像的生成**, 2. **将一个基础容器改造后升级为一个镜像**, 但是前者可以方便的修改这个镜像的配置，而后者因为是每一步都是确定的，所以这个镜像是一个死镜像
-
-这个基础镜像只会在基础环境变更的时候变更，而其他的镜像都是依赖于这个镜像，可以更改版本，可以把基本不变的东西搞出来作为基础镜像（可能有很多不同的版本，其他的依赖于各个版本）
-
-```python
-# 材料
-ubuntu | windows
-python 3.X  
-redis
-mysql
-nginx
-supervisious
-
-这些组合显然必须使用dockerfile才能随时生成不同组合的镜像。（而且是要下载，不能复制已有的文件）
-```
-
-```dockerfile
-FROM ubuntu:20.04
-
-MAINTAINER huyan<2478154897@qq.com>
-
-# 准备工作文件
-RUN mkdir -p
-```
-
-
-
-##### 出现的问题
-
-1. 应该是某一个容器内存爆炸后，会出现整个docker都变得特别慢，然后docker服务会自动停止，重启电脑可以解决。
-
-
-
-### Docker网络配置
-
-1.查看所有的docker网络：docker network ls
-
-![img](../../../resource/2020102611362891.png)
-
-网络模式
-
-- bridge：桥接docker（默认，自己创建也使用bridge模式）
-- none：不配置网络
-- host：和宿主机共享网络
-- container：容器网络连通（用的少，局限很大）
-
-2.**创建自定义网络命令**：docker network create default_network
-
-```
-docker network create --driver bridge --subnet 192.168.1.0/16 --gateway 192.168.1.0 mynet
-解析：
---driver bridge 表示使用桥接模式
---subnet 192.168.1.0/16 表示子网ip 可以分配 192.168.1.2 到 192.168.255.255
---gateway 192.168.1.0 表示网关
-mynet 表示网络名
-```
-
-3.查看网络内部信息：docker network inspect default_network
-
-4.移除指定的网络：docker network rm default_network
-
-##### 理论知识
-
-**参考：**
-
-- [(17条消息) (十四)Docker0网络详解_IT_狂奔者的博客-CSDN博客_docker0网卡的作用](https://blog.csdn.net/chj_1224365967/article/details/109206131) 
-
-
-
-## Docker-compose
+### Docker-compose
 
 > Docker Compose 是一个在单个服务器或主机上创建多个容器的工具
 
-### 命令
+#### 基础命令
 
 ```python
 # 启动，重启
 docker-compose up  # 用于部署一个compose应用，默认使用 docker-compose.yaml 文件
 docker-compose up -f docker-compose-yyy.yaml  # 自定义 docker-compose 文件名
 docker-compose restart  # 重启关闭的应用，如果在重启前，修改了应用内容，并不会对重启的应用生效，除非重新部署
+
+# 启动多个重复的容器 `--scale` 是一个可选参数，用于设置一个或多个服务在启动时应该具有的实例数量
+docker-compose up --scale demo:v1
+
 
 # docker-compose.yaml文件中有两个redis服务，一个mysql服务，一个kafka服务，只启动redis服务和kafka服务
 docker-compose up -d redis1 redis2 kafka
@@ -294,18 +187,40 @@ docker-compose ps  # ，输出状态，容器运行的命令以及映射端口
 
 ```
 
-##### 启动多个重复的容器
+#### 配置解析
 
-> `--scale` 是一个可选参数，用于设置一个或多个服务在启动时应该具有的实例数量
+##### 网络配置
 
-```shell
-# 批量启动容器
-docker-compose up --scale demo:v1
+- bridge：桥接docker（默认，自己创建也使用bridge模式）
+
+- none：不配置网络
+
+- host：和宿主机共享网络
+
+  ```shell
+  # 如果使用了host网络，那么就无法通过容器名来访问服务，除非有特定的理由需要使用 host 网络（比如需要直接访问宿主机的网络栈），否则建议使用默认的 bridge 网络或自定义网络
+  ```
+
+```yaml
+# 使用host网络，当使用 host 网络时，容器实际上会共享宿主机的网络栈。这意味着容器不会获得自己的 IP 地址，而是直接使用宿主机的 IP 地址和端口
+network_mode: host
+
+# 使用已经存在的网络
+networks:
+  db:
+    external: true
+    
+# 创建新的网络
+# 需要注意的是，docker-compose自动创建的网络，网络名称自动变更为 <文件名称>_<网络名称>如：db_db
+# db/docker-compose.yaml
+networks:  
+  db:  
+    driver: bridge
 ```
 
 
 
-### docker-compose挂载操作
+##### 挂载操作
 
 ```yaml
 # "ro"表示将挂载卷设置为"只读"（read-only）模式。这意味着容器内的文件系统可以读取挂载的文件或目录，但不能对其进行写操作。如果尝试在容器内修改挂载的文件，会导致权限错误。
@@ -326,7 +241,7 @@ services:
 
 ```
 
-#### 内存限制
+##### 内存限制
 
 `ES_JAVA_OPTS=-Xms1g -Xmx1g` 这条命令和 Docker Compose 文件中的 `mem_limit: 2g` 有以下主要区别:
 
@@ -359,7 +274,7 @@ services:
 
 
 
-##### docker-compose 配置读取顺序
+##### 环境配置
 
 1. 像**docker run -e** 一样，docker-.compose也可使用**docker-compose run -e**
 
@@ -394,9 +309,8 @@ services:
    
    ```
 
-   
 
-**配置读取优先级顺序**
+##### **配置优先级**
 
 ```shell
 Compose file
@@ -408,13 +322,7 @@ Variable is not defined
 
 
 
-## Docker-swarm
-
-> Docker Swarm 则可以在多个服务器或主机上创建容器集群服务
-
-
-
-## Docker 
+### Docker 
 
 > Dockerbr本身就相当于一个虚拟机，他本身就是一个Docker环境，理论上可以在任何下载Docker的设备商运行程序
 >
@@ -426,15 +334,9 @@ Variable is not defined
 
 
 
-### 理论知识
+#### 理论知识
 
-#### Docker0网桥
-
-> Docker0 网桥的作用是连接容器和主机网络，使得它们可以相互通信并实现容器服务的访问。
-
-
-
-### 启动docker服务
+##### 启动docker服务
 
 ```shell
 # 启动
@@ -451,11 +353,58 @@ docker service docker stop
 docker systemctl stop docker
 ```
 
+#### 网络
 
+##### docker0网桥
 
-### **镜像**
+**参考：**
+
+- [(17条消息) (十四)Docker0网络详解_IT_狂奔者的博客-CSDN博客_docker0网卡的作用](https://blog.csdn.net/chj_1224365967/article/details/109206131) 
+
+> Docker0 网桥的作用是连接容器和主机网络，使得它们可以相互通信并实现容器服务的访问。
+
+##### 网络配置
+
+1.查看所有的docker网络：docker network ls
+
+![img](../../../resource/2020102611362891.png)
+
+网络模式
+
+- bridge：桥接docker（默认，自己创建也使用bridge模式）
+
+- none：不配置网络
+
+- host：和宿主机共享网络
+
+  ```shell
+  # 如果使用了host网络，那么就无法通过容器名来访问服务，除非有特定的理由需要使用 host 网络（比如需要直接访问宿主机的网络栈），否则建议使用默认的 bridge 网络或自定义网络
+  ```
+
+- container：容器网络连通（用的少，局限很大）
+
+2.**创建自定义网络命令**：docker network create default_network
+
+```shell
+docker network create --driver bridge --subnet 192.168.1.0/16 --gateway 192.168.1.0 mynet
+# 解析：
+	--driver bridge  # 表示使用桥接模式
+	--subnet 192.168.1.0/16  # 表示子网ip 可以分配 192.168.1.2 到 192.168.255.255
+	--gateway 192.168.1.0  # 表示网关
+		mynet  # 表示网络名
+```
+
+3.查看网络内部信息：docker network inspect default_network
+
+4.移除指定的网络：docker network rm default_network
+
+##### 
+
+#### **镜像**
 
 > 镜像是一种轻量级，可执行的独立软件包，用来打包软件运行环境和基于运行环境开发的软件，它包含运行某个软件所需的所有内容，包括代码，运行时的库，运行环境和配置文件
+
+##### 镜像CURD
 
 1. **镜像查询**
 
@@ -494,7 +443,39 @@ docker systemctl stop docker
 
    - -f $(docker images -a -q) 删除所有镜像
 
-### **容器相关**
+##### 镜像推送
+
+**参考：**
+
+1. [(4条消息) docker学习笔记（五）如何创建自己的阿里云镜像仓库（这是2021版的阿里云教程）_乌鱼鸡汤的博客-CSDN博客_阿里云镜像仓库](https://blog.csdn.net/a123123sdf/article/details/117373743)  
+
+2. [容器镜像服务 (aliyun.com)](https://cr.console.aliyun.com/repository/cn-heyuan/huyanhu/onelawgpt/details)
+
+登录阿里云
+
+```shell
+docker login --username=githuyan registry.cn-heyuan.aliyuncs.com
+```
+
+从Registry中拉取镜像
+
+```shell
+docker pull registry.cn-heyuan.aliyuncs.com/huyanhu/onelawgpt:[镜像版本号]
+```
+
+将镜像推送到Registry
+
+```shell
+$ docker login --username=githuyan registry.cn-heyuan.aliyuncs.com
+$ docker tag [ImageId] registry.cn-heyuan.aliyuncs.com/huyanhu/onelawgpt:[镜像版本号]
+$ docker push registry.cn-heyuan.aliyuncs.com/huyanhu/onelawgpt:[镜像版本号]
+```
+
+
+
+#### 容器相关
+
+##### 容器的CRUD
 
 1. **容器的创建并启动**
 
@@ -601,7 +582,7 @@ docker systemctl stop docker
 
    `docker rm -f $(docker ps -aq)` 强制删除所有容器
 
-### **容器数据卷 ** - **容器的持久化和同步操作**
+##### 容器数据卷
 
 > 数据如果都存在容器中，容器删除后，数据会丢失，卷技术就是容器之间的数据共享技术，将容器中产生的数据同步到本地
 
@@ -650,11 +631,11 @@ docker systemctl stop docker
 
    由于父容器创建时 test 目录挂载了 nginxa 目录，所以以后继承父容器的子容器也将挂载同一个目录，主机/nginxa目录，父容器/test目录，子容器/test目录，这三个目录信息同步
 
-### DockerFile
+#### DockerFile
 
 > 用来构建docker镜像的文件！ 命令参数脚本 这个文件没有后缀名。创建一个自己的镜像，原来的nginx基础镜像，只能创建一个nginx的容器，而自定义的镜像可以是一个包含nginx+flask+python+uwsgi的一套环境
 
-#### **基础指令**
+##### 基础指令
 
 > 就是一个脚本
 
@@ -683,7 +664,7 @@ docker systemctl stop docker
 
 
 
-#### 构建镜像
+##### 构建镜像
 
 > docker构建镜像实际上是将本地的文件发送到远程docker服务器上，使用docker引擎构建，这是一组docker api
 >
@@ -738,11 +719,11 @@ docker build DockerFile[^默认寻找DockerFile文件进行构建]
 
    docker commit -a="author" -m="fiest commit"[^描述性内容] 容器id customimage[^自定义镜像名]:v1.0[^自定义版本号]
 
-#### 实例
+##### 实例命令解析
 
 > 想输入外部参数或许可以利用 RUN 命令运行shell脚本的方式添加
 
-##### **FROM**
+**FROM**
 
 > 指定基础镜像
 >
@@ -756,7 +737,7 @@ FROM scratch
 ...
 ```
 
-##### **RUN**
+**RUN**
 
 > run命令实在运行 shell 命令， 每一个 RUN 都是在构建一层镜像，过多的 RUN 会导致镜像冗余，应该使用尽量少的 RUN 
 >
@@ -791,25 +772,25 @@ RUN set -x; buildDeps='gcc libc6-dev make wget' \
     #镜像构建时，一定要确保每一层只添加真正需要添加的东西，任何无关的东西都应该清理掉。
 ```
 
-1. **CMD**
+**CMD**
 
-   > 和 RUN 类似，docker没有前台后台的概念，一个docker 进程都应该是前台执行，**直接执行可执行文件**
+> 和 RUN 类似，docker没有前台后台的概念，一个docker 进程都应该是前台执行，**直接执行可执行文件**
 
-   ```dockerfile
-   # ubuntu 中的 bash 命令默认为 /bin/bash
-   CMD echo $HOME  === CMD [ "sh", "-c", "echo $HOME" ]   # 必须使用双引号
-   # 相当于 sh -c "echo $HOME"
-   
-   FROM ubuntu:18.04
-   RUN apt-get update \
-       && apt-get install -y curl \
-       && rm -rf /var/lib/apt/lists/*
-   CMD [ "curl", "-s", "http://myip.ipip.net" ]
-   ```
+```dockerfile
+# ubuntu 中的 bash 命令默认为 /bin/bash
+CMD echo $HOME  === CMD [ "sh", "-c", "echo $HOME" ]   # 必须使用双引号
+# 相当于 sh -c "echo $HOME"
 
-   
+FROM ubuntu:18.04
+RUN apt-get update \
+    && apt-get install -y curl \
+    && rm -rf /var/lib/apt/lists/*
+CMD [ "curl", "-s", "http://myip.ipip.net" ]
+```
 
-##### COPY
+
+
+COPY
 
 > linux  中的 cp，可以使用正则， 单正则要满足 go 语言的正则标准
 
@@ -821,14 +802,14 @@ COPY  <源路径>... <目标路径>
 COPY --chown=55:mygroup files* /mydir/
 ```
 
-1. **ADD**
+**ADD**
 
-   > 和 COPY 功能类似，只是他的功能定位不清晰，官方**仅建议使用他的自动解压缩功能**
+> 和 COPY 功能类似，只是他的功能定位不清晰，官方**仅建议使用他的自动解压缩功能**
 
-   ```dockerfile
-   # 另一个功能， 自动解压缩到另一个文件中，
-   ADD ubuntu-xenial-core-cloudimg-amd64-root.tar.gz /
-   ```
+```dockerfile
+# 另一个功能， 自动解压缩到另一个文件中，
+ADD ubuntu-xenial-core-cloudimg-amd64-root.tar.gz /
+```
 
 
 
@@ -842,25 +823,25 @@ ENV VERSION=1.0 DEBUG=on \
     NAME="Happy Feet"
 ```
 
-1. **ARG**
+**ARG**
 
-   > ARG 指令有生效范围，如果在 `FROM` 指令之前指定，那么只能用于 `FROM` 指令中。
-   >
-   > 使用上述 Dockerfile 会发现无法输出 `${DOCKER_USERNAME}` 变量的值，要想正常输出，你必须在 `FROM` 之后再次指定 `ARG`
+> ARG 指令有生效范围，如果在 `FROM` 指令之前指定，那么只能用于 `FROM` 指令中。
+>
+> 使用上述 Dockerfile 会发现无法输出 `${DOCKER_USERNAME}` 变量的值，要想正常输出，你必须在 `FROM` 之后再次指定 `ARG`
 
-   ```dockerfile
-   # 相当于设置了一个 变量
-   
-   # 只在 FROM 中生效
-   ARG DOCKER_USERNAME=library
-   
-   FROM ${DOCKER_USERNAME}/alpine
-   
-   # 要想在 FROM 之后使用，必须再次指定
-   ARG DOCKER_USERNAME=library
-   
-   RUN set -x ; echo ${DOCKER_USERNAME}
-   ```
+```dockerfile
+# 相当于设置了一个 变量
+
+# 只在 FROM 中生效
+ARG DOCKER_USERNAME=library
+
+FROM ${DOCKER_USERNAME}/alpine
+
+# 要想在 FROM 之后使用，必须再次指定
+ARG DOCKER_USERNAME=library
+
+RUN set -x ; echo ${DOCKER_USERNAME}
+```
 
 **VOLUME**
 
@@ -882,9 +863,7 @@ ENV VERSION=1.0 DEBUG=on \
     ]
 ```
 
-
-
-##### WORKDIR
+WORKDIR
 
 > 在dockerfile 文件中指定当前的工作路径, **改变环境状态并影响以后的层**
 >
@@ -900,43 +879,98 @@ COPY ./word.txt .
 RUN word.txt
 ```
 
-
-
-### 将自己的仓库推送到阿里云镜像仓库
-
-**参考：**
-
-1. [(4条消息) docker学习笔记（五）如何创建自己的阿里云镜像仓库（这是2021版的阿里云教程）_乌鱼鸡汤的博客-CSDN博客_阿里云镜像仓库](https://blog.csdn.net/a123123sdf/article/details/117373743)  
-
-2. [容器镜像服务 (aliyun.com)](https://cr.console.aliyun.com/repository/cn-heyuan/huyanhu/onelawgpt/details)
-
-登录阿里云
-
-```shell
-docker login --username=githuyan registry.cn-heyuan.aliyuncs.com
-```
-
-从Registry中拉取镜像
-
-```shell
-docker pull registry.cn-heyuan.aliyuncs.com/huyanhu/onelawgpt:[镜像版本号]
-```
-
-将镜像推送到Registry
-
-```shell
-$ docker login --username=githuyan registry.cn-heyuan.aliyuncs.com
-$ docker tag [ImageId] registry.cn-heyuan.aliyuncs.com/huyanhu/onelawgpt:[镜像版本号]
-$ docker push registry.cn-heyuan.aliyuncs.com/huyanhu/onelawgpt:[镜像版本号]
-```
-
-
-
 #### 整体流程
 
 1. 全部指令
 
    ![](https://pic2.zhimg.com/v2-820aee2a33654099d87cdd2b7a1ce741_r.jpg?source=1940ef5c)
+
+
+
+### 一些问题
+
+1. docker 命令执行缓慢
+
+   ```shell
+   现象：
+   docker ps 或者 docker images 等命令需要等待3-4s才能得到响应，更改/etc/docker/daemon.json源后，出现docker无法启动的问题，Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+   
+   原因：
+   未知
+   
+   解决方式：
+   1. 修改daemon.json源后，重启wsl服务
+   #停止LxssManager服务
+   net stop LxssManager  
+    
+   #启动LxssManager服务
+   net start LxssManager 
+   
+   2. 再重启docker服务
+   sudo service docker start
+   ```
+
+2. 无法使用docker-compose启动mysql服务
+
+   > 在wsl中启动mysql容器，映射路径不能在window实体中**（mnt/d/work)**，要在虚拟linux中（**opt/work)**，
+
+   ```yaml
+   - /opt/work/mysql/data/:/var/lib/mysql/
+   - /mnt/d/work/mysql/data/:/var/lib/mysql/  # 错误
+   ```
+
+3. docker碎片化数据过多，导致无法创建临时文件
+
+   **参考：** [服务器启动docker报错cannot create temporary directory索引节点100%占用排查_/dev/nvme0n1p2 100%-CSDN博客](https://blog.csdn.net/qq_36250766/article/details/123546215) 
+
+   ```shell
+   [24946] INTERNAL ERROR: cannot create temporary directory!
+   
+   # 查看磁盘使用情况
+   df -h 
+   
+   # 清理无用数据
+   docker system prune -a
+   ```
+
+   #### 构建镜像
+
+   > 两种构建方式，
+   >
+   > 1. **直接使用dockerfile控制镜像的生成**,
+   >
+   > 2. **将一个基础容器改造后升级为一个镜像**, 但是前者可以方便的修改这个镜像的配置，而后者因为是每一步都是确定的，所以这个镜像是一个死镜像
+
+   这个基础镜像只会在基础环境变更的时候变更，而其他的镜像都是依赖于这个镜像，可以更改版本，可以把基本不变的东西搞出来作为基础镜像（可能有很多不同的版本，其他的依赖于各个版本）
+
+   ```python
+   # 材料
+   ubuntu | windows
+   python 3.X  
+   redis
+   mysql
+   nginx
+   supervisious
+   
+   这些组合显然必须使用dockerfile才能随时生成不同组合的镜像。（而且是要下载，不能复制已有的文件）
+   ```
+
+   ```dockerfile
+   FROM ubuntu:20.04
+   
+   MAINTAINER huyan<2478154897@qq.com>
+   
+   # 准备工作文件
+   RUN mkdir -p
+   ```
+
+   
+
+   ##### 出现的问题
+
+   1. 应该是某一个容器内存爆炸后，会出现整个docker都变得特别慢，然后docker服务会自动停止，重启电脑可以解决。
+
+
 
 
 

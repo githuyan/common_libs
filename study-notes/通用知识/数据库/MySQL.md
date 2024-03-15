@@ -421,6 +421,16 @@ type：表的连接类型。
 
 ## 技巧
 
+### 批量插入
+
+> 批量插入并获取自增ID，mysql批量插入后自增ID的连续性通过`innodb_autoinc_lock_mode=1`来控制
+>
+> `innodb_autoinc_lock_mode` 变量有三种可能的设置。设置为 0、1 或 2，分别表示“传统”、“连续”或“交错”锁定模式。从 MySQL 8.0 开始，交错锁模式 ( `innodb_autoinc_lock_mode=2` ) 是默认设置。在 MySQL 8.0 之前，连续锁定模式是默认的（ `innodb_autoinc_lock_mode=1` ）
+
+1. 修改`innodb_autoinc_lock_mode=1`，使用传统模式，使用表级锁
+2. 单条循环插入
+3. 业务判断，使用业务ID，标识唯一值
+
 ### 动态更新
 
 > 这一行设置一个名为`@row_position`的用户变量，并将其值设为0。这个变量用来跟踪行的位置。
