@@ -1,5 +1,16 @@
 #### 技巧
 
+##### 添加ssh秘钥
+
+> 为远程系统系统添加当前系统的公钥
+
+```shell
+```
+
+
+
+
+
 ##### 增加内存
 
 添加vm.max_map_count，
@@ -47,6 +58,20 @@ wsl --export Ubuntu20.04 ./system_bak/wsl2.tar
 
 ```shell
 wsl --import Ubuntu c:\wsl2 d:\system_bak\wsl2.tar
+```
+
+**问题**
+
+```shell
+# 备份恢复后可能会出现 初始用户为root，且从root切换到正常用户时可以使用sudo 命令，但是无法使用su -命令切换回root用户的情况
+sudo passwd root  # 重置root密码
+
+# 使用root账户进入 /etc/wsl.conf
+[user]
+default=huyan
+
+# 退出，重启wsl
+wsl.exe --shutdown
 ```
 
 

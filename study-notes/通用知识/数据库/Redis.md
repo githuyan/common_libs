@@ -1,8 +1,8 @@
-# Redis
+## Redis
 
 > remote dictionary server 远程字典服务
 
-## 注意事项
+#### 注意事项
 
 1. redis 的 hash 类型，并不能设置其中的每一个键值对的过期时间，过期时间只能是针对于这一整个字典来说，所以对于动态数据来说，当数据增加时， 我们可以保证数据在缓存中持续增加，但是当部分数据减少时，由于依然在更新缓存，所以这部分数据在缓冲中会持续存在，这就造成数据不准确
 
@@ -14,9 +14,9 @@
    - 如果删除大key，DEL命令可能阻塞Redis进程数十秒，使得其他请求阻塞，对应用程序和Redis集群可用性造成严重的影响。
    - 建议每个key不要超过M级别。
 
-# 技巧
+### 技巧
 
-### 在不修改更新时间的情况下，更新键的值
+##### 在不修改更新时间的情况下，更新键的值
 
 > 使用`SET`命令的`XX`选项（仅在键已经存在时才设置值），仅适用于Redis版本2.6.12及更高版本。
 
@@ -26,7 +26,7 @@ set name tom XX
 
 
 
-### scan()
+##### scan()
 
 > 相较于 keys * ，scan基本不会阻塞，而前者属于全表扫描
 
@@ -44,9 +44,9 @@ set name tom XX
 scan()
 ```
 
-## 
 
-### **同时设置键和过期时间**
+
+##### **同时设置键和过期时间**
 
 **参考：** [(142条消息) 如何用Redis实现分布式锁_GeorgiaStar的博客-CSDN博客_redis实现分布式锁](https://blog.csdn.net/fuzhongmin05/article/details/119251590)
 
@@ -60,7 +60,7 @@ NX ：# 只在键不存在时，才对键进行设置操作。 SET key value NX 
 XX ：# 只在键已经存在时，才对键进行设置操作。（不变动过期时间）
 ```
 
-### Redis实现分布式锁
+##### 分布式锁
 
 > 容错性， 原子性
 
@@ -84,7 +84,7 @@ XX ：# 只在键已经存在时，才对键进行设置操作。（不变动过
    // 这里获取锁做检查和删除锁又出现了非原子性操作，可以使用lua脚本解决，可以把以上逻辑写成Lua脚本，让Redis执行。因为Redis处理每个请求是单线程执行的，在执行一个Lua脚本时其它请求必须等待，直到这个Lua脚本处理完成，这样一来GET+DEL之间就不会有其他命令执行了
    ```
 
-### Redis过期键的删除策略
+##### 过期键的删除策略
 
 > redis 本身采用定时删除+惰性删除的策略，定时批量删除过期键，零散过期键惰性删除，（将所有设置了过期时间的键统一放在一个字典里）
 
@@ -111,79 +111,11 @@ XX ：# 只在键已经存在时，才对键进行设置操作。（不变动过
 
 - 设置缓存时间时尽量设置一个范围的值，而不是确定值，避免大量键同时过期。
 
-### Redis执行lua脚本
-
-**执行缓存脚本**
-
-> lua脚本预加载
-
-```shell
-# 1. 先通过redis讲一段lua脚本缓存在服务器,获得一个 sha1 校验码
-redis-cli script load "$(cat test.lua)"
-"123456789b24c879d926f3a38cb21a3fd9062e55"
-
-# 2. 根据给定的 sha1 校验码，执行缓存在服务器中的脚本。
-raw = redis.evalsha(sha1, params)
-```
-
-```lua
-# lua脚本，默认获取两个参数， KEYS ARGV-
-local key = KEYS[1]
-local limit = tonumber(ARGV[1])
-local expire_time = ARGV[2]
- 
-local current = tonumber(redis.call('get', key) or "0")
-if current > 0 then
-    if current + 1 > limit then
-        return 0
-    else
-        redis.call("INCR", key)
-        return 1
-    end
-else
-    redis.call("SET", key, 1)
-    redis.call("EXPIRE", key, expire_time)
-    return 1
-end
-```
-
-## 注意事项
-
-##### 不当的命令会造成阻塞
-
-- key *：所有key
-- hgetall：返回哈希表中的所有成员
-- smembers: 返回集合中的所有成员
-- flashdb
 
 
+### Redis理论
 
-**直接运行脚本**
-
-EVAL 命令
-
-> 接收两个参数大概是使用的类的用法
->
-> EVAL script numkeys key [key ...] arg [arg ...]
-
-```shell
-script：
-numkeys： # 用于指定键名参数的个数。
-key [key ...]： # 全局变量 KEYS 数组，用 1 为基址的形式访问 KEYS[1]
-arg [arg ...]： # 附加参数，全局变量 ARGV 数组访问，访问的形式 ARGV[1]
-
-# 例子
-eval "redis.call('set', 'name', 'tom')" 1 name tom
-eval "redis.call('set', KEYS[1], ARGV[1])" 1 name tom  # KEYS 和 ARGV 必须是大写
-```
-
-
-
-
-
-# Redis理论
-
-### 应用场景分析
+#### 应用场景分析
 
 适合
 
@@ -208,7 +140,7 @@ eval "redis.call('set', KEYS[1], ARGV[1])" 1 name tom  # KEYS 和 ARGV 必须是
 4. 支持事务，redis的单条命令是原子性的，但事务不保证原子性
 5. 分布式锁 session类似
 
-### 基础理论
+#### 基础理论
 
 > 默认redis有16个数据库
 
@@ -256,9 +188,18 @@ eval "redis.call('set', KEYS[1], ARGV[1])" 1 name tom  # KEYS 和 ARGV 必须是
 
   config get dir 持久化保存rdb文件路径 只要在这个路径下的rdb文件，都会被恢复到redis缓存中
 
-### 基础使用
+##### 不当的命令会造成阻塞
 
-**过期时间**
+- key *：所有key
+- hgetall：返回哈希表中的所有成员
+- smembers: 返回集合中的所有成员
+- flashdb
+
+
+
+#### 基础使用
+
+##### 过期时间
 
 ```shell
 ttl key  # 以秒为单位返回 key 的剩余过期时间
@@ -266,9 +207,101 @@ ttl key  # 以秒为单位返回 key 的剩余过期时间
 # key 存在但是没有关联超时时间返回 -1
 ```
 
+#### 运行脚本
+
+##### EVAL 命令
+
+> 接收两个参数大概是使用的类的用法
+>
+> EVAL script numkeys key [key ...] arg [arg ...]
+
+```shell
+script：
+numkeys： # 用于指定键名参数的个数。
+key [key ...]： # 全局变量 KEYS 数组，用 1 为基址的形式访问 KEYS[1]
+arg [arg ...]： # 附加参数，全局变量 ARGV 数组访问，访问的形式 ARGV[1]
+
+# 例子
+eval "redis.call('set', 'name', 'tom')" 1 name tom
+eval "redis.call('set', KEYS[1], ARGV[1])" 1 name tom  # KEYS 和 ARGV 必须是大写
+```
 
 
-### 常用类型
+
+##### lua脚本预加载
+
+```shell
+# 1. 先通过redis讲一段lua脚本缓存在服务器,获得一个 sha1 校验码
+redis-cli script load "$(cat test.lua)"
+"123456789b24c879d926f3a38cb21a3fd9062e55"
+
+# 2. 根据给定的 sha1 校验码，执行缓存在服务器中的脚本。
+raw = redis.evalsha(sha1, params)
+```
+
+```lua
+# lua脚本，默认获取两个参数， KEYS ARGV-
+local key = KEYS[1]
+local limit = tonumber(ARGV[1])
+local expire_time = ARGV[2]
+ 
+local current = tonumber(redis.call('get', key) or "0")
+if current > 0 then
+    if current + 1 > limit then
+        return 0
+    else
+        redis.call("INCR", key)
+        return 1
+    end
+else
+    redis.call("SET", key, 1)
+    redis.call("EXPIRE", key, expire_time)
+    return 1
+end
+```
+
+
+
+
+
+##### 管道与事务
+
+**参考：**
+
+- https://rafaeleyng.github.io/redis-pipelining-transactions-and-lua-scripts 
+- [【Redis】Redis 事务和事务锁](https://juejin.cn/post/7292036126268997642?share_token=e44bf34a-f82c-4d9f-8fdf-81c1e274ba4b) 
+
+redis事务是原子性的，且阻塞的，redis本身不提供回滚机制
+
+```shell
+MULTI        # 开始一个事务
+SET key1 10  # 将命令添加到事务队列
+GET key1     # 将命令添加到事务队列
+DISCARD | EXEC      # 清空事务队列，并取消事务 | 执行事务
+SET key3 30  # 这个命令是在事务之外执行的，不受事务的影响
+EXEC         # 事务已经结束，报错：ERR EXEC without MULTI
+```
+
+未完成的事务不会被持久化
+
+AOF: AOF（Append-Only File）持久化模式会记录每一条**非查询操作原子**命令
+
+RDB: 保存每一个原子操作后的快照
+
+```shell
+1. MULTI  
+2. SET key1 10 
+3. GET key1 
+4. DISCARD  
+5. SET key2 20
+6. EXEC      
+```
+
+在事务未完成之前，不会记录在日志中（aof, rdb)，事务执行过程中，redis服务断开，不会保存未完成事务的内容
+
+
+
+#### 常用类型
 
 > redis在设置一个已存在的键时，且类型不一致时，会报错：WRONGTYPE Operation against a key holding the wrong kind of value，在设置键时应该先检查空值，在进行覆盖操作，
 >
@@ -284,7 +317,7 @@ XX：仅更新已存在的元素。不要添加新元素。
 
 NX：仅添加新元素。不要更新现有元素。
 
-#### String类型
+##### String类型
 
 > set key value
 >
@@ -332,7 +365,7 @@ mset k1 v1 k2 v2 批量创建
 
 mget k1 k2 批量获取
 
-#### **List类型**
+##### List类型
 
 > list类型是一个双向链表
 
@@ -368,7 +401,7 @@ mget k1 k2 批量获取
 
   linsert items before '2' 'world' 在items列表的'2'元素before/after插入一个'world'元素
 
-#### **Set类型**
+##### Set类型
 
 > 仅支持 nx，xx，不支持使用ex
 
@@ -378,7 +411,7 @@ mget k1 k2 批量获取
 
 
 
-**无序集合**
+##### 无序集合
 
 > 无序不重复
 
@@ -416,7 +449,7 @@ mget k1 k2 批量获取
 
   sinterstore myset3 myset1 myset2 求myset和myset2的交集并保存到myset3
 
-**有序集合**
+##### 有序集合
 
 > 大部分操作类似，只是添加了一个优先级
 
@@ -564,43 +597,6 @@ appendfsync always 每次修改都会同步一次
 appendfsync everysec 每隔1秒同步一次 默认
 
 appendfsync no 不执行同步
-
-#### **管道与事务**
-
-**参考：**
-
-- https://rafaeleyng.github.io/redis-pipelining-transactions-and-lua-scripts 
-- [【Redis】Redis 事务和事务锁](https://juejin.cn/post/7292036126268997642?share_token=e44bf34a-f82c-4d9f-8fdf-81c1e274ba4b) 
-
-redis事务是原子性的，且阻塞的，redis本身提供回滚机制
-
-```shell
-MULTI        # 开始一个事务
-SET key1 10  # 将命令添加到事务队列
-GET key1     # 将命令添加到事务队列
-DISCARD | EXEC      # 清空事务队列，并取消事务 | 执行事务
-SET key3 30  # 这个命令是在事务之外执行的，不受事务的影响
-EXEC         # 事务已经结束，报错：ERR EXEC without MULTI
-```
-
-未完成的事务不会被持久化
-
-AOF: AOF（Append-Only File）持久化模式会记录每一条**非查询操作原子**命令
-
-RDB: 保存每一个原子操作后的快照
-
-```shell
-1. MULTI  
-2. SET key1 10 
-3. GET key1 
-4. DISCARD  
-5. SET key2 20
-6. EXEC      
-```
-
-在事务未完成之前，不会记录在日志中（aof, rdb)，事务执行过程中，redis服务断开，不会保存未完成事务的内容
-
-
 
 #### **持久化**
 
@@ -790,6 +786,8 @@ RDB: 保存每一个原子操作后的快照
 2. 限流降级，缓存失效后通过加锁或者队列来控制读数据库写缓存的线程数量，比如对某个key只允许一个线程查询，或只允许某一个线程查询，其他服务等待，或停止对这个key的操作
 3. 注意**
    - 一定要修改 dump.rdb（持久化文件）的目录为绝对路径，默认不靠谱
+
+
 
 ## redis配置项
 
